@@ -2,46 +2,14 @@ import random
 import torch
 import os
 import json
-import pickle
-import re
 import numpy as np
 from functools import lru_cache
 from torch.utils.data import Dataset
 from .distributed_indexed import DistributedMMapIndexedDataset
 from huggingface_hub import snapshot_download
 
-from torch.distributed import get_rank, get_world_size, barrier
+from torch.distributed import get_rank, get_world_size
 from utils import print_rank
-from utils import save_rank
-
-
-CLAUSE_KEYWORDS = [
-    "OPTIONAL MATCH",
-    "DETACH DELETE",
-    "ORDER BY",
-    "UNION ALL",
-    "MATCH",
-    "WHERE",
-    "WITH",
-    "RETURN",
-    "UNWIND",
-    "MERGE",
-    "CREATE",
-    "DELETE",
-    "REMOVE",
-    "FOREACH",
-    "SET",
-    "CALL",
-    "UNION",
-    "SKIP",
-    "LIMIT",
-]
-
-CLAUSE_PATTERN = re.compile(
-    r"(?i)\b(" + "|".join(re.escape(x) for x in CLAUSE_KEYWORDS) + r")\b"
-)
-NODE_PATTERN = re.compile(r"\([^()]*\)")
-REL_PATTERN = re.compile(r"<-\[[^\[\]]*\]-|-\[[^\[\]]*\]->|-\[[^\[\]]*\]-")
 
 HF_DATA_PATH_ALIASES = {
     "./processed_data/benchmarks/Cypherbench/qwen": "hf://fisherman611/text_to_cypher_distillation/benchmarks/Cypherbench/qwen",
@@ -112,165 +80,19 @@ def resolve_data_path(path):
     ) from last_error
 
 
-def _find_response_start(full_text, response_str):
-    idx = full_text.find(response_str)
-    if idx != -1:
-        return idx
-    return max(0, len(full_text) - len(response_str))
+def find_prompt_response_separator(input_ids):
+    # Preferred separators for new/uint32/int32 datasets.
+    for sep in (-1, 4294967295):
+        sep_pos = np.where(input_ids == sep)[0]
+        if sep_pos.size > 0:
+            return int(sep_pos[0])
 
+    # Legacy separator used by older uint16 datasets.
+    sep_pos = np.where(input_ids == 65535)[0]
+    if sep_pos.size > 0:
+        return int(sep_pos[0])
 
-def _split_top_level_expressions(text):
-    chunks = []
-    start = 0
-    depth_paren = 0
-    depth_bracket = 0
-    depth_brace = 0
-    in_single_quote = False
-    in_double_quote = False
-
-    for i, ch in enumerate(text):
-        if ch == "'" and not in_double_quote:
-            in_single_quote = not in_single_quote
-        elif ch == '"' and not in_single_quote:
-            in_double_quote = not in_double_quote
-        elif not in_single_quote and not in_double_quote:
-            if ch == "(":
-                depth_paren += 1
-            elif ch == ")":
-                depth_paren = max(0, depth_paren - 1)
-            elif ch == "[":
-                depth_bracket += 1
-            elif ch == "]":
-                depth_bracket = max(0, depth_bracket - 1)
-            elif ch == "{":
-                depth_brace += 1
-            elif ch == "}":
-                depth_brace = max(0, depth_brace - 1)
-            elif (
-                ch == ","
-                and depth_paren == 0
-                and depth_bracket == 0
-                and depth_brace == 0
-            ):
-                chunks.append((start, i))
-                start = i + 1
-
-    chunks.append((start, len(text)))
-    return chunks
-
-
-def extract_text2cypher_span_items(cypher_query):
-    span_items = []
-
-    def add_span(span_type, start, end):
-        if start >= end:
-            return
-        if start < 0 or end > len(cypher_query):
-            return
-        span_items.append(
-            {
-                "type": span_type,
-                "start": start,
-                "end": end,
-                "text": cypher_query[start:end],
-            }
-        )
-
-    clause_matches = list(CLAUSE_PATTERN.finditer(cypher_query))
-    for m in clause_matches:
-        add_span("clause", m.start(), m.end())
-
-    node_pattern_matches = []
-    for m in NODE_PATTERN.finditer(cypher_query):
-        inner = cypher_query[m.start() + 1 : m.end() - 1]
-        inner_stripped = inner.strip()
-        left = cypher_query[m.start() - 1] if m.start() > 0 else " "
-        right = cypher_query[m.end()] if m.end() < len(cypher_query) else " "
-        is_pattern = (
-            ":" in inner_stripped
-            or "{" in inner_stripped
-            or "}" in inner_stripped
-            or (
-                re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", inner_stripped) is not None
-                and (left in "-<" or right in "->")
-            )
-        )
-        if is_pattern:
-            add_span("pattern", m.start(), m.end())
-            node_pattern_matches.append(m)
-
-    rel_matches = list(REL_PATTERN.finditer(cypher_query))
-    for m in rel_matches:
-        add_span("pattern", m.start(), m.end())
-
-    for idx, clause_match in enumerate(clause_matches):
-        clause_name = clause_match.group(0).upper()
-        body_start = clause_match.end()
-        body_end = clause_matches[idx + 1].start() if idx + 1 < len(clause_matches) else len(cypher_query)
-        body = cypher_query[body_start:body_end]
-        body_stripped = body.strip()
-        if body_stripped:
-            ws_left = len(body) - len(body.lstrip())
-            ws_right = len(body.rstrip())
-            add_span("clause_body", body_start + ws_left, body_start + ws_right)
-
-        if clause_name in {"RETURN", "WITH", "ORDER BY"}:
-            for local_start, local_end in _split_top_level_expressions(body):
-                raw_part = body[local_start:local_end]
-                part = raw_part.strip()
-                if not part:
-                    continue
-                ws_left = len(raw_part) - len(raw_part.lstrip())
-                ws_right = len(raw_part.rstrip())
-                add_span("expression", body_start + local_start + ws_left, body_start + local_start + ws_right)
-        elif clause_name == "WHERE":
-            part = body.strip()
-            if part:
-                ws_left = len(body) - len(body.lstrip())
-                ws_right = len(body.rstrip())
-                add_span("expression", body_start + ws_left, body_start + ws_right)
-
-    unique = {}
-    for item in span_items:
-        unique[(item["type"], item["start"], item["end"])] = item
-    span_items = list(unique.values())
-    span_items.sort(key=lambda x: (x["start"], x["end"], x["type"]))
-    return span_items
-
-
-def extract_text2cypher_span_items_from_response(response_str):
-    try:
-        response_json = json.loads(response_str)
-    except Exception:
-        return []
-
-    if not isinstance(response_json, dict):
-        return []
-    cypher_query = response_json.get("cypher")
-    if not isinstance(cypher_query, str) or not cypher_query.strip():
-        return []
-
-    cypher_start = response_str.find(cypher_query)
-    if cypher_start == -1:
-        return []
-
-    span_items = extract_text2cypher_span_items(cypher_query)
-    for item in span_items:
-        item["start"] += cypher_start
-        item["end"] += cypher_start
-    return span_items
-
-
-def extract_text2cypher_span_offsets(full_text, response_str):
-    response_start = _find_response_start(full_text, response_str)
-    span_items = extract_text2cypher_span_items_from_response(response_str)
-
-    offsets = []
-    for item in span_items:
-        offsets.append((response_start + item["start"], response_start + item["end"]))
-
-    offsets = sorted(set(offsets), key=lambda x: (x[0], x[1]))
-    return offsets
+    return None
 
 
 def extract_event_span_offsets(full_text, response_str):
@@ -298,25 +120,11 @@ def extract_event_span_offsets(full_text, response_str):
         search_str = f"{val}"
         char_start = full_text.find(search_str, search_start_idx)
         if char_start != -1:
-            char_end = char_start + len(val)
+            char_end = char_start + len(search_str)
             result_tuples.append((char_start, char_end))
             search_start_idx = char_end + 1
+
     return result_tuples
-
-
-def find_prompt_response_separator(input_ids):
-    # Preferred separators for new/uint32/int32 datasets.
-    for sep in (-1, 4294967295):
-        sep_pos = np.where(input_ids == sep)[0]
-        if sep_pos.size > 0:
-            return int(sep_pos[0])
-
-    # Legacy separator used by older uint16 datasets.
-    sep_pos = np.where(input_ids == 65535)[0]
-    if sep_pos.size > 0:
-        return int(sep_pos[0])
-
-    return None
 
 
 class LMTrainDataset(Dataset):
@@ -329,6 +137,7 @@ class LMTrainDataset(Dataset):
         self.max_length = args.max_length
         self.max_prompt_length = args.max_prompt_length
         self.rng_sample = rng_sample
+        self.has_span_metadata = False
         path = resolve_data_path(path)
         self.lm_ctx = DistributedMMapIndexedDataset(path, f"{split}", get_rank(), get_world_size())
         self.t_lm_ctx = None
@@ -340,13 +149,24 @@ class LMTrainDataset(Dataset):
             with open(os.path.join(path, f"{split}.jsonl")) as f:
                 self.raw = [json.loads(line) for line in f.readlines()]
                 self.answers = [x["response"] if isinstance(x["response"], list) else [x["response"]] for x in self.raw]
-                self.full_texts = [x["prompt"] + x["response"] for x in self.raw]
-                self.offset_mapping = [tokenizer(text, return_offsets_mapping=True, truncation=True, 
-                                                 max_length=self.max_length, padding="max_length",
-                                                 add_special_tokens=False, return_tensors="pt")["offset_mapping"]
-                                       for text in self.full_texts]
-                
+                self.full_texts = []
+                for item in self.raw:
+                    response = item["response"][0] if isinstance(item["response"], list) else item["response"]
+                    self.full_texts.append(item["prompt"] + response)
+                self.offset_mapping = [
+                    tokenizer(
+                        text,
+                        return_offsets_mapping=True,
+                        truncation=True,
+                        max_length=self.max_length,
+                        padding="max_length",
+                        add_special_tokens=False,
+                        return_tensors="pt",
+                    )["offset_mapping"]
+                    for text in self.full_texts
+                ]
                 self.get_span_offsets()
+                self.has_span_metadata = True
         
         print_rank(len(self.lm_ctx))
         if num == -1:
@@ -356,17 +176,14 @@ class LMTrainDataset(Dataset):
 
         print_rank(f"Num LM instances: {len(self.lm_ctx)}")
 
+    def __len__(self):
+        return self.num
+
     def get_span_offsets(self):
         self.span_offsets = []
         for item, full_text in zip(self.raw, self.full_texts):
-            response_str = item["response"]
-            result_tuples = extract_text2cypher_span_offsets(full_text, response_str)
-            if not result_tuples:
-                result_tuples = extract_event_span_offsets(full_text, response_str)
-            self.span_offsets.append(result_tuples)
-
-    def __len__(self):
-        return self.num
+            response_str = item["response"][0] if isinstance(item["response"], list) else item["response"]
+            self.span_offsets.append(extract_event_span_offsets(full_text, response_str))
    
     def __getitem__(self, index):
         return self._get_lm(index)
@@ -380,12 +197,14 @@ class LMTrainDataset(Dataset):
             t_data = self.t_lm_ctx[index]
             t_input_ids = t_data.astype(int)
 
-        return {
+        sample = {
             "input_ids": input_ids,
             "t_input_ids": t_input_ids,
-            "span_offsets": self.span_offsets[index],
-            "offset_mapping": self.offset_mapping[index]
         }
+        if self.has_span_metadata:
+            sample["span_offsets"] = self.span_offsets[index]
+            sample["offset_mapping"] = self.offset_mapping[index]
+        return sample
 
     def _process_lm(self, i, samp, model_data, no_model_data, gen_data):
         input_ids = samp["input_ids"]
@@ -444,9 +263,10 @@ class LMTrainDataset(Dataset):
         no_model_data = {
             "label": torch.ones(bs, max_length, dtype=torch.long) * -100,
             "loss_mask": torch.zeros(bs, max_length),
-            "span_offsets": [sample["span_offsets"] for sample in samples],
-            "offset_mapping": torch.concat([sample["offset_mapping"] for sample in samples])
         }
+        if "span_offsets" in samples[0]:
+            no_model_data["span_offsets"] = [sample["span_offsets"] for sample in samples]
+            no_model_data["offset_mapping"] = torch.concat([sample["offset_mapping"] for sample in samples])
         
         gen_data = {
             "input_ids": torch.ones(bs, self.max_prompt_length, dtype=torch.long) * self.pad_id,
@@ -485,6 +305,7 @@ class LMEvalDataset(Dataset):
         self.max_length = args.max_length
         self.max_prompt_length = args.max_prompt_length
         self.rng_sample = rng_sample
+        path = resolve_data_path(path)
         self.lm_ctx = DistributedMMapIndexedDataset(path, f"{split}", 0, 1)
 
         if os.path.exists(os.path.join(path, f"{split}.jsonl")):
