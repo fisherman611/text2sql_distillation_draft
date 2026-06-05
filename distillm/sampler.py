@@ -1,5 +1,4 @@
 import torch
-import os
 from transformers import GenerationConfig
 
 

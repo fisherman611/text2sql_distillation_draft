@@ -15,14 +15,12 @@
 
 import os
 import struct
-import shutil
 
 from itertools import accumulate
 
 import numpy as np
 import torch
-import torch.distributed as dist
-from utils import print_rank, save_rank
+from utils import print_rank
 
 
 dtypes = {

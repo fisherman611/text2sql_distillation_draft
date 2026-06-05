@@ -16,7 +16,6 @@
 import argparse
 import os
 import deepspeed
-import numpy as np
 
 
 def add_model_args(parser: argparse.ArgumentParser):

@@ -21,7 +21,6 @@ python split_data.py --train-ratio 0.9
 python split_data.py --seed 42
 """
 
-import json
 import random
 import argparse
 from pathlib import Path

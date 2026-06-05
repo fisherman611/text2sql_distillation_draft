@@ -3,7 +3,6 @@ import json
 import os
 import argparse
 from rouge_score import rouge_scorer
-from transformers import AutoTokenizer
 
 
 default_rouge_scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
@@ -135,4 +134,3 @@ if __name__ == "__main__":
         os.makedirs(args.output_file, exist_ok=True)
         with open(os.path.join(args.output_file, f"{args.model_name}.json"), "w") as fout:
             json.dump(results, fout, indent=2)
-            

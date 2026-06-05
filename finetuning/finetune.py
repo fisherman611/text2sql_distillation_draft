@@ -13,9 +13,6 @@ import deepspeed
 from huggingface_hub import login
 
 hf_token = os.getenv("HF_READ_TOKEN")
-# from kaggle_secrets import UserSecretsClient
-# secret_label = "huggingface"
-# hf_token = UserSecretsClient().get_secret(secret_label)
 
 if hf_token:
     login(token=hf_token, add_to_git_credential=False)
@@ -24,7 +21,6 @@ import random
 import json
 from tqdm import tqdm
 import math
-import datetime
 
 from transformers import (
     AutoModelForCausalLM,
@@ -45,12 +41,10 @@ configure_project_paths()
 from arguments import get_args
 
 from data_utils.lm_datasets import LMTrainDataset
-from data_utils.data_utils import LLMDataset
 from utils import get_optimizer_params, get_optimizer_params_peft, print_args, initialize
 from utils import print_rank, get_rank
 from utils import save_rank
 from utils import all_gather
-from utils import load_parallel, save_parallel
 from utils import get_tokenizer, get_model, resolve_hf_path
 
 from distillm import forward_kl, reverse_kl, js_distance, tv_distance

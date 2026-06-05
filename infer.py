@@ -1,14 +1,12 @@
 import os
 import json
 import argparse
-import threading
 import torch
 from urllib.parse import urlparse
 from pathlib import Path
 from time import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Optional, Tuple
 from tqdm.auto import tqdm
 
 from transformers import AutoTokenizer, AutoModelForCausalLM

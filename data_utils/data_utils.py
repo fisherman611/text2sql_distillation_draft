@@ -2,10 +2,7 @@ from torch.nn.functional import pad
 from torch.utils.data import Dataset
 import torch
 import json
-from transformers import PreTrainedTokenizer
 import os
-
-from dataclasses import dataclass
 
 
 def longest_common_subsequence(a, b, s_i=0, s_j=0) -> list:

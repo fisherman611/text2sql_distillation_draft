@@ -1,4 +1,3 @@
-from typing import Dict
 from functools import lru_cache
 import numpy as np
 import os
@@ -10,7 +9,7 @@ import torch
 import torch.nn as nn
 from datetime import timedelta
 import deepspeed
-from accelerate import load_checkpoint_and_dispatch, init_empty_weights
+from accelerate import load_checkpoint_and_dispatch
 from peft import get_peft_model, LoraConfig, TaskType, PeftModel
 from huggingface_hub import snapshot_download
 
