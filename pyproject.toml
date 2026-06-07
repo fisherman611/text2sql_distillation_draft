@@ -21,7 +21,9 @@ dependencies = [
     "torch==2.9.1",
     "rouge-score",
     "rich",
-    "setuptools"
+    "setuptools",
+    "sqlparse",
+    "nltk"
 ]
 
 [tool.uv]
