@@ -67,6 +67,9 @@ def add_runtime_args(parser: argparse.ArgumentParser):
 
 def add_data_args(parser: argparse.ArgumentParser):
     group = parser.add_argument_group('data', 'data configurations')
+    group.add_argument("--split", type=str, default=None,
+                       choices=["train", "valid", "dev", "test"],
+                       help="Data split to process. 'dev' is accepted as an alias of 'valid'.")
     group.add_argument("--data-dir", type=str, default=None)
     group.add_argument("--processed-data-dir", type=str, default=None)
     group.add_argument("--force-process", action="store_true")
@@ -252,6 +255,9 @@ def get_args():
     
     assert all(["--" not in x for x in unknown]), unknown
     
+    if args.split == "dev":
+        args.split = "valid"
+
     args.local_rank = int(os.getenv("LOCAL_RANK", "0"))
         
     args.n_gpu = args.n_gpu * args.n_nodes
