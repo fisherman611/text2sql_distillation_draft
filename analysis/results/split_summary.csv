@@ -1,0 +1,7 @@
+dataset,split,samples,dialogs,db_count,order_by_count,group_by_count,having_count,nested_count,sql_token_mean,sql_token_median,sql_token_p90,sql_token_max
+spider,train,7000,,140,1628,1775,427,1019,21.91,16.0,42,128
+spider,dev,1034,,20,237,277,79,159,21.59,16.0,40,88
+sparc,train,9025,3030,140,1377,1809,390,807,18.06,12,38,128
+sparc,dev,1203,422,20,207,246,69,119,18.87,13,38,86
+cosql,train,7343,2159,140,1390,1203,344,753,18.63,12,38,128
+cosql,dev,1007,293,20,168,138,56,125,18.35,12,38,122
