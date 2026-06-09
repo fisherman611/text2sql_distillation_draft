@@ -1,24 +1,17 @@
-import os
-import json
 import argparse
-import torch
-from urllib.parse import urlparse
+import json
+import os
 from pathlib import Path
 from time import time
+from typing import Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
-from typing import Dict, Optional, Tuple
-from tqdm.auto import tqdm
-
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 from huggingface_hub import hf_hub_download, list_repo_files, snapshot_download
+from tqdm.auto import tqdm
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from src.benchmark_data_loader import (
-    DEFAULT_HF_DATASET_REPO,
-    load_benchmark_json,
-)
-from src.utils import build_messages
 from src.llm_services import parse_json_from_string, parse_llm_response
-from src.schema import Nl2CypherSample
 from src.logger_config import setup_logger
 
 RESULTS_DIR = "results"
@@ -28,89 +21,114 @@ os.makedirs(LOG_DIR, exist_ok=True)
 log_path = os.path.join(LOG_DIR, f"log_infer_{int(time())}.txt")
 logger = setup_logger(__name__, log_file=log_path)
 
+SPIDER_SYSTEM_PROMPT_PATH = Path("prompts/single_turn/generator/system_prompt.txt")
+SPIDER_USER_PROMPT_PATH = Path("prompts/single_turn/generator/user_prompt.txt")
+
+DIALOG_SYSTEM_PROMPT = """You are a SQL Query Generator for conversational text-to-SQL tasks.
+
+Your task is to generate a valid SQLite SQL query for the current user turn using the provided schema and conversation context.
+
+Rules:
+- Use only tables, columns, and relationships that exist in the provided schema.
+- Do not invent schema elements.
+- Generate a single executable SQL query.
+- Use the conversation history to resolve references such as pronouns, ellipsis, and follow-up constraints.
+- When prior SQL context is provided, use it only as context; still produce the full SQL query for the current turn.
+- Return only the columns needed to answer the current turn.
+- Use DISTINCT when duplicates are possible and the question implies unique results.
+- If the question requires aggregation, sorting, grouping, filtering, or limiting, use the correct SQL clauses.
+- Use JOINs only when needed, and use schema-consistent join keys.
+- Qualify column names when they may be ambiguous.
+- Prefer concise, conventional SQLite SQL.
+- Ensure the query is syntactically valid.
+
+Output format:
+{
+  "sql": "The complete SQL query"
+}
+
+Return only the JSON object and nothing else."""
+
+DIALOG_USER_TEMPLATE = """SCHEMA:
+{schema}
+
+CONVERSATION HISTORY:
+{history}
+
+CURRENT QUESTION:
+{question}
+
+Generate a valid SQLite SQL query for the current question using the schema and the conversation context.
+Return only the JSON object in the required format."""
+
+
+def load_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8").strip()
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Load Qwen model and benchmark on text2cypher problems with CKPT support"
+        description="Run text-to-SQL inference on Spider, SParC, or CoSQL using local benchmark files."
     )
     parser.add_argument(
         "--benchmark",
-        default="Cypherbench",
-        choices=["Cypherbench", "Mind_the_query", "Neo4j_Text2Cypher"],
-        help="Benchmark name",
+        default="spider_data",
+        choices=["spider_data", "sparc", "cosql_dataset"],
+        help="Benchmark name under benchmarks/.",
     )
     parser.add_argument(
-        "--data_source",
-        default="auto",
-        choices=["local", "hf", "auto"],
-        help="Where to load benchmark data from",
-    )
-    parser.add_argument(
-        "--hf_dataset_repo",
-        type=str,
-        default=DEFAULT_HF_DATASET_REPO,
-        help="Hugging Face dataset repo id for benchmark files",
-    )
-    parser.add_argument(
-        "--hf_dataset_revision",
-        type=str,
-        default=None,
-        help="Optional revision (branch/tag/commit) for --hf_dataset_repo",
+        "--split",
+        default="dev",
+        choices=["train", "dev", "test"],
+        help="Data split to run inference on.",
     )
     parser.add_argument(
         "--db",
         default=None,
-        help='Database name of each benchmark. If omitted or set to "full", use all data.',
+        help='Optional db_id filter. If omitted or set to "full", use all databases.',
     )
-    parser.add_argument(
-        "--model", default="Qwen/Qwen3-0.6B", help="Model name or path"
-    )
+    parser.add_argument("--model", default="Qwen/Qwen3-0.6B", help="Base model name or path.")
     parser.add_argument(
         "--ckpt_path",
         type=str,
         default=None,
-        help="Local path, HF repo id, hf:// path, or HF URL of LoRA/full fine-tuned checkpoint",
+        help="Local path, HF repo id, hf:// path, or HF URL of a LoRA/full fine-tuned checkpoint.",
     )
     parser.add_argument(
         "--ckpt_revision",
         type=str,
         default=None,
-        help="Optional Hugging Face revision (branch/tag/commit) for --ckpt_path",
+        help="Optional Hugging Face revision for --ckpt_path.",
     )
     parser.add_argument(
         "--device",
         default=None,
         choices=["cpu", "cuda", "auto"],
-        help="Device to run the model on",
+        help="Device to run the model on.",
     )
+    parser.add_argument("--max-length", type=int, default=512, help="Max new tokens to generate.")
+    parser.add_argument("--batch-size", type=int, default=1, help="Batch size for Spider inference.")
+    parser.add_argument("--temperature", type=float, default=0.5, help="Sampling temperature.")
+    parser.add_argument("--top-p", type=float, default=0.95, help="Top-p sampling.")
+    parser.add_argument("--top-k", type=int, default=0, help="Top-k sampling.")
+    parser.add_argument("--limit", type=int, default=None, help="Optional sample limit after filtering.")
     parser.add_argument(
-        "--max-length", type=int, default=1024, help="Max generation length"
-    )
-    parser.add_argument(
-        "--batch-size", type=int, default=1, help="Batch size for generation"
+        "--output_path",
+        type=str,
+        default=None,
+        help="Output JSON path. Defaults to results/<benchmark>/<split>_<db>_sqls_<model>.json.",
     )
     parser.add_argument(
         "--flush-every",
         type=int,
         default=None,
-        help="Write partial JSON output after this many processed samples. Defaults to no incremental flush.",
+        help="Write partial output every N processed samples.",
     )
     parser.add_argument(
-        "--temperature", type=float, default=0.5, help="Temperature for sampling"
-    )
-    parser.add_argument(
-        "--top-p", type=float, default=0.95, help="Top-p for sampling"
-    )
-    parser.add_argument(
-        "--top-k", type=int, default=0, help="Top-k for sampling"
-    )
-    parser.add_argument(
-        "--limit", type=int, default=None, help="Limit number of test samples"
-    )
-    parser.add_argument(
-        "--output_path",
-        type=str,
-        default=None,
-        help="Output JSON path. If omitted, use the default path pattern in results/<benchmark>/",
+        "--dialog-history-mode",
+        choices=["pred", "gold", "none"],
+        default="pred",
+        help="How to supply previous SQL context for SParC/CoSQL.",
     )
     return parser.parse_args()
 
@@ -240,8 +258,8 @@ def _resolve_ckpt_dir(source: str, revision: Optional[str] = None) -> Tuple[str,
     if os.path.isdir(resolved_source):
         nested_ckpt = _find_latest_local_ckpt_dir(resolved_source)
         if nested_ckpt is not None and nested_ckpt != resolved_source:
-            print(f"Resolved checkpoint directory: {nested_ckpt}")
             logger.info(f"Resolved checkpoint directory: {nested_ckpt}")
+            print(f"Resolved checkpoint directory: {nested_ckpt}")
             return nested_ckpt, None
     return resolved_source, resolved_revision
 
@@ -284,21 +302,20 @@ def init_model(model_name_or_path, ckpt_path=None, ckpt_revision=None, device=No
             is_peft = True
             resolved_ckpt_source, resolved_ckpt_revision = _resolve_ckpt_dir(ckpt_path, ckpt_revision)
             print("This is LoRA finetune")
-        elif _local_or_hf_has_file(ckpt_path, "adapter_model.safetensors", ckpt_revision) or _local_or_hf_has_file(ckpt_path, "adapter_model.bin", ckpt_revision):
+        elif _local_or_hf_has_file(ckpt_path, "adapter_model.safetensors", ckpt_revision) or _local_or_hf_has_file(
+            ckpt_path, "adapter_model.bin", ckpt_revision
+        ):
             raise RuntimeError(
                 "Found adapter weights but missing adapter_config.json at --ckpt_path. "
-                "Please point --ckpt_path to the exact LoRA checkpoint directory (the one containing adapter_config.json), "
-                "not its parent folder."
+                "Please point --ckpt_path to the exact LoRA checkpoint directory."
             )
         elif _local_or_hf_has_file(ckpt_path, "config.json", ckpt_revision):
-            # If it's a full HF checkpoint we should just load directly from it
             resolved_ckpt_source, resolved_ckpt_revision = _resolve_ckpt_dir(ckpt_path, ckpt_revision)
             model_name_or_path = resolved_ckpt_source
             print("This is a full finetune")
 
     logger.info(f"Loading tokenizer from {model_name_or_path}")
     print(f"Loading tokenizer from {model_name_or_path}")
-    # Force left-padding for decoder-only architectures
     tokenizer = AutoTokenizer.from_pretrained(
         model_name_or_path,
         padding_side="left",
@@ -310,7 +327,10 @@ def init_model(model_name_or_path, ckpt_path=None, ckpt_revision=None, device=No
 
     logger.info(f"Loading model from {model_name_or_path} on {device}")
     print(f"Loading model from {model_name_or_path} on {device}")
-    dtype = torch.bfloat16 if torch.cuda.is_available() and device != "cpu" else torch.float16
+    if device == "cpu":
+        dtype = torch.float32
+    else:
+        dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float16
 
     device_map = "auto" if device == "cuda" else {"": device}
 
@@ -325,76 +345,43 @@ def init_model(model_name_or_path, ckpt_path=None, ckpt_revision=None, device=No
     if ckpt_path and is_peft:
         print(f"Loading PEFT checkpoint weights from {resolved_ckpt_source}")
         logger.info(f"Loading PEFT checkpoint weights from {resolved_ckpt_source}")
-        try:
-            from peft import PeftModel
+        from peft import PeftModel
 
-            model = PeftModel.from_pretrained(model, resolved_ckpt_source, revision=resolved_ckpt_revision)
-            model = model.merge_and_unload()
-            print("Successfully loaded and merged LoRA weights.")
-        except Exception as peft_e:
-            print(f"Failed to load as PEFT model: {peft_e}.")
-
-    # For full checkpoint manually passed without config.json (rare, just fallback)
+        model = PeftModel.from_pretrained(model, resolved_ckpt_source, revision=resolved_ckpt_revision)
+        model = model.merge_and_unload()
+        print("Successfully loaded and merged LoRA weights.")
     elif ckpt_path and model_name_or_path != ckpt_path:
-        print(f"Attempting manual weight loading from {ckpt_path}")
         import safetensors.torch
 
         safetensor_path = _resolve_ckpt_file(ckpt_path, "model.safetensors", ckpt_revision)
         bin_path = _resolve_ckpt_file(ckpt_path, "pytorch_model.bin", ckpt_revision)
 
-        def _load_weights_tolerant(state_dict, source_label: str):
+        def _load_weights_tolerant(state_dict):
             incompatible = model.load_state_dict(state_dict, strict=False)
             missing_keys = set(incompatible.missing_keys)
             unexpected_keys = set(incompatible.unexpected_keys)
-
-            # Tied embeddings can omit lm_head in some checkpoints.
             allowed_missing = {"lm_head.weight"}
             bad_missing = sorted(missing_keys - allowed_missing)
             bad_unexpected = sorted(unexpected_keys)
             if bad_missing or bad_unexpected:
                 raise RuntimeError(
-                    f"Failed loading checkpoint weights from {ckpt_path}.\n"
-                    f"Missing keys: {sorted(missing_keys)}\n"
-                    f"Unexpected keys: {sorted(unexpected_keys)}\n"
-                    "This usually means --ckpt_path is not a compatible full checkpoint directory."
+                    f"Missing keys: {sorted(missing_keys)}\nUnexpected keys: {sorted(unexpected_keys)}"
                 )
-
             if hasattr(model, "tie_weights"):
                 model.tie_weights()
-            if missing_keys:
-                print(f"Warning: missing keys tolerated for {source_label}: {sorted(missing_keys)}")
 
         if safetensor_path:
-            state_dict = safetensors.torch.load_file(safetensor_path)
-            try:
-                _load_weights_tolerant(state_dict, "model.safetensors")
-            except RuntimeError as e:
-                raise RuntimeError(
-                    f"Failed loading checkpoint weights from {ckpt_path}: {e}\n"
-                    "For LoRA checkpoints, pass the folder containing adapter_config.json.\n"
-                    "For full checkpoints, pass the folder containing config.json and full model weights."
-                ) from e
+            _load_weights_tolerant(safetensors.torch.load_file(safetensor_path))
             print("Loaded full model weights from safetensors.")
         elif bin_path:
-            try:
-                _load_weights_tolerant(torch.load(bin_path, map_location="cpu"), "pytorch_model.bin")
-            except RuntimeError as e:
-                raise RuntimeError(
-                    f"Failed loading checkpoint weights from {ckpt_path}: {e}\n"
-                    "For LoRA checkpoints, pass the folder containing adapter_config.json.\n"
-                    "For full checkpoints, pass the folder containing config.json and full model weights."
-                ) from e
+            _load_weights_tolerant(torch.load(bin_path, map_location="cpu"))
             print("Loaded full model weights from pytorch_model.bin.")
-        else:
-            print(
-                f"Warning: neither adapter_config, config.json, model.safetensors, nor pytorch_model.bin found in {ckpt_path}."
-            )
 
     model.eval()
     return tokenizer, model
 
 
-def generate_response_batch(tokenizer, model, batch_messages, max_length=1024, temperature=0.5, top_p=0.95, top_k=0):
+def generate_response_batch(tokenizer, model, batch_messages, max_length=512, temperature=0.5, top_p=0.95, top_k=0):
     def _apply_template(messages):
         try:
             return tokenizer.apply_chat_template(
@@ -411,10 +398,9 @@ def generate_response_batch(tokenizer, model, batch_messages, max_length=1024, t
             )
 
     texts = [_apply_template(messages) for messages in batch_messages]
-    
     tokenizer.padding_side = "left"
     inputs = tokenizer(texts, return_tensors="pt", padding=True).to(model.device)
-    
+
     with torch.inference_mode():
         outputs = model.generate(
             **inputs,
@@ -424,258 +410,364 @@ def generate_response_batch(tokenizer, model, batch_messages, max_length=1024, t
             top_p=top_p,
             top_k=top_k,
         )
-        
-    generated_ids = outputs[:, inputs["input_ids"].shape[-1]:]
-    responses = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    return responses
+
+    generated_ids = outputs[:, inputs["input_ids"].shape[-1] :]
+    return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
 
 
 def is_full_db(db: Optional[str]) -> bool:
     return db is None or str(db).strip().lower() in {"full", "all", ""}
 
 
-def _schema_relative_path(benchmark: str, graph_name: str) -> Optional[str]:
-    if benchmark == "Cypherbench":
-        return f"graphs/schemas/{graph_name}_schema.json"
-    if benchmark == "Mind_the_query":
-        return f"graphs/schemas/{graph_name}.json"
-    return None
+def get_benchmark_paths(benchmark: str, split: str) -> Tuple[Path, Path]:
+    if benchmark == "spider_data":
+        split_file = {
+            "train": "train_spider.json",
+            "dev": "dev.json",
+            "test": "test.json",
+        }[split]
+        tables_file = "test_tables.json" if split == "test" else "tables.json"
+        return Path("benchmarks") / benchmark / split_file, Path("benchmarks") / benchmark / tables_file
 
+    if benchmark == "sparc":
+        if split == "test":
+            raise ValueError("Local SParC benchmark does not include a test split.")
+        split_file = {"train": "train.json", "dev": "dev.json"}[split]
+        return Path("benchmarks") / benchmark / split_file, Path("benchmarks") / benchmark / "tables.json"
 
-def load_schema_for_graph(
-    benchmark: str,
-    graph_name: str,
-    data_source: str = "auto",
-    hf_dataset_repo: str = DEFAULT_HF_DATASET_REPO,
-    hf_dataset_revision: Optional[str] = None,
-) -> Optional[str]:
-    schema_relative_path = _schema_relative_path(benchmark, graph_name)
-    if schema_relative_path is None:
-        return None
-
-    try:
-        schema, schema_source = load_benchmark_json(
-            benchmark=benchmark,
-            relative_path=schema_relative_path,
-            data_source=data_source,
-            hf_dataset_repo=hf_dataset_repo,
-            hf_dataset_revision=hf_dataset_revision,
+    if benchmark == "cosql_dataset":
+        if split == "test":
+            raise ValueError("Local CoSQL benchmark does not include a test split.")
+        split_file = {"train": "cosql_train.json", "dev": "cosql_dev.json"}[split]
+        return (
+            Path("benchmarks") / benchmark / "sql_state_tracking" / split_file,
+            Path("benchmarks") / benchmark / "tables.json",
         )
-    except Exception as e:
-        logger.warning(f"Schema file not found for graph={graph_name}: {e}")
-        return None
 
-    logger.info(f"Loaded schema for graph={graph_name} from {schema_source}")
-    return json.dumps(schema, indent=4, ensure_ascii=False)
+    raise ValueError(f"Unsupported benchmark: {benchmark}")
 
 
-def load_schema_and_subset_test_data(
-    benchmark,
-    db=None,
-    limit=None,
-    data_source: str = "auto",
-    hf_dataset_repo: str = DEFAULT_HF_DATASET_REPO,
-    hf_dataset_revision: Optional[str] = None,
-):
-    raw_test_data, test_source = load_benchmark_json(
-        benchmark=benchmark,
-        relative_path="test.json",
-        data_source=data_source,
-        hf_dataset_repo=hf_dataset_repo,
-        hf_dataset_revision=hf_dataset_revision,
-    )
-    logger.info(f"Loaded test set from {test_source}")
+def read_json(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"))
 
-    use_all = is_full_db(db)
-    subset_test_data = []
 
-    for item in raw_test_data:
-        try:
-            sample = Nl2CypherSample(**item)
-            if use_all or sample.graph == db:
-                subset_test_data.append(sample)
-        except Exception as e:
-            logger.warning(f"Skipping invalid item: {e}")
+def serialize_schema_entry(entry: Dict) -> str:
+    table_names = entry.get("table_names_original") or entry.get("table_names") or []
+    column_names = entry.get("column_names_original") or entry.get("column_names") or []
+    foreign_keys = entry.get("foreign_keys") or []
+
+    table_to_columns: Dict[int, List[str]] = {idx: [] for idx in range(len(table_names))}
+    for table_idx, col_name in column_names:
+        if table_idx == -1:
+            continue
+        table_to_columns.setdefault(table_idx, []).append(str(col_name))
+
+    table_lines = []
+    for idx, table_name in enumerate(table_names):
+        cols = ", ".join(table_to_columns.get(idx, []))
+        table_lines.append(f"- {table_name}({cols})")
+
+    fk_lines = []
+    for src_idx, dst_idx in foreign_keys:
+        src_table_idx, src_col = column_names[src_idx]
+        dst_table_idx, dst_col = column_names[dst_idx]
+        src_table = table_names[src_table_idx]
+        dst_table = table_names[dst_table_idx]
+        fk_lines.append(f"- {src_table}.{src_col} -> {dst_table}.{dst_col}")
+
+    schema_parts = ["Tables:"] + table_lines
+    if fk_lines:
+        schema_parts.extend(["", "Foreign keys:"] + fk_lines)
+    return "\n".join(schema_parts)
+
+
+def load_schema_lookup(tables_path: Path) -> Dict[str, str]:
+    return {entry["db_id"]: serialize_schema_entry(entry) for entry in read_json(tables_path)}
+
+
+def load_prompt_templates() -> Tuple[str, str]:
+    return load_text(SPIDER_SYSTEM_PROMPT_PATH), load_text(SPIDER_USER_PROMPT_PATH)
+
+
+def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Optional[int]) -> List[Dict]:
+    data_path, tables_path = get_benchmark_paths(benchmark, split)
+    raw_data = read_json(data_path)
+    schema_lookup = load_schema_lookup(tables_path)
+    use_all = is_full_db(db_filter)
+    records: List[Dict] = []
+
+    if benchmark == "spider_data":
+        for idx, item in enumerate(raw_data):
+            db_id = item["db_id"]
+            if not use_all and db_id != db_filter:
+                continue
+            records.append(
+                {
+                    "benchmark": benchmark,
+                    "split": split,
+                    "sample_id": f"{benchmark}:{split}:{idx}",
+                    "db_id": db_id,
+                    "question": item["question"],
+                    "gold_sql": item.get("query"),
+                    "schema": schema_lookup[db_id],
+                    "is_dialog": False,
+                    "dialog_id": None,
+                    "turn_index": 0,
+                }
+            )
+    else:
+        for dialog_idx, item in enumerate(raw_data):
+            db_id = item["database_id"]
+            if not use_all and db_id != db_filter:
+                continue
+            turns = item.get("interaction", [])
+            for turn_index, turn in enumerate(turns):
+                history_utterances = [prev["utterance"] for prev in turns[:turn_index]]
+                gold_history_sql = [prev["query"] for prev in turns[:turn_index]]
+                records.append(
+                    {
+                        "benchmark": benchmark,
+                        "split": split,
+                        "sample_id": f"{benchmark}:{split}:{dialog_idx}:{turn_index}",
+                        "db_id": db_id,
+                        "question": turn["utterance"],
+                        "gold_sql": turn.get("query"),
+                        "schema": schema_lookup[db_id],
+                        "is_dialog": True,
+                        "dialog_id": f"{benchmark}:{split}:{dialog_idx}",
+                        "turn_index": turn_index,
+                        "history_utterances": history_utterances,
+                        "gold_history_sql": gold_history_sql,
+                    }
+                )
 
     if limit is not None:
-        subset_test_data = subset_test_data[:limit]
-
-    shared_schema_str = None
-    schema_map = {}
-
-    if benchmark in ["Cypherbench", "Mind_the_query"]:
-        if use_all:
-            unique_graphs = sorted(
-                {sample.graph for sample in subset_test_data if sample.graph}
-            )
-            for graph_name in unique_graphs:
-                schema_map[graph_name] = load_schema_for_graph(
-                    benchmark=benchmark,
-                    graph_name=graph_name,
-                    data_source=data_source,
-                    hf_dataset_repo=hf_dataset_repo,
-                    hf_dataset_revision=hf_dataset_revision,
-                )
-        else:
-            shared_schema_str = load_schema_for_graph(
-                benchmark=benchmark,
-                graph_name=db,
-                data_source=data_source,
-                hf_dataset_repo=hf_dataset_repo,
-                hf_dataset_revision=hf_dataset_revision,
-            )
-
-    return subset_test_data, shared_schema_str, schema_map
+        records = records[:limit]
+    return records
 
 
-def get_question_and_schema(
-    sample: Nl2CypherSample,
-    benchmark: str,
-    shared_schema_str: Optional[str] = None,
-    schema_map: Optional[Dict[str, Optional[str]]] = None,
-):
-    question = sample.nl_question
-
-    if benchmark in ["Cypherbench", "Mind_the_query"]:
-        if shared_schema_str is not None:
-            schema_str = shared_schema_str
-        else:
-            schema_str = (schema_map or {}).get(sample.graph)
-    else:
-        schema_str = sample.schema
-
-    return question, schema_str
+def build_dialog_history(history_utterances: List[str], history_sql: List[str]) -> str:
+    if not history_utterances:
+        return "None"
+    lines = []
+    for idx, utterance in enumerate(history_utterances):
+        lines.append(f"Turn {idx + 1} User: {utterance}")
+        if idx < len(history_sql) and history_sql[idx]:
+            lines.append(f"Turn {idx + 1} SQL: {history_sql[idx]}")
+    return "\n".join(lines)
 
 
-def run_batch_inference(
-    test_data,
-    benchmark,
-    db,
+def build_messages_for_record(record: Dict, single_turn_system: str, single_turn_user: str, history_sql: Optional[List[str]] = None):
+    if not record["is_dialog"]:
+        user_prompt = single_turn_user.format(question=record["question"], schema=record["schema"])
+        return [
+            {"role": "system", "content": single_turn_system},
+            {"role": "user", "content": user_prompt},
+        ]
+
+    prior_sql = history_sql if history_sql is not None else []
+    history_text = build_dialog_history(record.get("history_utterances", []), prior_sql)
+    user_prompt = DIALOG_USER_TEMPLATE.format(
+        schema=record["schema"],
+        history=history_text,
+        question=record["question"],
+    )
+    return [
+        {"role": "system", "content": DIALOG_SYSTEM_PROMPT},
+        {"role": "user", "content": user_prompt},
+    ]
+
+
+def extract_sql_from_response(raw_response: str) -> Tuple[str, str, str]:
+    parsed = parse_llm_response(raw_response)
+    final_answer = parsed.get("final_answer", "").strip()
+    parsed_json = parse_json_from_string(final_answer)
+    if parsed_json and isinstance(parsed_json, dict) and "sql" in parsed_json:
+        return parsed.get("think", ""), final_answer, str(parsed_json["sql"]).strip()
+
+    # Fallback: accept plain SQL if the model skipped the JSON wrapper.
+    if final_answer:
+        return parsed.get("think", ""), final_answer, final_answer
+
+    raise ValueError("Failed to parse SQL from model response.")
+
+
+def compact_output(results: List[Dict]) -> List[Dict]:
+    rows = []
+    for row in results:
+        compact = {
+            "sample_id": row["sample_id"],
+            "benchmark": row["benchmark"],
+            "split": row["split"],
+            "db_id": row["db_id"],
+            "question": row["question"],
+            "gold_sql": row["gold_sql"],
+            "pred_sql": row["pred_sql"],
+            "success": row["success"],
+            "error": row["error"],
+        }
+        if row["dialog_id"] is not None:
+            compact["dialog_id"] = row["dialog_id"]
+            compact["turn_index"] = row["turn_index"]
+        rows.append(compact)
+    return rows
+
+
+def write_output_snapshot(results: List[Dict], output_path: Path):
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = output_path.with_name(f"{output_path.name}.tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
+        json.dump(compact_output(results), f, indent=2, ensure_ascii=False)
+    os.replace(tmp_path, output_path)
+
+
+def run_spider_inference(
+    records: List[Dict],
     tokenizer,
     model,
-    max_length,
-    batch_size=1,
-    temperature=0.5,
-    top_p=0.95,
-    top_k=0,
-    shared_schema_str=None,
-    schema_map=None,
-    output_path=None,
-    flush_every=None,
-):
-    results = []
-    errors = []
-    run_name = db if not is_full_db(db) else "full"
+    max_length: int,
+    batch_size: int,
+    temperature: float,
+    top_p: float,
+    top_k: int,
+    output_path: Optional[Path],
+    flush_every: Optional[int],
+) -> Tuple[List[Dict], List[Dict]]:
+    single_turn_system, single_turn_user = load_prompt_templates()
+    results: List[Dict] = []
+    errors: List[Dict] = []
     next_flush_at = flush_every if flush_every else None
 
-    progress_bar = tqdm(total=len(test_data), desc=f"Running {benchmark}/{run_name}")
+    progress_bar = tqdm(total=len(records), desc="Running spider_data")
+    for i in range(0, len(records), batch_size):
+        batch_records = records[i : i + batch_size]
+        batch_messages = [
+            build_messages_for_record(record, single_turn_system, single_turn_user)
+            for record in batch_records
+        ]
+        raw_responses = generate_response_batch(
+            tokenizer,
+            model,
+            batch_messages,
+            max_length=max_length,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+        )
 
-    for i in range(0, len(test_data), batch_size):
-        batch_samples = test_data[i : i + batch_size]
-        
-        batch_messages = []
-        batch_questions = []
-        for sample in batch_samples:
-            question, schema_str = get_question_and_schema(
-                sample, benchmark, shared_schema_str, schema_map
-            )
-            messages = build_messages(question, schema_str)
-            batch_messages.append(messages)
-            batch_questions.append(question)
-            
-        try:
-            raw_responses = generate_response_batch(
-                tokenizer, model, batch_messages, max_length=max_length,
-                temperature=temperature, top_p=top_p, top_k=top_k
-            )
-            
-            for sample, question, raw_response in zip(batch_samples, batch_questions, raw_responses):
-                qid = sample.qid if sample.qid is not None else sample.instance_id
-                if qid is None:
-                    qid = "unknown"
-                
-                logger.info("-" * 80)
-                logger.info(f"Processing item: {qid}")
-                logger.info(f"Graph: {sample.graph}")
-                logger.info(f"Question: {question}")
-                
-                try:
-                    parsed = parse_llm_response(raw_response)
-                    parsed_json = parse_json_from_string(parsed["final_answer"])
-            
-                    if not parsed_json or "cypher" not in parsed_json:
-                        raise ValueError("Failed to parse JSON or missing 'cypher' key")
-            
-                    cypher = parsed_json["cypher"]
-                    sample.pred_cypher = cypher
-            
-                    logger.info(f"Generated cypher for item {qid}: {cypher}")
-            
-                    results.append({
-                        "qid": qid,
-                        "graph": sample.graph,
-                        "question": question,
+        for record, raw_response in zip(batch_records, raw_responses):
+            try:
+                think, final_answer, pred_sql = extract_sql_from_response(raw_response)
+                results.append(
+                    {
+                        **record,
                         "raw_response": raw_response,
-                        "think": parsed.get("think", ""),
-                        "final_answer": parsed.get("final_answer", ""),
-                        "cypher": cypher,
+                        "think": think,
+                        "final_answer": final_answer,
+                        "pred_sql": pred_sql,
                         "success": True,
                         "error": None,
-                        "sample": sample.model_dump(mode="json"),
-                    })
-                except Exception as e:
-                    logger.error(f"Error parsing item {qid}: {e}", exc_info=True)
-                    sample.pred_cypher = None
-                    errors.append({"qid": qid, "error": str(e)})
-                    results.append({
-                        "qid": qid,
-                        "graph": sample.graph,
-                        "question": question,
+                    }
+                )
+            except Exception as exc:
+                errors.append({"sample_id": record["sample_id"], "error": str(exc)})
+                results.append(
+                    {
+                        **record,
                         "raw_response": raw_response,
                         "think": "",
                         "final_answer": "",
-                        "cypher": None,
+                        "pred_sql": None,
                         "success": False,
-                        "error": str(e),
-                        "sample": sample.model_dump(mode="json"),
-                    })
-                    
-        except Exception as batch_e:
-            logger.error(f"Error generating batch starting at index {i}: {batch_e}", exc_info=True)
-            for sample in batch_samples:
-                qid = sample.qid if sample.qid is not None else sample.instance_id
-                errors.append({"qid": qid, "error": str(batch_e)})
+                        "error": str(exc),
+                    }
+                )
 
-        progress_bar.update(len(batch_samples))
-        processed_count = min(i + len(batch_samples), len(test_data))
+        progress_bar.update(len(batch_records))
+        processed_count = min(i + len(batch_records), len(records))
         if output_path and flush_every and processed_count >= next_flush_at:
             write_output_snapshot(results, output_path)
             while next_flush_at <= processed_count:
                 next_flush_at += flush_every
-        
-    logger.info(f"Finished. Success: {len(results) - len(errors)}, Failed: {len(errors)}")
+
     return results, errors
 
 
-def compact_output(results):
-    output = []
-    for r in results:
-        output.append({
-            "question": r["question"],
-            "graph": r["graph"],
-            "gold_cypher": r["sample"].get("gold_cypher"),
-            "pred_cypher": r["cypher"],
-        })
-    return output
+def run_dialog_inference(
+    records: List[Dict],
+    tokenizer,
+    model,
+    max_length: int,
+    temperature: float,
+    top_p: float,
+    top_k: int,
+    output_path: Optional[Path],
+    flush_every: Optional[int],
+    history_mode: str,
+) -> Tuple[List[Dict], List[Dict]]:
+    single_turn_system, single_turn_user = load_prompt_templates()
+    results: List[Dict] = []
+    errors: List[Dict] = []
+    predicted_sql_history: Dict[str, List[str]] = {}
+    next_flush_at = flush_every if flush_every else None
 
+    progress_bar = tqdm(total=len(records), desc="Running dialog benchmark")
+    for idx, record in enumerate(records, start=1):
+        dialog_id = record["dialog_id"]
+        if history_mode == "gold":
+            prior_sql = record.get("gold_history_sql", [])
+        elif history_mode == "none":
+            prior_sql = []
+        else:
+            prior_sql = predicted_sql_history.get(dialog_id, [])
 
-def write_output_snapshot(results, output_path):
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = output_path.with_name(f"{output_path.name}.tmp")
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(compact_output(results), f, indent=4, ensure_ascii=False)
-    os.replace(tmp_path, output_path)
+        messages = build_messages_for_record(record, single_turn_system, single_turn_user, prior_sql)
+        raw_response = generate_response_batch(
+            tokenizer,
+            model,
+            [messages],
+            max_length=max_length,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+        )[0]
+
+        try:
+            think, final_answer, pred_sql = extract_sql_from_response(raw_response)
+            predicted_sql_history.setdefault(dialog_id, []).append(pred_sql)
+            results.append(
+                {
+                    **record,
+                    "raw_response": raw_response,
+                    "think": think,
+                    "final_answer": final_answer,
+                    "pred_sql": pred_sql,
+                    "success": True,
+                    "error": None,
+                }
+            )
+        except Exception as exc:
+            predicted_sql_history.setdefault(dialog_id, []).append("")
+            errors.append({"sample_id": record["sample_id"], "error": str(exc)})
+            results.append(
+                {
+                    **record,
+                    "raw_response": raw_response,
+                    "think": "",
+                    "final_answer": "",
+                    "pred_sql": None,
+                    "success": False,
+                    "error": str(exc),
+                }
+            )
+
+        progress_bar.update(1)
+        if output_path and flush_every and idx >= next_flush_at:
+            write_output_snapshot(results, output_path)
+            while next_flush_at <= idx:
+                next_flush_at += flush_every
+
+    return results, errors
 
 
 def main():
@@ -683,74 +775,49 @@ def main():
     if args.flush_every is not None and args.flush_every <= 0:
         raise ValueError("--flush-every must be a positive integer")
 
-    subset_test_data, schema_str, schema_map = load_schema_and_subset_test_data(
-        args.benchmark,
-        args.db,
-        args.limit,
-        args.data_source,
-        args.hf_dataset_repo,
-        args.hf_dataset_revision,
-    )
-
+    records = load_records(args.benchmark, args.split, args.db, args.limit)
     db_name = args.db if not is_full_db(args.db) else "full"
-
     tokenizer, model = init_model(args.model, args.ckpt_path, args.ckpt_revision, device=args.device)
 
-    print(f"Running benchmark={args.benchmark}, db={db_name}, samples={len(subset_test_data)}")
-    print(f"Using batch_size={args.batch_size}")
-
+    print(f"Running benchmark={args.benchmark}, split={args.split}, db={db_name}, samples={len(records)}")
     output_path = (
         Path(args.output_path)
         if args.output_path
-        else Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distillm_adaptive_srkl_kd0.7_wrel1.6.json"
+        else Path(RESULTS_DIR) / args.benchmark / f"{args.split}_{db_name}_sqls_{args.model.split('/')[-1]}.json"
     )
 
-    results, errors = run_batch_inference(
-        test_data=subset_test_data,
-        benchmark=args.benchmark,
-        db=args.db,
-        tokenizer=tokenizer,
-        model=model,
-        max_length=args.max_length,
-        batch_size=args.batch_size,
-        temperature=args.temperature,
-        top_p=args.top_p,
-        top_k=args.top_k,
-        shared_schema_str=schema_str,
-        schema_map=schema_map,
-        output_path=output_path,
-        flush_every=args.flush_every,
-    )
+    if args.benchmark == "spider_data":
+        results, errors = run_spider_inference(
+            records=records,
+            tokenizer=tokenizer,
+            model=model,
+            max_length=args.max_length,
+            batch_size=args.batch_size,
+            temperature=args.temperature,
+            top_p=args.top_p,
+            top_k=args.top_k,
+            output_path=output_path,
+            flush_every=args.flush_every,
+        )
+    else:
+        if args.batch_size != 1:
+            logger.warning("Dialog inference is run turn-by-turn; ignoring --batch-size > 1.")
+        results, errors = run_dialog_inference(
+            records=records,
+            tokenizer=tokenizer,
+            model=model,
+            max_length=args.max_length,
+            temperature=args.temperature,
+            top_p=args.top_p,
+            top_k=args.top_k,
+            output_path=output_path,
+            flush_every=args.flush_every,
+            history_mode=args.dialog_history_mode,
+        )
 
-    os.makedirs(Path(RESULTS_DIR) / args.benchmark, exist_ok=True)
-    
-    # Differentiate output file based on whether a custom ckpt was used
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fkl.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_rkl.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_sfkl.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_csd.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_distillm.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_sfkl.json"   #default kd_ratio 0.5
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl_updated_1.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl_updated_3_0.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distillm.json" 
-
-        # Differentiate output file based on whether a custom ckpt was used
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_updated_span_fkl.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_updated_span_rkl_2.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_updated_span_sfkl.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_csd.json"
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_sfkl.json"   #default kd_ratio 0.5
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl_updated_1.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distill_fdd_srkl_updated_3_0.json" 
-    # output_path = Path(RESULTS_DIR) / args.benchmark / f"{db_name}_cyphers_result_{args.model.split('/')[-1]}_distillm.json" 
     write_output_snapshot(results, output_path)
-
     print(f"Saved results to: {output_path}")
+    print(f"Success: {len(results) - len(errors)} | Failed: {len(errors)}")
 
 
 if __name__ == "__main__":
