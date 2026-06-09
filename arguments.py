@@ -97,6 +97,8 @@ def add_data_args(parser: argparse.ArgumentParser):
     group.add_argument("--eval-gen", action="store_true")
     
     group.add_argument("--only-prompt", action="store_true")
+    group.add_argument("--slice-data", action="store_true",
+                       help="Use a small sliced train/dev subset for quick debugging.")
     return parser
 
 
