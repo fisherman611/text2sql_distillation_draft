@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="760" viewBox="0 0 820 760">
+<rect width="820" height="760" fill="white"/>
+<text x="410.0" y="28" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700">Benchmark Radar Comparison</text>
+<polygon points="410.0,300.0 445.4,314.6 460.0,350.0 445.4,385.4 410.0,400.0 374.6,385.4 360.0,350.0 374.6,314.6" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+<polygon points="410.0,250.0 480.7,279.3 510.0,350.0 480.7,420.7 410.0,450.0 339.3,420.7 310.0,350.0 339.3,279.3" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+<polygon points="410.0,200.0 516.1,243.9 560.0,350.0 516.1,456.1 410.0,500.0 303.9,456.1 260.0,350.0 303.9,243.9" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+<polygon points="410.0,150.0 551.4,208.6 610.0,350.0 551.4,491.4 410.0,550.0 268.6,491.4 210.0,350.0 268.6,208.6" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+<polygon points="410.0,100.0 586.8,173.2 660.0,350.0 586.8,526.8 410.0,600.0 233.2,526.8 160.0,350.0 233.2,173.2" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+<line x1="410.0" y1="350.0" x2="410.0" y2="100.0" stroke="#d0d0d0" stroke-width="1"/>
+<text x="410.0" y="55.0" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="13">total_sql</text>
+<line x1="410.0" y1="350.0" x2="586.8" y2="173.2" stroke="#d0d0d0" stroke-width="1"/>
+<text x="618.6" y="141.4" text-anchor="start" dominant-baseline="middle" font-family="Arial" font-size="13">schema_db_count</text>
+<line x1="410.0" y1="350.0" x2="660.0" y2="350.0" stroke="#d0d0d0" stroke-width="1"/>
+<text x="705.0" y="350.0" text-anchor="start" dominant-baseline="middle" font-family="Arial" font-size="13">table_per_db_mean</text>
+<line x1="410.0" y1="350.0" x2="586.8" y2="526.8" stroke="#d0d0d0" stroke-width="1"/>
+<text x="618.6" y="558.6" text-anchor="start" dominant-baseline="middle" font-family="Arial" font-size="13">column_per_db_mean</text>
+<line x1="410.0" y1="350.0" x2="410.0" y2="600.0" stroke="#d0d0d0" stroke-width="1"/>
+<text x="410.0" y="645.0" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="13">hard_or_extra_pct</text>
+<line x1="410.0" y1="350.0" x2="233.2" y2="526.8" stroke="#d0d0d0" stroke-width="1"/>
+<text x="201.4" y="558.6" text-anchor="end" dominant-baseline="middle" font-family="Arial" font-size="13">nested_pct</text>
+<line x1="410.0" y1="350.0" x2="160.0" y2="350.0" stroke="#d0d0d0" stroke-width="1"/>
+<text x="115.0" y="350.0" text-anchor="end" dominant-baseline="middle" font-family="Arial" font-size="13">join_count_mean</text>
+<line x1="410.0" y1="350.0" x2="233.2" y2="173.2" stroke="#d0d0d0" stroke-width="1"/>
+<text x="201.4" y="141.4" text-anchor="end" dominant-baseline="middle" font-family="Arial" font-size="13">aggregation_count_mean</text>
+<polygon points="410.0,153.6 574.9,185.1 654.9,350.0 580.3,520.3 410.0,600.0 233.2,526.8 160.0,350.0 233.2,173.2" fill="#d62728" fill-opacity="0.08" stroke="#d62728" stroke-width="2.5"/>
+<line x1="240" y1="660" x2="272" y2="660" stroke="#d62728" stroke-width="3"/>
+<text x="280" y="665" font-family="Arial" font-size="15">spider</text>
+<polygon points="410.0,100.0 574.9,185.1 654.9,350.0 580.3,520.3 410.0,517.2 304.4,455.6 201.7,350.0 272.5,212.5" fill="#1f77b4" fill-opacity="0.08" stroke="#1f77b4" stroke-width="2.5"/>
+<line x1="390" y1="660" x2="422" y2="660" stroke="#1f77b4" stroke-width="3"/>
+<text x="430" y="665" font-family="Arial" font-size="15">sparc</text>
+<polygon points="410.0,145.9 586.8,173.2 660.0,350.0 586.8,526.8 410.0,535.6 291.4,468.6 206.3,350.0 272.5,212.5" fill="#2ca02c" fill-opacity="0.08" stroke="#2ca02c" stroke-width="2.5"/>
+<line x1="540" y1="660" x2="572" y2="660" stroke="#2ca02c" stroke-width="3"/>
+<text x="580" y="665" font-family="Arial" font-size="15">cosql</text>
+</svg>

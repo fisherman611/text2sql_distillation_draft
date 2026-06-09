@@ -1,0 +1,73 @@
+{
+  "dataset_scale_metrics": [
+    "train_samples",
+    "dev_samples",
+    "train_dialogs",
+    "dev_dialogs",
+    "total_sql",
+    "sample_db_count",
+    "schema_db_count"
+  ],
+  "schema_complexity_metrics": [
+    "table_count",
+    "column_count",
+    "foreign_key_count",
+    "avg_columns_per_table",
+    "schema_edge_count",
+    "schema_connected_components",
+    "schema_graph_density"
+  ],
+  "sql_structure_metrics": [
+    "sql_token_len",
+    "sql_char_len",
+    "hardness",
+    "hardness_rank",
+    "join_count",
+    "selected_column_count",
+    "where_predicate_count",
+    "aggregation_count",
+    "has_distinct",
+    "has_limit",
+    "has_order_by",
+    "has_group_by",
+    "has_having",
+    "nested_subquery_count",
+    "has_union",
+    "has_intersect",
+    "has_except",
+    "referenced_table_count",
+    "referenced_column_count"
+  ],
+  "dialog_context_metrics": [
+    "dialog_num_turns",
+    "prev_sql_exists",
+    "exact_prev_sql_reuse",
+    "sql_token_edit_distance",
+    "delta_order_by",
+    "delta_group_by",
+    "delta_having",
+    "delta_limit",
+    "delta_nested",
+    "delta_distinct",
+    "new_table_introduction",
+    "new_tables_added_count",
+    "hardness_delta",
+    "is_clarification_like"
+  ],
+  "train_prep_tags": [
+    "order_by",
+    "group_by",
+    "having",
+    "distinct",
+    "limit",
+    "union",
+    "intersect",
+    "except",
+    "nested",
+    "dialog_turn",
+    "exact_prev_sql_reuse",
+    "new_table_introduction",
+    "clarification_like",
+    "hardness:*"
+  ]
+}
