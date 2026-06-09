@@ -23,8 +23,7 @@ dependencies = [
     "rich",
     "setuptools",
     "sqlparse",
-    "nltk",
-    "numerize"
+    "nltk"
 ]
 
 [tool.uv]
