@@ -74,7 +74,7 @@ def parse_args():
         "--benchmark",
         default="spider_data",
         choices=["spider_data", "sparc", "cosql_dataset"],
-        help="Benchmark name under benchmarks/.",
+        help="Benchmark name under benchmarks_2/.",
     )
     parser.add_argument(
         "--split",
@@ -427,21 +427,21 @@ def get_benchmark_paths(benchmark: str, split: str) -> Tuple[Path, Path]:
             "test": "test.json",
         }[split]
         tables_file = "test_tables.json" if split == "test" else "tables.json"
-        return Path("benchmarks") / benchmark / split_file, Path("benchmarks") / benchmark / tables_file
+        return Path("benchmarks_2") / benchmark / split_file, Path("benchmarks_2") / benchmark / tables_file
 
     if benchmark == "sparc":
         if split == "test":
             raise ValueError("Local SParC benchmark does not include a test split.")
         split_file = {"train": "train.json", "dev": "dev.json"}[split]
-        return Path("benchmarks") / benchmark / split_file, Path("benchmarks") / benchmark / "tables.json"
+        return Path("benchmarks_2") / benchmark / split_file, Path("benchmarks_2") / benchmark / "tables.json"
 
     if benchmark == "cosql_dataset":
         if split == "test":
             raise ValueError("Local CoSQL benchmark does not include a test split.")
         split_file = {"train": "cosql_train.json", "dev": "cosql_dev.json"}[split]
         return (
-            Path("benchmarks") / benchmark / "sql_state_tracking" / split_file,
-            Path("benchmarks") / benchmark / "tables.json",
+            Path("benchmarks_2") / benchmark / "sql_state_tracking" / split_file,
+            Path("benchmarks_2") / benchmark / "tables.json",
         )
 
     raise ValueError(f"Unsupported benchmark: {benchmark}")
