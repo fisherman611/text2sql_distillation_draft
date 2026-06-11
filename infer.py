@@ -85,7 +85,7 @@ def parse_args():
     parser.add_argument(
         "--db",
         default=None,
-        help='Optional db_id filter. If omitted or set to "full", use all databases.',
+        help='Optional db_id filter. If omitted or set to "full", "all", or the benchmark name, use all databases.',
     )
     parser.add_argument("--model", default="Qwen/Qwen3-0.6B", help="Base model name or path.")
     parser.add_argument(
@@ -415,8 +415,15 @@ def generate_response_batch(tokenizer, model, batch_messages, max_length=512, te
     return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
 
 
-def is_full_db(db: Optional[str]) -> bool:
-    return db is None or str(db).strip().lower() in {"full", "all", ""}
+def is_full_db(db: Optional[str], benchmark: Optional[str] = None) -> bool:
+    if db is None:
+        return True
+
+    normalized = str(db).strip().lower()
+    full_names = {"full", "all", ""}
+    if benchmark:
+        full_names.add(str(benchmark).strip().lower())
+    return normalized in full_names
 
 
 def get_benchmark_paths(benchmark: str, split: str) -> Tuple[Path, Path]:
@@ -493,12 +500,14 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
     data_path, tables_path = get_benchmark_paths(benchmark, split)
     raw_data = read_json(data_path)
     schema_lookup = load_schema_lookup(tables_path)
-    use_all = is_full_db(db_filter)
+    use_all = is_full_db(db_filter, benchmark)
     records: List[Dict] = []
+    available_db_ids = set()
 
     if benchmark == "spider_data":
         for idx, item in enumerate(raw_data):
             db_id = item["db_id"]
+            available_db_ids.add(db_id)
             if not use_all and db_id != db_filter:
                 continue
             records.append(
@@ -518,6 +527,7 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
     else:
         for dialog_idx, item in enumerate(raw_data):
             db_id = item["database_id"]
+            available_db_ids.add(db_id)
             if not use_all and db_id != db_filter:
                 continue
             turns = item.get("interaction", [])
@@ -540,6 +550,13 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
                         "gold_history_sql": gold_history_sql,
                     }
                 )
+
+    if not records and not use_all and raw_data:
+        examples = ", ".join(sorted(available_db_ids)[:10])
+        suffix = f" Available db_id examples: {examples}" if examples else ""
+        raise ValueError(
+            f"No records found for --db {db_filter!r} in benchmark={benchmark}, split={split}.{suffix}"
+        )
 
     if limit is not None:
         records = records[:limit]
@@ -776,7 +793,7 @@ def main():
         raise ValueError("--flush-every must be a positive integer")
 
     records = load_records(args.benchmark, args.split, args.db, args.limit)
-    db_name = args.db if not is_full_db(args.db) else "full"
+    db_name = args.db if not is_full_db(args.db, args.benchmark) else "full"
     tokenizer, model = init_model(args.model, args.ckpt_path, args.ckpt_revision, device=args.device)
 
     print(f"Running benchmark={args.benchmark}, split={args.split}, db={db_name}, samples={len(records)}")
