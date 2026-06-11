@@ -77,11 +77,10 @@ run_infer() {
 run_infer \
   "sft__sft_qwen3_0.6b" \
   "Qwen/Qwen3-0.6B" \
-  "${ROOT_DIR}/results/qwen3/sft_sft_qwen3_0.6b_spider/e5-bs4-lr0.00005-G4-N2-NN1"
+  "${ROOT_DIR}/results/qwen3/sft_sft_qwen3_0.6b_spider/e5-bs4-lr5e-05-G4-N2-NN1"
 
 # Configs derived from scripts/qwen/sft/sft_qwen3_4b.sh
 run_infer \
   "sft__sft_qwen3_4b" \
   "Qwen/Qwen3-4B" \
   "${ROOT_DIR}/results/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1"
-
