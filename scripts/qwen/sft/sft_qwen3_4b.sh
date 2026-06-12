@@ -29,7 +29,7 @@ SAVE_TAG="${SCRIPT_GROUP}_${SCRIPT_NAME}_spider_lora"
 DATA_DIR="processed_data/benchmarks/spider_data/qwen"
 
 CKPT_NAME="qwen3-4B"
-CKPT="Qwen/Qwen3-4B"
+CKPT="Qwen/Qwen3-4B-Instruct-2507"
 
 BATCH_SIZE=4
 LR=0.0001

@@ -27,7 +27,7 @@
 import json
 import re
 import sqlite3
-from nltk import word_tokenizer
+from nltk import word_tokenize
 
 CLAUSE_KEYWORDS = ('select', 'from', 'where', 'group', 'order', 'limit', 'intersect', 'union', 'except')
 JOIN_KEYWORDS = ('join', 'on', 'as')

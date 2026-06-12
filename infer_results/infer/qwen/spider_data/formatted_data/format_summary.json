@@ -1,0 +1,18 @@
+[
+  {
+    "input": "infer_results/infer/qwen/spider_data/sft__sft_qwen3_0.6b__ckpt1090__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_0.6b__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_0.6b__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_0.6b__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_data/sft__sft_qwen3_4b__ckpt1090__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_4b__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_4b__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_data/formatted_data/sft__sft_qwen3_4b__ckpt1090__test.meta.jsonl"
+  }
+]
