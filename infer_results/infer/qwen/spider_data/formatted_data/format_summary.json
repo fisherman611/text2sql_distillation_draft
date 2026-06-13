@@ -8,6 +8,14 @@
     "meta": "infer_results/infer/qwen/spider_data/formatted_data/kd__fkl__train_0.6b_4b__ckpt1090__test__spider_data.meta.jsonl"
   },
   {
+    "input": "infer_results/infer/qwen/spider_data/kd__rkl__train_0.6b_4b__ckpt1090__test__spider_data_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_data/formatted_data/kd__rkl__train_0.6b_4b__ckpt1090__test__spider_data.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_data/formatted_data/kd__rkl__train_0.6b_4b__ckpt1090__test__spider_data.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_data/formatted_data/kd__rkl__train_0.6b_4b__ckpt1090__test__spider_data.meta.jsonl"
+  },
+  {
     "input": "infer_results/infer/qwen/spider_data/sft__sft_qwen3_4b__ckpt1090__test__spider_data_sql_result.json",
     "rows": 2147,
     "empty_pred": 0,
