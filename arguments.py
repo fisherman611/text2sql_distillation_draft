@@ -197,6 +197,15 @@ def add_distillm_args(parser: argparse.ArgumentParser):
     group.add_argument("--mixed-alpha", type=float, default=0.5)
     group.add_argument("--loss-eps", type=float, default=0.1)
     group.add_argument("--init-threshold", type=float, default=0.0)
+
+    # AMID
+    group.add_argument("--amid-div-name", type=str, default="ab", choices=["ab", "fkl"])
+    group.add_argument("--amid-div-order", type=str, default="pr", choices=["pr", "qr", "rp", "rq"])
+    group.add_argument("--amid-alpha", type=float, default=0.5)
+    group.add_argument("--amid-lam", type=float, default=0.5)
+
+    # FDD
+    group.add_argument("--fdd-weight", type=float, default=None)
     
     # off-policy
     group.add_argument("--capacity", type=int, default=1000)
