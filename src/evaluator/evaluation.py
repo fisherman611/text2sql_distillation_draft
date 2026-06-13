@@ -24,6 +24,8 @@ import json
 import sqlite3
 import argparse
 
+from tqdm import tqdm
+
 from process_sql import get_schema, Schema, get_sql
 from exec_eval import eval_exec_match
 
@@ -558,8 +560,11 @@ def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, pro
         for type_ in partial_types:
             scores[level]['partial'][type_] = {'acc': 0., 'rec': 0., 'f1': 0.,'acc_count':0,'rec_count':0}
 
+    pbar = tqdm(total=sum(len(session) for session in glist), desc="Evaluating", unit="query") \
+        if progress_bar_for_each_datapoint else None
+    log = tqdm.write if pbar is not None else print
     for i, (p, g) in enumerate(zip(plist, glist)):
-        if (i + 1) % 10 == 0:
+        if not progress_bar_for_each_datapoint and (i + 1) % 10 == 0:
             print('Evaluating %dth prediction' % (i + 1))
         scores['joint_all']['count'] += 1
         turn_scores = {"exec": [], "exact": []}
@@ -607,7 +612,7 @@ def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, pro
 
             if etype in ["all", "exec"]:
                 exec_score = eval_exec_match(db=db, p_str=p_str, g_str=g_str, plug_value=plug_value,
-                                             keep_distinct=keep_distinct, progress_bar_for_each_datapoint=progress_bar_for_each_datapoint)
+                                             keep_distinct=keep_distinct, progress_bar_for_each_datapoint=False)
                 if exec_score:
                     scores[hardness]['exec'] += 1
                     scores[turn_id]['exec'] += 1
@@ -629,9 +634,9 @@ def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, pro
                 partial_scores = evaluator.partial_scores
                 if exact_score == 0:
                     turn_scores['exact'].append(0)
-                    print("{} pred: {}".format(hardness, p_str))
-                    print("{} gold: {}".format(hardness, g_str))
-                    print("")
+                    log("{} pred: {}".format(hardness, p_str))
+                    log("{} gold: {}".format(hardness, g_str))
+                    log("")
                 else:
                     turn_scores['exact'].append(1)
                 scores[turn_id]['exact'] += exact_score
@@ -661,11 +666,17 @@ def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, pro
                     'partial': partial_scores
                 })
 
+            if progress_bar_for_each_datapoint:
+                pbar.update(1)
+
         if all(v == 1 for v in turn_scores["exec"]):
             scores['joint_all']['exec'] += 1
 
         if all(v == 1 for v in turn_scores["exact"]):
             scores['joint_all']['exact'] += 1
+
+    if pbar is not None:
+        pbar.close()
 
     for turn in turns:
         if scores[turn]['count'] == 0:

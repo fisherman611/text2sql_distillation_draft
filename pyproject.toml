@@ -19,6 +19,7 @@ dependencies = [
     "nltk",
     "numerize",
     "torch==2.9.1",
+    "tqdm",
     "rouge-score",
     "rich",
     "setuptools",
