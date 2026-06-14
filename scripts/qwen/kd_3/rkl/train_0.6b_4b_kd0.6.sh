@@ -24,6 +24,7 @@ DISTRIBUTED_ARGS="--nproc_per_node $GPUS_PER_NODE \
 BASE_PATH=.
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .sh)"
 SCRIPT_GROUP="$(basename "$(dirname "${BASH_SOURCE[0]}")")"
+SAVE_TAG="${SAVE_TAG:-${SCRIPT_GROUP}_${SCRIPT_NAME}_spider_lora}"
 
 DATA_DIR="${DATA_DIR:-processed_data/benchmarks/spider_data/qwen}"
 
@@ -36,9 +37,9 @@ TEACHER_PEFT_PATH="${TEACHER_PEFT_PATH:-hf://distillation-sql/baselines/qwen3/sf
 BATCH_SIZE=2
 LR=0.0001
 GRAD_ACC=8
-EVAL_BATCH_SIZE=32
+EVAL_BATCH_SIZE=16
 EPOCHS=5
-KD_RATIO=0.9
+KD_RATIO=0.6
 
 MAX_LENGTH=1612
 MAX_PROMPT_LENGTH=1479
@@ -53,13 +54,6 @@ INIT_THRESHOLD=0.0
 LOSS_EPS=0.1
 CAPACITY=1000
 
-TEACHER_LAYER_MAPPING=(33 36)
-STUDENT_LAYER_MAPPING=(25 28)
-
-TEACHER_LAYERS_TAG=$(IFS=-; echo "${TEACHER_LAYER_MAPPING[*]}")
-STUDENT_LAYERS_TAG=$(IFS=-; echo "${STUDENT_LAYER_MAPPING[*]}")
-RUN_TAG="e${EPOCHS}-bs${BATCH_SIZE}-lr${LR}-G${GRAD_ACC}-N${GPUS_PER_NODE}-NN${NNODES}-kd${KD_RATIO}-lora-${PEFT_LORA_R}-${PEFT_LORA_ALPHA}-${PEFT_LORA_DROPOUT}"
-SAVE_TAG="${SAVE_TAG:-${SCRIPT_GROUP}_${SCRIPT_NAME}_spider_sfkl_t${TEACHER_LAYERS_TAG}_s${STUDENT_LAYERS_TAG}_${RUN_TAG}}"
 SAVE_PATH="${BASE_PATH}/results/qwen3/${SAVE_TAG}"
 SEED=42
 
@@ -108,7 +102,7 @@ OPTS+=" --seed ${SEED}"
 OPTS+=" --deepspeed"
 OPTS+=" --deepspeed_config ${BASE_PATH}/configs/deepspeed/ds_config_bf16.json"
 # type
-OPTS+=" --type sfkl"
+OPTS+=" --type rkl"
 # generation
 OPTS+=" --do-sample"
 OPTS+=" --top-k 0"
@@ -121,9 +115,6 @@ OPTS+=" --gen-top-p ${GEN_TOP_P}"
 OPTS+=" --init-threshold ${INIT_THRESHOLD}"
 OPTS+=" --loss-eps ${LOSS_EPS}"
 OPTS+=" --capacity ${CAPACITY}"
-# fdd
-OPTS+=" --teacher_layer_mapping ${TEACHER_LAYER_MAPPING[*]}"
-OPTS+=" --student_layer_mapping ${STUDENT_LAYER_MAPPING[*]}"
 # lora
 OPTS+=" --peft lora"
 OPTS+=" --peft-lora-r ${PEFT_LORA_R}"
@@ -135,7 +126,7 @@ export WANDB_DISABLED=True
 export TF_CPP_MIN_LOG_LEVEL=3
 export PYTHONPATH=${BASE_PATH}
 
-CMD="torchrun ${DISTRIBUTED_ARGS} ${BASE_PATH}/finetuning/fdd_finetune.py ${OPTS} $@"
+CMD="torchrun ${DISTRIBUTED_ARGS} ${BASE_PATH}/finetuning/finetune.py ${OPTS} $@"
 
 echo "${CMD}"
 echo "PYTHONPATH=${PYTHONPATH}"
