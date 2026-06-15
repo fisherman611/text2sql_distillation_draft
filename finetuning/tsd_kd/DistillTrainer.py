@@ -152,6 +152,7 @@ class DistillTrainer(SFTTrainer):
         formatting_func: Optional[Callable] = None,
         token_entropy_percentile_threshold: float = 0.1,
         indirect_kd_alpha: float = 0.1,
+        generation_top_p: float = 1.0,
     ):
         args.remove_unused_columns = False
         data_collator = DataCollatorForChatML(tokenizer=processing_class, max_length=args.max_length)
@@ -202,9 +203,11 @@ class DistillTrainer(SFTTrainer):
         self.seq_kd = args.seq_kd
         self.token_entropy_percentile_threshold = token_entropy_percentile_threshold
         self.indirect_kd_alpha = indirect_kd_alpha
+        self.generation_top_p = generation_top_p
         self.generation_config = GenerationConfig(
             max_new_tokens=args.max_new_tokens,
             temperature=args.temperature,
+            top_p=self.generation_top_p,
             do_sample=True,
             top_k=0,
             use_cache=False if args.gradient_checkpointing else True,
@@ -415,6 +418,7 @@ class DistillTrainer(SFTTrainer):
         generation_config = GenerationConfig(
             max_new_tokens=self.args.max_new_tokens,
             temperature=self.temperature,
+            top_p=self.generation_top_p,
             do_sample=True,
             top_k=0,
             pad_token_id=self.processing_class.pad_token_id,

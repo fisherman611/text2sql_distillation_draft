@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,9 @@ try:
 except ImportError:
     from DistillTrainer import DistillTrainer
 
+DEFAULT_SYSTEM_PROMPT_FILE = "prompts/single_turn/generator/system_prompt.txt"
+DEFAULT_USER_PROMPT_FILE = "prompts/single_turn/generator/user_prompt.txt"
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train TSD-KD with TRL/Accelerate.")
@@ -42,6 +46,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset-split", default="train")
     parser.add_argument("--train-file", default=None)
     parser.add_argument("--eval-file", default=None)
+    parser.add_argument("--system-prompt-file", default=DEFAULT_SYSTEM_PROMPT_FILE)
+    parser.add_argument("--user-prompt-file", default=DEFAULT_USER_PROMPT_FILE)
+    parser.add_argument("--use-prompt-templates", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--test-size", type=float, default=0.01)
     parser.add_argument("--max-samples", type=int, default=None)
 
@@ -50,6 +57,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threshold", type=float, default=0.1)
     parser.add_argument("--indirect-kd-alpha", type=float, default=0.1)
     parser.add_argument("--temperature", type=float, default=1.0)
+    parser.add_argument("--top-p", type=float, default=1.0)
 
     parser.add_argument("--max-length", type=int, default=1612)
     parser.add_argument("--max-prompt-length", type=int, default=1479)
@@ -117,7 +125,7 @@ def configure_tokenizer(tokenizer, model_family: str):
     return tokenizer
 
 
-def configure_generation_config(model, tokenizer):
+def configure_generation_config(model, tokenizer, temperature: float, top_p: float):
     eos_token_id = model.generation_config.eos_token_id
     if eos_token_id is None:
         eos_ids = []
@@ -133,7 +141,13 @@ def configure_generation_config(model, tokenizer):
         model.generation_config.eos_token_id = eos_ids[0]
     elif eos_ids:
         model.generation_config.eos_token_id = eos_ids
+    model.config.bos_token_id = tokenizer.bos_token_id
+    model.config.eos_token_id = model.generation_config.eos_token_id
+    model.config.pad_token_id = tokenizer.pad_token_id
+    model.generation_config.bos_token_id = tokenizer.bos_token_id
     model.generation_config.pad_token_id = tokenizer.pad_token_id
+    model.generation_config.temperature = temperature
+    model.generation_config.top_p = top_p
     return model
 
 
@@ -170,6 +184,22 @@ def apply_chat_template(tokenizer, messages: list[dict[str, str]], *, add_genera
         return tokenizer.apply_chat_template(messages, **kwargs)
 
 
+def load_prompt_templates(args: argparse.Namespace) -> tuple[str, str] | None:
+    if not args.use_prompt_templates:
+        return None
+
+    system_prompt_path = Path(args.system_prompt_file)
+    user_prompt_path = Path(args.user_prompt_file)
+    if not system_prompt_path.is_file():
+        raise FileNotFoundError(f"System prompt file not found: {system_prompt_path}")
+    if not user_prompt_path.is_file():
+        raise FileNotFoundError(f"User prompt file not found: {user_prompt_path}")
+
+    system_template = system_prompt_path.read_text(encoding="utf-8").strip()
+    user_template = user_prompt_path.read_text(encoding="utf-8").strip()
+    return system_template, user_template
+
+
 def first_text(value: Any) -> str:
     if isinstance(value, list):
         return "" if not value else str(value[0])
@@ -189,7 +219,59 @@ def extract_sql_value(value: Any) -> str:
     return text
 
 
-def encode_example(example: dict[str, Any], tokenizer, model_family: str, max_prompt_length: int, max_length: int):
+def parse_question_schema_from_prompt(prompt_text: str) -> tuple[str, str] | None:
+    match = re.search(
+        r"QUESTION:\s*\n(?P<question>.*?)\n\s*\nSCHEMA:\s*\n(?P<schema>.*?)\n\s*\nGenerate a valid SQLite SQL query",
+        prompt_text,
+        flags=re.DOTALL,
+    )
+    if not match:
+        return None
+    question = match.group("question").strip()
+    schema = match.group("schema").strip()
+    if not question or not schema:
+        return None
+    return question, schema
+
+
+def strip_prefilled_assistant_stub(prompt_text: str) -> str:
+    return re.sub(
+        r"(<\|im_start\|>assistant\s*)<think>.*?</think>\s*",
+        r"\1",
+        prompt_text,
+        flags=re.DOTALL,
+    )
+
+
+def build_prompt_from_templates(
+    question: str,
+    schema: str,
+    prompt_templates: tuple[str, str],
+    tokenizer,
+    model_family: str,
+) -> str:
+    system_template, user_template = prompt_templates
+    user_prompt = user_template.format(question=question, schema=schema)
+    messages = [
+        {"role": "system", "content": system_template},
+        {"role": "user", "content": user_prompt},
+    ]
+    return apply_chat_template(
+        tokenizer,
+        messages,
+        add_generation_prompt=True,
+        model_family=model_family,
+    )
+
+
+def encode_example(
+    example: dict[str, Any],
+    tokenizer,
+    model_family: str,
+    max_prompt_length: int,
+    max_length: int,
+    prompt_templates: tuple[str, str] | None = None,
+):
     eos_text = tokenizer.eos_token or ""
 
     if "messages" in example and example["messages"]:
@@ -243,6 +325,21 @@ def encode_example(example: dict[str, Any], tokenizer, model_family: str, max_pr
         )
     elif "prompt" in example:
         prompt_text = first_text(example["prompt"])
+        if prompt_templates is not None:
+            parsed_prompt = parse_question_schema_from_prompt(prompt_text)
+            if parsed_prompt is not None:
+                question, schema = parsed_prompt
+                prompt_text = build_prompt_from_templates(
+                    question,
+                    schema,
+                    prompt_templates,
+                    tokenizer,
+                    model_family,
+                )
+            else:
+                prompt_text = strip_prefilled_assistant_stub(prompt_text)
+        else:
+            prompt_text = strip_prefilled_assistant_stub(prompt_text)
         response_text = first_text(example.get("response", example.get("completion", "")))
         prompt_ids = tokenizer(prompt_text, add_special_tokens=False)["input_ids"]
         response_ids = tokenizer(response_text + eos_text, add_special_tokens=False)["input_ids"]
@@ -297,7 +394,13 @@ def load_train_eval_dataset(args: argparse.Namespace) -> tuple[Dataset, Dataset]
     return train_dataset, eval_dataset
 
 
-def prepare_dataset(dataset: Dataset, tokenizer, model_family: str, args: argparse.Namespace) -> Dataset:
+def prepare_dataset(
+    dataset: Dataset,
+    tokenizer,
+    model_family: str,
+    args: argparse.Namespace,
+    prompt_templates: tuple[str, str] | None,
+) -> Dataset:
     remove_columns = dataset.column_names
 
     def _encode(example):
@@ -307,6 +410,7 @@ def prepare_dataset(dataset: Dataset, tokenizer, model_family: str, args: argpar
             model_family,
             args.max_prompt_length,
             args.max_length,
+            prompt_templates,
         )
 
     return dataset.map(_encode, remove_columns=remove_columns)
@@ -364,19 +468,21 @@ def main():
     print(f"Tokenizer eos_token_id: {tokenizer.eos_token_id}")
     print(f"Tokenizer pad_token_id: {tokenizer.pad_token_id}")
     print(f"max_length={args.max_length}, max_prompt_length={args.max_prompt_length}")
+    prompt_templates = load_prompt_templates(args)
+    if prompt_templates is not None:
+        print(f"System prompt file: {args.system_prompt_file}")
+        print(f"User prompt file: {args.user_prompt_file}")
 
     train_dataset_raw, eval_dataset_raw = load_train_eval_dataset(args)
-    train_dataset = prepare_dataset(train_dataset_raw, tokenizer, model_family, args)
-    eval_dataset = prepare_dataset(eval_dataset_raw, tokenizer, model_family, args)
+    train_dataset = prepare_dataset(train_dataset_raw, tokenizer, model_family, args, prompt_templates)
+    eval_dataset = prepare_dataset(eval_dataset_raw, tokenizer, model_family, args, prompt_templates)
 
     student_model = load_model(args.student_model_path, args, tokenizer)
     teacher_model = load_teacher_model(args, tokenizer)
     validate_vocab(student_model, teacher_model)
 
-    student_model.config.pad_token_id = tokenizer.pad_token_id
-    teacher_model.config.pad_token_id = tokenizer.pad_token_id
-    student_model = configure_generation_config(student_model, tokenizer)
-    teacher_model = configure_generation_config(teacher_model, tokenizer)
+    student_model = configure_generation_config(student_model, tokenizer, args.temperature, args.top_p)
+    teacher_model = configure_generation_config(teacher_model, tokenizer, args.temperature, args.top_p)
     if args.gradient_checkpointing:
         student_model = configure_gradient_checkpointing(student_model)
     print(f"Student generation eos_token_id: {student_model.generation_config.eos_token_id}")
@@ -421,6 +527,7 @@ def main():
         eval_dataset=eval_dataset,
         token_entropy_percentile_threshold=args.threshold,
         indirect_kd_alpha=args.indirect_kd_alpha,
+        generation_top_p=args.top_p,
     )
     trainer.train()
 
