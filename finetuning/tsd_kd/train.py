@@ -1,14 +1,15 @@
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
 from typing import Any
 
 import torch
-from datasets import Dataset, DatasetDict, load_dataset
+from datasets import Dataset, DatasetDict, disable_progress_bars, load_dataset
 from huggingface_hub import login
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback
 from trl import GKDConfig
 
 try:
@@ -61,7 +62,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--warmup-ratio", type=float, default=0.1)
     parser.add_argument("--weight-decay", type=float, default=1e-2)
     parser.add_argument("--logging-steps", type=int, default=10)
-    parser.add_argument("--save-total-limit", type=int, default=3)
+    parser.add_argument("--save-total-limit", type=int, default=1)
     parser.add_argument("--seed", type=int, default=42)
 
     parser.add_argument("--gradient-checkpointing", action="store_true")
@@ -72,8 +73,30 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trust-remote-code", action="store_true", default=True)
     parser.add_argument("--report-to", default="none")
     parser.add_argument("--run-name", default=None)
+    parser.add_argument("--disable-tqdm", action=argparse.BooleanOptionalAction, default=True)
 
     return parser.parse_args()
+
+
+class SaveEvalMetricsCallback(TrainerCallback):
+    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        if metrics is None or not args.should_save:
+            return control
+
+        epoch = "unknown" if state.epoch is None else f"{state.epoch:.2f}"
+        eval_dir = Path(args.output_dir) / "eval" / f"epoch_{epoch}_step_{state.global_step}"
+        eval_dir.mkdir(parents=True, exist_ok=True)
+
+        payload = {
+            "epoch": state.epoch,
+            "global_step": state.global_step,
+            "metrics": metrics,
+        }
+        with (eval_dir / "metrics.json").open("w", encoding="utf-8") as fout:
+            json.dump(payload, fout, indent=2, ensure_ascii=False, sort_keys=True)
+            fout.write("\n")
+
+        return control
 
 
 def maybe_login_to_hf() -> None:
@@ -132,6 +155,23 @@ def configure_generation_config(model, tokenizer):
     elif eos_ids:
         model.generation_config.eos_token_id = eos_ids
     model.generation_config.pad_token_id = tokenizer.pad_token_id
+    return model
+
+
+def configure_gradient_checkpointing(model):
+    model.config.use_cache = False
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+        print("Enabled input gradients for gradient checkpointing.")
+        return model
+
+    embeddings = model.get_input_embeddings()
+
+    def make_inputs_require_grad(_module, _inputs, output):
+        output.requires_grad_(True)
+
+    embeddings.register_forward_hook(make_inputs_require_grad)
+    print("Registered input embedding grad hook for gradient checkpointing.")
     return model
 
 
@@ -314,6 +354,8 @@ def validate_vocab(student_model, teacher_model):
 
 def main():
     args = parse_args()
+    if args.disable_tqdm:
+        disable_progress_bars()
     maybe_login_to_hf()
     model_family = infer_model_family(args)
 
@@ -340,6 +382,8 @@ def main():
     teacher_model.config.pad_token_id = tokenizer.pad_token_id
     student_model = configure_generation_config(student_model, tokenizer)
     teacher_model = configure_generation_config(teacher_model, tokenizer)
+    if args.gradient_checkpointing:
+        student_model = configure_gradient_checkpointing(student_model)
     print(f"Student generation eos_token_id: {student_model.generation_config.eos_token_id}")
     print(f"Teacher generation eos_token_id: {teacher_model.generation_config.eos_token_id}")
 
@@ -356,8 +400,7 @@ def main():
         weight_decay=args.weight_decay,
         eval_strategy="epoch",
         save_strategy="epoch",
-        metric_for_best_model="eval_loss",
-        load_best_model_at_end=True,
+        load_best_model_at_end=False,
         lr_scheduler_type="cosine",
         bf16=args.bf16 and not args.fp16,
         fp16=args.fp16,
@@ -366,6 +409,7 @@ def main():
         save_total_limit=args.save_total_limit,
         report_to=args.report_to,
         run_name=args.run_name,
+        disable_tqdm=args.disable_tqdm,
         lmbda=args.lmbda,
         beta=args.beta,
         temperature=args.temperature,
@@ -379,6 +423,7 @@ def main():
         processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
+        callbacks=[SaveEvalMetricsCallback()],
         token_entropy_percentile_threshold=args.threshold,
         indirect_kd_alpha=args.indirect_kd_alpha,
     )
