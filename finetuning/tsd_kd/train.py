@@ -160,6 +160,8 @@ def configure_generation_config(model, tokenizer):
 
 def configure_gradient_checkpointing(model):
     model.config.use_cache = False
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
         print("Enabled input gradients for gradient checkpointing.")
@@ -396,6 +398,7 @@ def main():
         per_device_train_batch_size=args.per_device_train_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         gradient_checkpointing=args.gradient_checkpointing,
+        gradient_checkpointing_kwargs={"use_reentrant": False} if args.gradient_checkpointing else None,
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay,
         eval_strategy="epoch",
