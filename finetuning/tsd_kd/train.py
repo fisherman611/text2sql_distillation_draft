@@ -81,7 +81,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trust-remote-code", action="store_true", default=True)
     parser.add_argument("--report-to", default="none")
     parser.add_argument("--run-name", default=None)
-    parser.add_argument("--disable-tqdm", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--disable-tqdm", action=argparse.BooleanOptionalAction, default=False)
 
     return parser.parse_args()
 
@@ -256,12 +256,13 @@ def build_prompt_from_templates(
         {"role": "system", "content": system_template},
         {"role": "user", "content": user_prompt},
     ]
-    return apply_chat_template(
+    prompt_text = apply_chat_template(
         tokenizer,
         messages,
         add_generation_prompt=True,
         model_family=model_family,
     )
+    return strip_prefilled_assistant_stub(prompt_text)
 
 
 def encode_example(
@@ -284,6 +285,7 @@ def encode_example(
             add_generation_prompt=True,
             model_family=model_family,
         )
+        prompt_text = strip_prefilled_assistant_stub(prompt_text)
         full_text = apply_chat_template(
             tokenizer,
             messages,
