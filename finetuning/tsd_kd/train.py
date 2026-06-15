@@ -9,7 +9,7 @@ import torch
 from datasets import Dataset, DatasetDict, disable_progress_bars, load_dataset
 from huggingface_hub import login
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import GKDConfig
 
 try:
@@ -76,27 +76,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--disable-tqdm", action=argparse.BooleanOptionalAction, default=True)
 
     return parser.parse_args()
-
-
-class SaveEvalMetricsCallback(TrainerCallback):
-    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
-        if metrics is None or not args.should_save:
-            return control
-
-        epoch = "unknown" if state.epoch is None else f"{state.epoch:.2f}"
-        eval_dir = Path(args.output_dir) / "eval" / f"epoch_{epoch}_step_{state.global_step}"
-        eval_dir.mkdir(parents=True, exist_ok=True)
-
-        payload = {
-            "epoch": state.epoch,
-            "global_step": state.global_step,
-            "metrics": metrics,
-        }
-        with (eval_dir / "metrics.json").open("w", encoding="utf-8") as fout:
-            json.dump(payload, fout, indent=2, ensure_ascii=False, sort_keys=True)
-            fout.write("\n")
-
-        return control
 
 
 def maybe_login_to_hf() -> None:
@@ -199,6 +178,17 @@ def first_text(value: Any) -> str:
     return str(value)
 
 
+def extract_sql_value(value: Any) -> str:
+    text = first_text(value)
+    try:
+        parsed = json.loads(text)
+    except Exception:
+        return text
+    if isinstance(parsed, dict) and "sql" in parsed:
+        return str(parsed["sql"]).strip()
+    return text
+
+
 def encode_example(example: dict[str, Any], tokenizer, model_family: str, max_prompt_length: int, max_length: int):
     eos_text = tokenizer.eos_token or ""
 
@@ -273,6 +263,9 @@ def encode_example(example: dict[str, Any], tokenizer, model_family: str, max_pr
         "prompt": prompt_text,
         "input_ids": input_ids,
         "attention_mask": attention_mask,
+        "gold_sql": extract_sql_value(example.get("response", example.get("completion", ""))),
+        "gold_response": first_text(example.get("response", example.get("completion", ""))),
+        "sample_id": first_text(example.get("sample_id", example.get("id", ""))),
     }
 
 
@@ -426,7 +419,6 @@ def main():
         processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        callbacks=[SaveEvalMetricsCallback()],
         token_entropy_percentile_threshold=args.threshold,
         indirect_kd_alpha=args.indirect_kd_alpha,
     )

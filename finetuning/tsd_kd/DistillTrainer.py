@@ -13,7 +13,10 @@
 # limitations under the License.
 
 import os
+import json
 import random
+import re
+from pathlib import Path
 from typing import Any, Callable, Optional, Union
 
 import torch
@@ -50,6 +53,31 @@ if is_peft_available():
 
 if is_wandb_available():
     import wandb  # noqa: F401
+
+
+def extract_sql_from_response(raw_response: str) -> tuple[str, bool, str]:
+    text = raw_response.strip()
+    candidates = [text]
+
+    fenced = re.search(r"```(?:json)?\s*(.*?)```", text, flags=re.DOTALL | re.IGNORECASE)
+    if fenced:
+        candidates.insert(0, fenced.group(1).strip())
+
+    json_obj = re.search(r"\{.*\}", text, flags=re.DOTALL)
+    if json_obj:
+        candidates.insert(0, json_obj.group(0).strip())
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+        except Exception:
+            continue
+        if isinstance(parsed, dict) and "sql" in parsed:
+            return str(parsed["sql"]).strip(), True, ""
+
+    if text:
+        return text, False, "response_is_not_json_sql"
+    return "", False, "empty_response"
 
 
 def normalize_entropy(entropy: torch.Tensor) -> torch.Tensor:
@@ -347,6 +375,95 @@ class DistillTrainer(SFTTrainer):
             inputs["labels"] = new_labels
 
         return super().training_step(model, inputs, num_items_in_batch)
+
+    def evaluate(self, eval_dataset=None, ignore_keys=None, metric_key_prefix: str = "eval"):
+        metrics = super().evaluate(eval_dataset=eval_dataset, ignore_keys=ignore_keys, metric_key_prefix=metric_key_prefix)
+        self.save_eval_sql_results(eval_dataset=eval_dataset, metrics=metrics, metric_key_prefix=metric_key_prefix)
+        return metrics
+
+    def save_eval_sql_results(self, eval_dataset=None, metrics=None, metric_key_prefix: str = "eval"):
+        if not self.is_world_process_zero():
+            return
+
+        dataset = eval_dataset if eval_dataset is not None else self.eval_dataset
+        if dataset is None:
+            return
+
+        epoch = "unknown" if self.state.epoch is None else f"{self.state.epoch:.2f}"
+        eval_dir = Path(self.args.output_dir) / "eval" / f"epoch_{epoch}_step_{self.state.global_step}"
+        eval_dir.mkdir(parents=True, exist_ok=True)
+
+        if metrics is not None:
+            with (eval_dir / "metrics.json").open("w", encoding="utf-8") as fout:
+                json.dump(
+                    {
+                        "epoch": self.state.epoch,
+                        "global_step": self.state.global_step,
+                        "metrics": metrics,
+                    },
+                    fout,
+                    indent=2,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+                fout.write("\n")
+
+        model = self.accelerator.unwrap_model(self.model)
+        was_training = model.training
+        model.eval()
+
+        generation_config = GenerationConfig(
+            max_new_tokens=self.args.max_new_tokens,
+            temperature=self.temperature,
+            do_sample=True,
+            top_k=0,
+            pad_token_id=self.processing_class.pad_token_id,
+            eos_token_id=self.generation_config.eos_token_id,
+        )
+
+        results = []
+        batch_size = max(1, int(self.args.per_device_eval_batch_size))
+
+        with torch.no_grad():
+            for start in range(0, len(dataset), batch_size):
+                end = min(start + batch_size, len(dataset))
+                examples = [dataset[i] for i in range(start, end)]
+                prompts = [example["prompt"] for example in examples]
+                inputs = self.processing_class(
+                    prompts,
+                    return_tensors="pt",
+                    padding=True,
+                    truncation=True,
+                    max_length=self.args.max_length,
+                    add_special_tokens=False,
+                )
+                inputs = {key: value.to(self.accelerator.device) for key, value in inputs.items()}
+                generated = model.generate(**inputs, generation_config=generation_config)
+                generated_ids = generated[:, inputs["input_ids"].shape[-1] :]
+                responses = self.processing_class.batch_decode(generated_ids, skip_special_tokens=True)
+
+                for offset, (example, raw_response) in enumerate(zip(examples, responses)):
+                    pred_sql, success, error = extract_sql_from_response(raw_response)
+                    sample_id = example.get("sample_id") or start + offset
+                    results.append(
+                        {
+                            "sample_id": sample_id,
+                            "prompt": example.get("prompt", ""),
+                            "gold_sql": example.get("gold_sql", ""),
+                            "gold_response": example.get("gold_response", ""),
+                            "raw_response": raw_response,
+                            "pred_sql": pred_sql,
+                            "success": success,
+                            "error": error,
+                        }
+                    )
+
+        with (eval_dir / "sql_result.json").open("w", encoding="utf-8") as fout:
+            json.dump(results, fout, indent=2, ensure_ascii=False)
+            fout.write("\n")
+
+        if was_training:
+            model.train()
 
     def create_model_card(
         self,
