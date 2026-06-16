@@ -26,6 +26,15 @@ FIELD_ALIASES = {
     "gold_sql": ("gold_sql", "query", "gold", "target_sql"),
     "pred_sql": ("pred_sql", "prediction", "pred", "sql"),
 }
+BENCHMARK_SPLIT_FILES = {
+    ("spider_data", "train"): Path("benchmarks_2/spider_data/train_spider.json"),
+    ("spider_data", "dev"): Path("benchmarks_2/spider_data/dev.json"),
+    ("spider_data", "test"): Path("benchmarks_2/spider_data/test.json"),
+    ("spider_dk", "test"): Path("benchmarks_2/spider_dk/test.json"),
+    ("spider_realistic", "test"): Path("benchmarks_2/spider_realistic/test.json"),
+    ("spider_syn", "train"): Path("benchmarks_2/spider_syn/train_spider.json"),
+    ("spider_syn", "test"): Path("benchmarks_2/spider_syn/test.json"),
+}
 
 
 def one_line_sql(value: Any, *, empty_value: str = EMPTY_PRED_SENTINEL) -> str:
@@ -37,6 +46,19 @@ def one_line_sql(value: Any, *, empty_value: str = EMPTY_PRED_SENTINEL) -> str:
     return " ".join(text.split())
 
 
+def one_line_pred_sql(value: Any) -> str:
+    text = one_line_sql(value)
+    if text == EMPTY_PRED_SENTINEL:
+        return text
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    if isinstance(parsed, dict) and parsed.get("sql"):
+        return one_line_sql(parsed["sql"])
+    return text
+
+
 def get_field(row: dict[str, Any], field_name: str, *, required: bool = True) -> Any:
     for alias in FIELD_ALIASES[field_name]:
         if alias in row:
@@ -45,6 +67,41 @@ def get_field(row: dict[str, Any], field_name: str, *, required: bool = True) ->
         aliases = ", ".join(FIELD_ALIASES[field_name])
         raise KeyError(f"missing {field_name}; expected one of: {aliases}")
     return None
+
+
+def parse_sample_index(sample_id: Any) -> int | None:
+    if sample_id is None:
+        return None
+    text = str(sample_id)
+    try:
+        return int(text.rsplit(":", 1)[-1])
+    except ValueError:
+        return None
+
+
+def load_gold_rows(input_path: Path, rows: list[dict[str, Any]]) -> list[dict[str, Any]] | None:
+    benchmark = next((row.get("benchmark") for row in rows if row.get("benchmark")), None)
+    split = next((row.get("split") for row in rows if row.get("split")), None)
+    source_path = BENCHMARK_SPLIT_FILES.get((benchmark, split))
+    if source_path is None or not source_path.exists():
+        return None
+
+    source_rows = json.loads(source_path.read_text(encoding="utf-8"))
+    if not isinstance(source_rows, list):
+        raise ValueError(f"{source_path} must contain a JSON list")
+    print(f"refreshing gold_sql for {input_path.name} from {source_path}")
+    return source_rows
+
+
+def get_gold_sql(row: dict[str, Any], gold_rows: list[dict[str, Any]] | None) -> str:
+    if gold_rows is not None:
+        sample_id = get_field(row, "sample_id", required=False)
+        index = parse_sample_index(sample_id)
+        if index is not None and 0 <= index < len(gold_rows):
+            query = gold_rows[index].get("query")
+            if query:
+                return one_line_sql(query, empty_value="")
+    return one_line_sql(get_field(row, "gold_sql"), empty_value="")
 
 
 def output_prefix(input_path: Path) -> str:
@@ -70,14 +127,15 @@ def format_file(input_path: Path, output_dir: Path) -> dict[str, Any]:
     gold_lines: list[str] = []
     meta_lines: list[str] = []
     empty_pred_count = 0
+    gold_rows = load_gold_rows(input_path, rows)
 
     for index, row in enumerate(rows):
         if not isinstance(row, dict):
             raise ValueError(f"{input_path}: row {index} is not an object")
 
         try:
-            pred_sql = one_line_sql(get_field(row, "pred_sql"))
-            gold_sql = one_line_sql(get_field(row, "gold_sql"), empty_value="")
+            pred_sql = one_line_pred_sql(get_field(row, "pred_sql"))
+            gold_sql = get_gold_sql(row, gold_rows)
             db_id = str(get_field(row, "db_id")).strip()
             sample_id = get_field(row, "sample_id", required=False)
         except KeyError as exc:

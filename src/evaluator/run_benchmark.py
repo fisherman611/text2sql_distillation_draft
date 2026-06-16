@@ -14,6 +14,21 @@ BENCHMARKS = {
         "db": "benchmarks/spider_data/test_database",
         "table": "benchmarks/spider_data/test_tables.json",
     },
+    "spider_syn_test": {
+        "gold": None,
+        "db": "benchmarks/spider_data/database",
+        "table": "benchmarks_2/spider_data/tables.json",
+    },
+    "spider_realistic_test": {
+        "gold": None,
+        "db": "benchmarks/spider_data/database",
+        "table": "benchmarks_2/spider_data/tables.json",
+    },
+    "spider_dk_test": {
+        "gold": None,
+        "db": "benchmarks/spider_dk/database",
+        "table": "benchmarks_2/spider_dk/tables.json",
+    },
     "sparc_dev": {
         "gold": "benchmarks/sparc/dev_gold.txt",
         "db": "benchmarks/sparc/database",
@@ -74,6 +89,11 @@ def main():
     )
     parser.add_argument("--pred", required=True, help="Prediction file path.")
     parser.add_argument(
+        "--gold",
+        default=None,
+        help="Gold SQL file path. Required for benchmark configs without a built-in gold file.",
+    )
+    parser.add_argument(
         "--etype",
         default="exec",
         choices=("all", "exec", "match"),
@@ -118,7 +138,13 @@ def main():
     args = parser.parse_args()
 
     config = BENCHMARKS[args.benchmark]
-    gold_path = resolve_repo_path(config["gold"])
+    gold_config = args.gold or config["gold"]
+    if gold_config is None:
+        raise ValueError(
+            f"{args.benchmark} does not have a built-in gold file. "
+            "Pass --gold, usually the .gold.sql file created by scripts/format_spider_infer_results.py."
+        )
+    gold_path = resolve_repo_path(gold_config)
     pred_path = resolve_repo_path(args.pred)
     db_dir = resolve_repo_path(config["db"])
     table_path = resolve_repo_path(config["table"])
