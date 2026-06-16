@@ -98,6 +98,12 @@ def main():
         help="Show per-datapoint database execution progress bars.",
     )
     parser.add_argument(
+        "--exec_timeout",
+        type=int,
+        default=None,
+        help="Maximum seconds allowed for each SQL execution before marking it wrong.",
+    )
+    parser.add_argument(
         "--skip_shape_check",
         default=False,
         action="store_true",
@@ -154,6 +160,7 @@ def main():
         plug_value=args.plug_value,
         keep_distinct=args.keep_distinct,
         progress_bar_for_each_datapoint=args.progress_bar_for_each_datapoint,
+        exec_timeout=args.exec_timeout,
     )
 
 

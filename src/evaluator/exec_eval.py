@@ -10,15 +10,12 @@ import tqdm
 import random
 from parse import get_all_preds_for_execution, remove_distinct
 import time
-import pickle as pkl
-import subprocess
 from itertools import chain
 
 
 
 threadLock = threading.Lock()
 TIMEOUT = 60
-EXEC_TMP_DIR = 'tmp/'
 
 def permute_tuple(element: Tuple, perm: Tuple) -> Tuple:
     assert len(element) == len(perm)
@@ -142,27 +139,37 @@ def get_cursor_from_path(sqlite_path: str):
     return cursor
 
 
-async def exec_on_db_(sqlite_path: str, query: str) -> Tuple[str, Any]:
+async def exec_on_db_(sqlite_path: str, query: str, timeout: int = TIMEOUT) -> Tuple[str, Any]:
     query = replace_cur_year(query)
     cursor = get_cursor_from_path(sqlite_path)
+    connection = cursor.connection
+
+    if timeout is not None and timeout > 0:
+        deadline = time.monotonic() + timeout
+
+        def stop_after_timeout():
+            return int(time.monotonic() >= deadline)
+
+        connection.set_progress_handler(stop_after_timeout, 1000)
+
     try:
         cursor.execute(query)
         result = cursor.fetchall()
-        cursor.close()
-        cursor.connection.close()
         return "result", result
     except Exception as e:
-        cursor.close()
-        cursor.connection.close()
+        if isinstance(e, sqlite3.OperationalError) and "interrupted" in str(e).lower():
+            return "exception", TimeoutError
         return "exception", e
+    finally:
+        connection.set_progress_handler(None, 0)
+        cursor.close()
+        connection.close()
 
 async def exec_on_db(
     sqlite_path: str, query: str, process_id: str = "", timeout: int = TIMEOUT
 ) -> Tuple[str, Any]:
     try:
-        return await asyncio.wait_for(exec_on_db_(sqlite_path, query), timeout)
-    except asyncio.TimeoutError:
-        return ('exception', TimeoutError)
+        return await exec_on_db_(sqlite_path, query, timeout=timeout)
     except Exception as e:
         return ("exception", e)
 
@@ -181,7 +188,15 @@ def postprocess(query: str) -> str:
 # 0 if denotationally equivalent
 # 1 otherwise
 # the meaning of each auxillary argument can be seen in the parser definition in evaluation.py
-def eval_exec_match(db: str, p_str: str, g_str: str, plug_value: bool, keep_distinct: bool, progress_bar_for_each_datapoint: bool) -> int:
+def eval_exec_match(
+    db: str,
+    p_str: str,
+    g_str: str,
+    plug_value: bool,
+    keep_distinct: bool,
+    progress_bar_for_each_datapoint: bool,
+    timeout: int = TIMEOUT,
+) -> int:
     # post-process the prediction.
     # e.g. removing spaces between ">" and "="
     p_str, g_str = postprocess(p_str), postprocess(g_str)
@@ -209,6 +224,7 @@ def eval_exec_match(db: str, p_str: str, g_str: str, plug_value: bool, keep_dist
         # we did not add this line in our EMNLP work
         # this reduces "false negatives" when value is substituted
         preds = chain([p_str], preds)
+    gold_timeout = max(timeout, TIMEOUT) if timeout is not None else TIMEOUT
 
     for pred in preds:
 
@@ -221,8 +237,8 @@ def eval_exec_match(db: str, p_str: str, g_str: str, plug_value: bool, keep_dist
             ranger = db_paths
 
         for db_path in ranger:
-            g_flag, g_denotation = asyncio.run(exec_on_db(db_path, g_str))
-            p_flag, p_denotation = asyncio.run(exec_on_db(db_path, pred))
+            g_flag, g_denotation = asyncio.run(exec_on_db(db_path, g_str, timeout=gold_timeout))
+            p_flag, p_denotation = asyncio.run(exec_on_db(db_path, pred, timeout=timeout))
 
             # we should expect the gold to be succesfully executed on the database
             assert g_flag != 'exception', 'gold query %s has error on database file %s' % (g_str, db_path)

@@ -27,6 +27,7 @@ import argparse
 from tqdm import tqdm
 
 from process_sql import get_schema, Schema, get_sql
+from exec_eval import TIMEOUT as DEFAULT_EXEC_TIMEOUT
 from exec_eval import eval_exec_match
 
 # Flag to disable value evaluation
@@ -503,7 +504,18 @@ def print_scores(scores, etype, include_turn_acc=True):
             print_formated_s("exact match", exact_scores, '{:<20.3f}')
 
 
-def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, progress_bar_for_each_datapoint):
+def evaluate(
+        gold,
+        predict,
+        db_dir,
+        etype,
+        kmaps,
+        plug_value,
+        keep_distinct,
+        progress_bar_for_each_datapoint,
+        exec_timeout=DEFAULT_EXEC_TIMEOUT):
+    if exec_timeout is None:
+        exec_timeout = DEFAULT_EXEC_TIMEOUT
 
     with open(gold) as f:
         glist = []
@@ -612,7 +624,9 @@ def evaluate(gold, predict, db_dir, etype, kmaps, plug_value, keep_distinct, pro
 
             if etype in ["all", "exec"]:
                 exec_score = eval_exec_match(db=db, p_str=p_str, g_str=g_str, plug_value=plug_value,
-                                             keep_distinct=keep_distinct, progress_bar_for_each_datapoint=False)
+                                             keep_distinct=keep_distinct,
+                                             progress_bar_for_each_datapoint=False,
+                                             timeout=exec_timeout)
                 if exec_score:
                     scores[hardness]['exec'] += 1
                     scores[turn_id]['exec'] += 1
@@ -938,6 +952,8 @@ if __name__ == "__main__":
                         help='whether to keep distinct keyword during evaluation. default is false.')
     parser.add_argument('--progress_bar_for_each_datapoint', default=False, action='store_true',
                         help='whether to print progress bar of running test inputs for each datapoint')
+    parser.add_argument('--exec_timeout', type=int, default=DEFAULT_EXEC_TIMEOUT,
+                        help='maximum seconds allowed for each SQL execution before marking it wrong')
     args = parser.parse_args()
 
     # only evaluting exact match needs this argument
@@ -946,4 +962,5 @@ if __name__ == "__main__":
         assert args.table is not None, 'table argument must be non-None if exact set match is evaluated'
         kmaps = build_foreign_key_map_from_json(args.table)
 
-    evaluate(args.gold, args.pred, args.db, args.etype, kmaps, args.plug_value, args.keep_distinct, args.progress_bar_for_each_datapoint)
+    evaluate(args.gold, args.pred, args.db, args.etype, kmaps, args.plug_value, args.keep_distinct,
+             args.progress_bar_for_each_datapoint, args.exec_timeout)
