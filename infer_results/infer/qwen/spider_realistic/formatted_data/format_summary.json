@@ -1,0 +1,98 @@
+[
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/fkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/rkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/sft_sft_qwen3_0.6b_spider__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/sft_sft_qwen3_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/srkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "/mnt/d/GitHub/text2sql_distillation_draft/infer_results/infer/qwen/spider_realistic/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  }
+]
