@@ -23,6 +23,45 @@ logger = setup_logger(__name__, log_file=log_path)
 
 SPIDER_SYSTEM_PROMPT_PATH = Path("prompts/single_turn/generator/system_prompt.txt")
 SPIDER_USER_PROMPT_PATH = Path("prompts/single_turn/generator/user_prompt.txt")
+SPIDER_STYLE_BENCHMARKS = {
+    "spider_data": {
+        "splits": {
+            "train": "train_spider.json",
+            "dev": "dev.json",
+            "test": "test.json",
+        },
+        "tables": {
+            "train": "tables.json",
+            "dev": "tables.json",
+            "test": "test_tables.json",
+        },
+        "question_fields": ("question",),
+    },
+    "spider_dk": {
+        "splits": {
+            "test": "test.json",
+        },
+        "tables": "tables.json",
+        "question_fields": ("question",),
+    },
+    "spider_realistic": {
+        "splits": {
+            "test": "test.json",
+        },
+        "tables": "../spider_data/tables.json",
+        "question_fields": ("question",),
+    },
+    "spider_syn": {
+        "splits": {
+            "train": "train_spider.json",
+            "test": "test.json",
+        },
+        "tables": "../spider_data/tables.json",
+        "question_fields": ("SpiderSynQuestion", "question", "SpiderQuestion"),
+    },
+}
+DIALOG_BENCHMARKS = {"sparc", "cosql_dataset"}
+SUPPORTED_BENCHMARKS = tuple(sorted(set(SPIDER_STYLE_BENCHMARKS) | DIALOG_BENCHMARKS))
 
 DIALOG_SYSTEM_PROMPT = """You are a SQL Query Generator for conversational text-to-SQL tasks.
 
@@ -73,7 +112,7 @@ def parse_args():
     parser.add_argument(
         "--benchmark",
         default="spider_data",
-        choices=["spider_data", "sparc", "cosql_dataset"],
+        choices=SUPPORTED_BENCHMARKS,
         help="Benchmark name under benchmarks_2/.",
     )
     parser.add_argument(
@@ -426,15 +465,40 @@ def is_full_db(db: Optional[str], benchmark: Optional[str] = None) -> bool:
     return normalized in full_names
 
 
+def is_spider_style_benchmark(benchmark: str) -> bool:
+    return benchmark in SPIDER_STYLE_BENCHMARKS
+
+
+def get_configured_split(config: Dict, benchmark: str, split: str) -> str:
+    split_files = config["splits"]
+    if split not in split_files:
+        available = ", ".join(sorted(split_files))
+        raise ValueError(f"{benchmark} does not include split {split!r}. Available splits: {available}")
+    return split_files[split]
+
+
+def get_configured_tables(config: Dict, split: str) -> str:
+    tables = config["tables"]
+    if isinstance(tables, dict):
+        return tables[split]
+    return tables
+
+
+def get_spider_question(item: Dict, question_fields: Tuple[str, ...]) -> str:
+    for field in question_fields:
+        value = item.get(field)
+        if value:
+            return str(value)
+    raise KeyError(f"missing question field; expected one of: {', '.join(question_fields)}")
+
+
 def get_benchmark_paths(benchmark: str, split: str) -> Tuple[Path, Path]:
-    if benchmark == "spider_data":
-        split_file = {
-            "train": "train_spider.json",
-            "dev": "dev.json",
-            "test": "test.json",
-        }[split]
-        tables_file = "test_tables.json" if split == "test" else "tables.json"
-        return Path("benchmarks_2") / benchmark / split_file, Path("benchmarks_2") / benchmark / tables_file
+    if is_spider_style_benchmark(benchmark):
+        config = SPIDER_STYLE_BENCHMARKS[benchmark]
+        benchmark_dir = Path("benchmarks_2") / benchmark
+        split_file = get_configured_split(config, benchmark, split)
+        tables_file = get_configured_tables(config, split)
+        return benchmark_dir / split_file, benchmark_dir / tables_file
 
     if benchmark == "sparc":
         if split == "test":
@@ -504,7 +568,8 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
     records: List[Dict] = []
     available_db_ids = set()
 
-    if benchmark == "spider_data":
+    if is_spider_style_benchmark(benchmark):
+        question_fields = SPIDER_STYLE_BENCHMARKS[benchmark]["question_fields"]
         for idx, item in enumerate(raw_data):
             db_id = item["db_id"]
             available_db_ids.add(db_id)
@@ -516,7 +581,7 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
                     "split": split,
                     "sample_id": f"{benchmark}:{split}:{idx}",
                     "db_id": db_id,
-                    "question": item["question"],
+                    "question": get_spider_question(item, question_fields),
                     "gold_sql": item.get("query"),
                     "schema": schema_lookup[db_id],
                     "is_dialog": False,
@@ -803,7 +868,7 @@ def main():
         else Path(RESULTS_DIR) / args.benchmark / f"{args.split}_{db_name}_sqls_{args.model.split('/')[-1]}.json"
     )
 
-    if args.benchmark == "spider_data":
+    if is_spider_style_benchmark(args.benchmark):
         results, errors = run_spider_inference(
             records=records,
             tokenizer=tokenizer,

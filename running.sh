@@ -56,6 +56,9 @@ Options:
 
 Auto infer max length:
   spider_data: train=1612, test=856
+  spider_syn: test=756
+  spider_realistic: test=755
+  spider_dk: test=663
   sparc: dev=1024
   cosql_dataset: dev=1024
 
@@ -404,6 +407,15 @@ infer_max_length_for() {
       ;;
     spider_data:test)
       printf '856'
+      ;;
+    spider_syn:test)
+      printf '756'
+      ;;
+    spider_realistic:test)
+      printf '755'
+      ;;
+    spider_dk:test)
+      printf '663'
       ;;
     sparc:*|cosql_dataset:*)
       printf '1024'
