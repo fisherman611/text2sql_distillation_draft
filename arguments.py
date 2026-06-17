@@ -218,6 +218,15 @@ def add_distillm_args(parser: argparse.ArgumentParser):
     group.add_argument("--use_dsa", action="store_true")
     group.add_argument("--use_hs", action="store_true")
 
+    # DistiLLM-2 offline contrastive distillation
+    group.add_argument("--distillm2-alpha-t-base", type=float, default=0.1)
+    group.add_argument("--distillm2-alpha-s-base", type=float, default=0.1)
+    group.add_argument("--distillm2-alpha-min", type=float, default=0.01)
+    group.add_argument("--distillm2-adaptive-alpha", action="store_true")
+    group.add_argument("--distillm2-gradual-beta", action="store_true")
+    group.add_argument("--distillm2-use-gold-sft-loss", action="store_true")
+    group.add_argument("--distillm2-alpha-ema", type=float, default=0.9)
+
     return parser
 
 
