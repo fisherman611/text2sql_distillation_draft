@@ -8,7 +8,7 @@ OUTPUT_JSONL="${OUTPUT_JSONL:-generated/distillm2/spider_data/student_base_train
 
 STUDENT_GEN_CKPT="${STUDENT_GEN_CKPT:-Qwen/Qwen3-0.6B}"
 
-BATCH_SIZE="${BATCH_SIZE:-1}"
+BATCH_SIZE="${BATCH_SIZE:-64}"
 MAX_LENGTH="${MAX_LENGTH:-1612}"
 TEMPERATURE="${TEMPERATURE:-0.5}"
 TOP_P="${TOP_P:-0.95}"

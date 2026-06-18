@@ -9,7 +9,7 @@ OUTPUT_JSONL="${OUTPUT_JSONL:-generated/distillm2/spider_data/teacher_train.json
 TEACHER_CKPT="${TEACHER_CKPT:-Qwen/Qwen3-4B-Instruct-2507}"
 TEACHER_PEFT_PATH="${TEACHER_PEFT_PATH:-hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090}"
 
-BATCH_SIZE="${BATCH_SIZE:-1}"
+BATCH_SIZE="${BATCH_SIZE:-64}"
 MAX_LENGTH="${MAX_LENGTH:-1612}"
 TEMPERATURE="${TEMPERATURE:-0.5}"
 TOP_P="${TOP_P:-0.95}"
