@@ -21,7 +21,13 @@ configure_project_paths()
 from arguments import get_args
 from data_utils.distillm2_datasets import DistillM2TrainDataset
 from data_utils.lm_datasets import LMTrainDataset
-from distillm import distillm2_loss
+from distillm.distillm2_losses import (
+    compute_distillm2_alpha,
+    compute_distillm2_beta,
+    distillm2_skl_loss,
+    distillm2_srkl_loss,
+    sentence_probability_gap,
+)
 from finetuning.finetune import evaluate, get_teacher_model, setup_model_and_optimizer
 from utils import initialize, print_args, print_rank, save_rank
 from utils import get_tokenizer
@@ -65,6 +71,32 @@ def _anchor_tensor(value, device):
     if value is None:
         return None
     return torch.tensor(float(value), dtype=torch.float32, device=device)
+
+
+def _distillm2_alpha_and_gap(
+    student_logits,
+    teacher_logits,
+    labels,
+    direction,
+    base_alpha,
+    alpha_min,
+    adaptive_alpha,
+    anchor,
+):
+    gap = sentence_probability_gap(
+        student_logits,
+        teacher_logits,
+        labels,
+        direction=direction,
+    )
+    alpha = compute_distillm2_alpha(
+        gap,
+        base_alpha=base_alpha,
+        alpha_min=alpha_min,
+        adaptive=adaptive_alpha,
+        anchor=anchor,
+    )
+    return alpha, gap
 
 
 def finetune_distillm2(
@@ -142,47 +174,83 @@ def finetune_distillm2(
             torch.cuda.synchronize()
             st_time = time.time()
 
-            chosen_student_logits = _forward_logits(model, chosen_model_batch)
-            rejected_student_logits = _forward_logits(model, rejected_model_batch)
-
-            with torch.no_grad():
-                teacher_model.eval()
-                chosen_teacher_logits = _forward_logits(teacher_model, chosen_model_batch)
-                rejected_teacher_logits = _forward_logits(teacher_model, rejected_model_batch)
-
             epoch_global_step = micro_step_idx // args.gradient_accumulation_steps + 1
-            loss_output = distillm2_loss(
-                chosen_student_logits=chosen_student_logits,
-                chosen_teacher_logits=chosen_teacher_logits,
-                chosen_labels=chosen_no_model_batch["label"],
-                rejected_student_logits=rejected_student_logits,
-                rejected_teacher_logits=rejected_teacher_logits,
-                rejected_labels=rejected_no_model_batch["label"],
+            beta = compute_distillm2_beta(
                 global_step=epoch_global_step,
                 total_steps=max(1, args.train_iters_per_epoch),
-                alpha_t_base=args.distillm2_alpha_t_base,
-                alpha_s_base=args.distillm2_alpha_s_base,
-                alpha_min=args.distillm2_alpha_min,
+                gradual=args.distillm2_gradual_beta,
                 beta_start=args.distillm2_beta_start,
-                adaptive_alpha=use_adaptive_alpha,
-                gradual_beta=args.distillm2_gradual_beta,
                 current_epoch=paper_epoch,
                 total_epochs=distillm2_total_epochs,
-                chosen_gap_anchor=chosen_gap_anchor,
-                rejected_gap_anchor=rejected_gap_anchor,
             )
 
-            model.backward(loss_output.loss)
+            teacher_model.eval()
+
+            chosen_student_logits = _forward_logits(model, chosen_model_batch)
+            with torch.no_grad():
+                chosen_teacher_logits = _forward_logits(teacher_model, chosen_model_batch)
+            alpha_t, chosen_gap = _distillm2_alpha_and_gap(
+                chosen_student_logits,
+                chosen_teacher_logits,
+                chosen_no_model_batch["label"],
+                direction="teacher_minus_student",
+                base_alpha=args.distillm2_alpha_t_base,
+                alpha_min=args.distillm2_alpha_min,
+                adaptive_alpha=use_adaptive_alpha,
+                anchor=chosen_gap_anchor,
+            )
+            skl_loss = distillm2_skl_loss(
+                chosen_student_logits,
+                chosen_teacher_logits,
+                chosen_no_model_batch["label"],
+                alpha_t,
+            )
+            chosen_loss = 0.5 * (1.0 - beta) * skl_loss
+            model.backward(chosen_loss)
+            chosen_loss_log = chosen_loss.detach()
+            skl_loss_log = skl_loss.detach()
+            alpha_t_log = alpha_t.detach().mean()
+            chosen_gap_log = chosen_gap.detach().mean()
+            del chosen_student_logits, chosen_teacher_logits, alpha_t, chosen_gap, skl_loss, chosen_loss
+
+            rejected_student_logits = _forward_logits(model, rejected_model_batch)
+            with torch.no_grad():
+                rejected_teacher_logits = _forward_logits(teacher_model, rejected_model_batch)
+            alpha_s, rejected_gap = _distillm2_alpha_and_gap(
+                rejected_student_logits,
+                rejected_teacher_logits,
+                rejected_no_model_batch["label"],
+                direction="student_minus_teacher",
+                base_alpha=args.distillm2_alpha_s_base,
+                alpha_min=args.distillm2_alpha_min,
+                adaptive_alpha=use_adaptive_alpha,
+                anchor=rejected_gap_anchor,
+            )
+            srkl_loss = distillm2_srkl_loss(
+                rejected_student_logits,
+                rejected_teacher_logits,
+                rejected_no_model_batch["label"],
+                alpha_s,
+            )
+            rejected_loss = 0.5 * beta * srkl_loss
+            model.backward(rejected_loss)
+            rejected_loss_log = rejected_loss.detach()
+            srkl_loss_log = srkl_loss.detach()
+            alpha_s_log = alpha_s.detach().mean()
+            rejected_gap_log = rejected_gap.detach().mean()
+            loss_log = chosen_loss_log + rejected_loss_log
+            del rejected_student_logits, rejected_teacher_logits, alpha_s, rejected_gap, srkl_loss, rejected_loss
+
             model.step()
 
             log_tensors = {
-                "loss": loss_output.loss.detach(),
-                "skl": loss_output.skl_loss.detach(),
-                "srkl": loss_output.srkl_loss.detach(),
-                "alpha_t": loss_output.alpha_t_mean.detach(),
-                "alpha_s": loss_output.alpha_s_mean.detach(),
-                "chosen_gap": loss_output.chosen_gap_mean.detach(),
-                "rejected_gap": loss_output.rejected_gap_mean.detach(),
+                "loss": loss_log,
+                "skl": skl_loss_log,
+                "srkl": srkl_loss_log,
+                "alpha_t": alpha_t_log,
+                "alpha_s": alpha_s_log,
+                "chosen_gap": chosen_gap_log,
+                "rejected_gap": rejected_gap_log,
             }
             for value in log_tensors.values():
                 dist.all_reduce(value, dist.ReduceOp.SUM, group=dp_group)
@@ -224,7 +292,7 @@ def finetune_distillm2(
                     srkl,
                     alpha_t,
                     alpha_s,
-                    loss_output.beta,
+                    beta,
                     lr_scheduler.get_last_lr()[0],
                     optimizer.cur_scale if hasattr(optimizer, "cur_scale") else 0,
                     elapsed_time,
