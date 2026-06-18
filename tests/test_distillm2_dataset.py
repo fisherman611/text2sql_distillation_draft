@@ -15,6 +15,24 @@ class DummyTokenizer:
     eos_token_id = 0
 
 
+class CharTokenizer:
+    eos_token_id = 0
+
+    def encode(self, text, add_special_tokens=False):
+        return [ord(ch) for ch in text]
+
+
+class MergeBoundaryTokenizer:
+    eos_token_id = 0
+
+    def encode(self, text, add_special_tokens=False):
+        if text == "ab":
+            return [1, 2]
+        if text == "abC":
+            return [1, 20, 3]
+        return [ord(ch) for ch in text]
+
+
 def write_indexed(prefix, rows):
     builder = make_builder(prefix + ".bin", impl="mmap", dtype=np.int32)
     for row in rows:
@@ -51,6 +69,26 @@ class DistillM2DatasetTest(unittest.TestCase):
             self.assertEqual(chosen_no_model["label"][0, 1].item(), 20)
             self.assertEqual(rejected_no_model["label"][0, 1].item(), 30)
             self.assertEqual(gen_data["input_ids"].shape, (1, 4))
+
+    def test_process_distillm2_encoder_keeps_prompt_end(self):
+        from process_distillm2_data import Encoder
+
+        encoder = Encoder(SimpleNamespace(max_length=6, max_prompt_length=3))
+        Encoder.tokenizer = CharTokenizer()
+        prompt_tokens, response_tokens = encoder._encode_full("abcdef", "XYZ")
+
+        self.assertEqual(prompt_tokens, [ord("d"), ord("e"), ord("f")])
+        self.assertEqual(response_tokens, [ord("X"), ord("Y"), ord("Z")])
+
+    def test_process_distillm2_encoder_handles_prompt_response_merge(self):
+        from process_distillm2_data import Encoder
+
+        encoder = Encoder(SimpleNamespace(max_length=10, max_prompt_length=8))
+        Encoder.tokenizer = MergeBoundaryTokenizer()
+        prompt_tokens, response_tokens = encoder._encode_full("ab", "C")
+
+        self.assertEqual(prompt_tokens, [1])
+        self.assertEqual(response_tokens, [20, 3, 0])
 
 
 if __name__ == "__main__":

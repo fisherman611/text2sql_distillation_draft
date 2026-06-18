@@ -222,10 +222,15 @@ def add_distillm_args(parser: argparse.ArgumentParser):
     group.add_argument("--distillm2-alpha-t-base", type=float, default=0.1)
     group.add_argument("--distillm2-alpha-s-base", type=float, default=0.1)
     group.add_argument("--distillm2-alpha-min", type=float, default=0.01)
+    group.add_argument("--distillm2-beta-start", type=float, default=0.5)
     group.add_argument("--distillm2-adaptive-alpha", action="store_true")
     group.add_argument("--distillm2-gradual-beta", action="store_true")
     group.add_argument("--distillm2-use-gold-sft-loss", action="store_true")
     group.add_argument("--distillm2-alpha-ema", type=float, default=0.9)
+    group.add_argument("--distillm2-current-epoch", type=int, default=1)
+    group.add_argument("--distillm2-total-epochs", type=int, default=None)
+    group.add_argument("--distillm2-chosen-gap-anchor", type=float, default=None)
+    group.add_argument("--distillm2-rejected-gap-anchor", type=float, default=None)
 
     return parser
 

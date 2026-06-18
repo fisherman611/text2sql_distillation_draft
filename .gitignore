@@ -207,3 +207,5 @@ marimo/_lsp/
 __marimo__/
 benchmarks/
 distillm-2-ref/
+runs/distillm2/
+DistiLLM-2.md

@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -25,9 +24,7 @@ def _safe_labels(labels: torch.Tensor, label_pad_token_id: int = -100) -> Tuple[
 
 
 def _masked_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-    mask = mask.to(values.dtype)
-    denom = mask.sum().clamp_min(1.0)
-    return (values * mask).sum() / denom
+    return _masked_sequence_mean(values, mask).mean()
 
 
 def _masked_sequence_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
@@ -82,13 +79,31 @@ def compute_distillm2_alpha(
     return alpha.clamp(min=alpha_min, max=base_alpha)
 
 
-def compute_distillm2_beta(global_step: int, total_steps: int, gradual: bool = True) -> float:
+def compute_distillm2_beta(
+    global_step: int,
+    total_steps: int,
+    gradual: bool = True,
+    beta_start: float = 0.5,
+    current_epoch: int = 1,
+    total_epochs: int = 1,
+) -> float:
+    beta_start = min(1.0, max(0.0, float(beta_start)))
     if not gradual:
-        return 1.0
-    if total_steps <= 0:
-        return 1.0
-    progress = min(1.0, 2.0 * float(global_step) / float(total_steps))
-    return 1.0 + 0.5 * progress
+        return beta_start
+
+    total_epochs = max(1, int(total_epochs))
+    current_epoch = min(max(1, int(current_epoch)), total_epochs)
+    epoch_progress = float(current_epoch - 1)
+
+    if total_steps <= 1:
+        iter_progress = 1.0 if current_epoch == total_epochs else 0.0
+    else:
+        iter_progress = float(max(1, global_step) - 1) / float(total_steps - 1)
+        iter_progress = min(1.0, max(0.0, iter_progress))
+
+    training_progress = (epoch_progress + iter_progress) / float(total_epochs)
+    progress = beta_start + (1.0 - beta_start) * training_progress
+    return min(1.0, max(beta_start, progress))
 
 
 def distillm2_skl_loss(
@@ -169,8 +184,11 @@ def distillm2_loss(
     alpha_t_base: float = 0.1,
     alpha_s_base: float = 0.1,
     alpha_min: float = 0.01,
+    beta_start: float = 0.5,
     adaptive_alpha: bool = True,
     gradual_beta: bool = True,
+    current_epoch: int = 1,
+    total_epochs: int = 1,
     chosen_gap_anchor: Optional[torch.Tensor] = None,
     rejected_gap_anchor: Optional[torch.Tensor] = None,
 ) -> DistiLLM2LossOutput:
@@ -214,8 +232,15 @@ def distillm2_loss(
         rejected_labels,
         alpha_s,
     )
-    beta = compute_distillm2_beta(global_step, total_steps, gradual=gradual_beta)
-    loss = (2.0 - beta) * skl_loss + beta * srkl_loss
+    beta = compute_distillm2_beta(
+        global_step,
+        total_steps,
+        gradual=gradual_beta,
+        beta_start=beta_start,
+        current_epoch=current_epoch,
+        total_epochs=total_epochs,
+    )
+    loss = 0.5 * ((1.0 - beta) * skl_loss + beta * srkl_loss)
 
     return DistiLLM2LossOutput(
         loss=loss,

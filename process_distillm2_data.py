@@ -8,7 +8,6 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer
 
-from arguments import get_args
 from data_utils.indexed_dataset import make_builder
 
 
@@ -45,12 +44,28 @@ class Encoder:
             )
 
     def _encode_full(self, prompt, response):
-        prompt_tokens = Encoder.tokenizer.encode(prompt, add_special_tokens=False)
-        if len(prompt_tokens) > self.args.max_prompt_length:
-            prompt_tokens = prompt_tokens[: self.args.max_prompt_length]
-
+        prompt_only_tokens = Encoder.tokenizer.encode(prompt, add_special_tokens=False)
         full_tokens = Encoder.tokenizer.encode(prompt + response, add_special_tokens=False)
-        response_tokens = full_tokens[len(prompt_tokens) :] + [Encoder.tokenizer.eos_token_id]
+        response_start_idx = len(prompt_only_tokens)
+
+        if prompt_only_tokens != full_tokens[:response_start_idx]:
+            response_start_idx = max(0, response_start_idx - 1)
+
+        prompt_tokens = full_tokens[:response_start_idx]
+        response_tokens = full_tokens[response_start_idx:]
+        eos_token_id = Encoder.tokenizer.eos_token_id
+        if not response_tokens or response_tokens[-1] != eos_token_id:
+            response_tokens = response_tokens + [eos_token_id]
+
+        if len(prompt_tokens) + len(response_tokens) > self.args.max_length:
+            prompt_tokens = prompt_tokens[-self.args.max_prompt_length :]
+
+        max_response_len = self.args.max_length - len(prompt_tokens)
+        if max_response_len <= 0:
+            prompt_tokens = prompt_tokens[-(self.args.max_length - 1) :]
+            max_response_len = 1
+        if len(response_tokens) > max_response_len:
+            response_tokens = response_tokens[:max_response_len]
         return prompt_tokens, response_tokens
 
     def encode(self, line):
@@ -64,11 +79,21 @@ class Encoder:
         rejected_response = line.get("student_response") or line.get("rejected_response") or ""
         eval_response = line.get("gold_response") or chosen_response
 
-        prompt_tokens, chosen_tokens = self._encode_full(prompt, chosen_response)
-        _, rejected_tokens = self._encode_full(prompt, rejected_response)
-        _, eval_tokens = self._encode_full(prompt, eval_response)
+        chosen_prompt_tokens, chosen_tokens = self._encode_full(prompt, chosen_response)
+        rejected_prompt_tokens, rejected_tokens = self._encode_full(prompt, rejected_response)
+        eval_prompt_tokens, eval_tokens = self._encode_full(prompt, eval_response)
 
-        return line, prompt, prompt_tokens, chosen_tokens, rejected_tokens, eval_tokens, len(raw_line)
+        return (
+            line,
+            prompt,
+            chosen_prompt_tokens,
+            chosen_tokens,
+            rejected_prompt_tokens,
+            rejected_tokens,
+            eval_prompt_tokens,
+            eval_tokens,
+            len(raw_line),
+        )
 
 
 def load_split_data(args):
@@ -97,6 +122,8 @@ def _add_item(builder, prompt_tokens, response_tokens):
 
 
 def main():
+    from arguments import get_args
+
     args = get_args()
     if args.split is None:
         raise ValueError("Please provide --split with one of: train, valid, test")
@@ -148,22 +175,32 @@ def main():
     )
 
     inst_num = 0
-    for lid, (line, prompt_str, prompt, chosen, rejected, eval_tokens, bytes_processed) in enumerate(encoded_docs):
+    for lid, (
+        line,
+        prompt_str,
+        chosen_prompt,
+        chosen,
+        rejected_prompt,
+        rejected,
+        eval_prompt,
+        eval_tokens,
+        bytes_processed,
+    ) in enumerate(encoded_docs):
         total_bytes_processed += bytes_processed
-        if len(prompt) >= args.max_length:
+        if len(chosen_prompt) >= args.max_length:
             continue
 
         if args.split == "train":
             if not chosen or not rejected:
                 continue
-            _add_item(chosen_builder, prompt, chosen)
-            _add_item(rejected_builder, prompt, rejected)
+            _add_item(chosen_builder, chosen_prompt, chosen)
+            _add_item(rejected_builder, rejected_prompt, rejected)
             chosen_lens.append(len(chosen))
             rejected_lens.append(len(rejected))
         else:
             if not eval_tokens:
                 continue
-            _add_item(eval_builder, prompt, eval_tokens)
+            _add_item(eval_builder, eval_prompt, eval_tokens)
 
         json_file.write(
             json.dumps(
@@ -180,7 +217,7 @@ def main():
             + "\n"
         )
 
-        prompt_lens.append(len(prompt))
+        prompt_lens.append(len(chosen_prompt))
         inst_num += 1
         if lid % 1000 == 0:
             elapsed = time.time() - proc_start

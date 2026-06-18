@@ -61,11 +61,10 @@ def _forward_logits(model, model_batch):
     return model(**model_batch, use_cache=False).logits
 
 
-def _update_anchor(anchor, value, ema):
-    value = value.detach()
-    if anchor is None:
-        return value
-    return ema * anchor + (1.0 - ema) * value
+def _anchor_tensor(value, device):
+    if value is None:
+        return None
+    return torch.tensor(float(value), dtype=torch.float32, device=device)
 
 
 def finetune_distillm2(
@@ -83,7 +82,7 @@ def finetune_distillm2(
     if args.distillm2_use_gold_sft_loss:
         raise NotImplementedError("--distillm2-use-gold-sft-loss is reserved for a separate ablation.")
 
-    print_rank("Start DistiLLM-2 offline fine-tuning")
+    print_rank("Start DistiLLM-2 paper fine-tuning")
 
     if args.model_parallel:
         raise NotImplementedError
@@ -113,16 +112,28 @@ def finetune_distillm2(
     total_alpha_t = 0.0
     total_alpha_s = 0.0
     total_time = 0.0
-    chosen_gap_anchor = None
-    rejected_gap_anchor = None
+    chosen_gap_anchor = _anchor_tensor(args.distillm2_chosen_gap_anchor, device)
+    rejected_gap_anchor = _anchor_tensor(args.distillm2_rejected_gap_anchor, device)
+    distillm2_total_epochs = args.distillm2_total_epochs or args.epochs
 
     evaluate(args, tokenizer, model, dataset["dev"], "dev", 0, device)
 
     for epoch in range(args.epochs):
+        paper_epoch = args.distillm2_current_epoch + epoch
+        use_adaptive_alpha = (
+            args.distillm2_adaptive_alpha
+            and paper_epoch > 1
+            and chosen_gap_anchor is not None
+            and rejected_gap_anchor is not None
+        )
+        epoch_chosen_gap_sum = 0.0
+        epoch_rejected_gap_sum = 0.0
+        epoch_gap_count = 0
+
         sampler.set_epoch(epoch)
         model.train()
 
-        for _, (chosen_model_batch, chosen_no_model_batch, rejected_model_batch, rejected_no_model_batch, _) in enumerate(train_dataloader):
+        for micro_step_idx, (chosen_model_batch, chosen_no_model_batch, rejected_model_batch, rejected_no_model_batch, _) in enumerate(train_dataloader):
             _move_batch_to_device(chosen_model_batch, device)
             _move_batch_to_device(chosen_no_model_batch, device)
             _move_batch_to_device(rejected_model_batch, device)
@@ -139,6 +150,7 @@ def finetune_distillm2(
                 chosen_teacher_logits = _forward_logits(teacher_model, chosen_model_batch)
                 rejected_teacher_logits = _forward_logits(teacher_model, rejected_model_batch)
 
+            epoch_global_step = micro_step_idx // args.gradient_accumulation_steps + 1
             loss_output = distillm2_loss(
                 chosen_student_logits=chosen_student_logits,
                 chosen_teacher_logits=chosen_teacher_logits,
@@ -146,26 +158,18 @@ def finetune_distillm2(
                 rejected_student_logits=rejected_student_logits,
                 rejected_teacher_logits=rejected_teacher_logits,
                 rejected_labels=rejected_no_model_batch["label"],
-                global_step=global_step,
-                total_steps=args.total_iters,
+                global_step=epoch_global_step,
+                total_steps=max(1, args.train_iters_per_epoch),
                 alpha_t_base=args.distillm2_alpha_t_base,
                 alpha_s_base=args.distillm2_alpha_s_base,
                 alpha_min=args.distillm2_alpha_min,
-                adaptive_alpha=args.distillm2_adaptive_alpha,
+                beta_start=args.distillm2_beta_start,
+                adaptive_alpha=use_adaptive_alpha,
                 gradual_beta=args.distillm2_gradual_beta,
+                current_epoch=paper_epoch,
+                total_epochs=distillm2_total_epochs,
                 chosen_gap_anchor=chosen_gap_anchor,
                 rejected_gap_anchor=rejected_gap_anchor,
-            )
-
-            chosen_gap_anchor = _update_anchor(
-                chosen_gap_anchor,
-                loss_output.chosen_gap_mean.clamp_min(1e-5),
-                args.distillm2_alpha_ema,
-            )
-            rejected_gap_anchor = _update_anchor(
-                rejected_gap_anchor,
-                loss_output.rejected_gap_mean.clamp_min(1e-5),
-                args.distillm2_alpha_ema,
             )
 
             model.backward(loss_output.loss)
@@ -177,6 +181,8 @@ def finetune_distillm2(
                 "srkl": loss_output.srkl_loss.detach(),
                 "alpha_t": loss_output.alpha_t_mean.detach(),
                 "alpha_s": loss_output.alpha_s_mean.detach(),
+                "chosen_gap": loss_output.chosen_gap_mean.detach(),
+                "rejected_gap": loss_output.rejected_gap_mean.detach(),
             }
             for value in log_tensors.values():
                 dist.all_reduce(value, dist.ReduceOp.SUM, group=dp_group)
@@ -186,6 +192,11 @@ def finetune_distillm2(
             global_srkl = log_tensors["srkl"].item() / dp_world_size
             global_alpha_t = log_tensors["alpha_t"].item() / dp_world_size
             global_alpha_s = log_tensors["alpha_s"].item() / dp_world_size
+            global_chosen_gap = log_tensors["chosen_gap"].item() / dp_world_size
+            global_rejected_gap = log_tensors["rejected_gap"].item() / dp_world_size
+            epoch_chosen_gap_sum += max(global_chosen_gap, 1e-5)
+            epoch_rejected_gap_sum += max(global_rejected_gap, 1e-5)
+            epoch_gap_count += 1
 
             torch.cuda.synchronize()
             elapsed_time = time.time() - st_time
@@ -203,7 +214,7 @@ def finetune_distillm2(
                     "alpha_t_mean: {:.4f} | alpha_s_mean: {:.4f} | distillm2_beta: {:.4f} | "
                     "lr: {:.4e} | scale: {:10.4f} | micro time: {:.3f} | step time: {:.3f}"
                 ).format(
-                    epoch,
+                    paper_epoch,
                     step,
                     args.total_iters * args.gradient_accumulation_steps,
                     global_step,
@@ -261,6 +272,23 @@ def finetune_distillm2(
                 global_step += 1
             if global_step > args.total_iters:
                 break
+
+        if epoch_gap_count > 0:
+            chosen_gap_anchor = torch.tensor(epoch_chosen_gap_sum / epoch_gap_count, dtype=torch.float32, device=device)
+            rejected_gap_anchor = torch.tensor(epoch_rejected_gap_sum / epoch_gap_count, dtype=torch.float32, device=device)
+
+    if args.save and dist.get_rank() == 0 and chosen_gap_anchor is not None and rejected_gap_anchor is not None:
+        anchor_path = os.path.join(args.save, "distillm2_anchors.json")
+        with open(anchor_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "chosen_gap_anchor": float(chosen_gap_anchor.detach().cpu().item()),
+                    "rejected_gap_anchor": float(rejected_gap_anchor.detach().cpu().item()),
+                },
+                f,
+                indent=2,
+            )
+        print_rank(f"DistiLLM-2 anchors saved to {anchor_path}")
 
     return model
 

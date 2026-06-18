@@ -31,27 +31,29 @@ TEACHER_CKPT="${TEACHER_CKPT:-Qwen/Qwen3-4B-Instruct-2507}"
 TEACHER_PEFT_PATH="${TEACHER_PEFT_PATH:-hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090}"
 
 BATCH_SIZE="${BATCH_SIZE:-1}"
-LR="${LR:-0.0001}"
-GRAD_ACC="${GRAD_ACC:-16}"
+LR="${LR:-5e-5}"
+GRAD_ACC="${GRAD_ACC:-64}"
 EVAL_BATCH_SIZE="${EVAL_BATCH_SIZE:-8}"
-EPOCHS="${EPOCHS:-5}"
+EPOCHS="${EPOCHS:-1}"
 
 MAX_LENGTH="${MAX_LENGTH:-1612}"
 MAX_PROMPT_LENGTH="${MAX_PROMPT_LENGTH:-1479}"
 
 PEFT_LORA_R="${PEFT_LORA_R:-16}"
-PEFT_LORA_ALPHA="${PEFT_LORA_ALPHA:-64}"
-PEFT_LORA_DROPOUT="${PEFT_LORA_DROPOUT:-0.1}"
+PEFT_LORA_ALPHA="${PEFT_LORA_ALPHA:-128}"
+PEFT_LORA_DROPOUT="${PEFT_LORA_DROPOUT:-0.05}"
 
 ALPHA_T_BASE="${ALPHA_T_BASE:-0.1}"
 ALPHA_S_BASE="${ALPHA_S_BASE:-0.1}"
 ALPHA_MIN="${ALPHA_MIN:-0.01}"
-ALPHA_EMA="${ALPHA_EMA:-0.9}"
+BETA_START="${BETA_START:-0.5}"
+DISTILLM2_CURRENT_EPOCH="${DISTILLM2_CURRENT_EPOCH:-1}"
+DISTILLM2_TOTAL_EPOCHS="${DISTILLM2_TOTAL_EPOCHS:-${EPOCHS}}"
 
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .sh)"
 RUN_TAG="e${EPOCHS}-bs${BATCH_SIZE}-lr${LR}-G${GRAD_ACC}-N${GPUS_PER_NODE}-NN${NNODES}-lora-${PEFT_LORA_R}-${PEFT_LORA_ALPHA}-${PEFT_LORA_DROPOUT}"
 SAVE_TAG="${SAVE_TAG:-distillm2_${SCRIPT_NAME}_spider_base-student_${RUN_TAG}}"
-SAVE_PATH="${BASE_PATH}/results/qwen3/${SAVE_TAG}"
+SAVE_PATH="${SAVE_PATH:-${BASE_PATH}/results/qwen3/${SAVE_TAG}}"
 SEED="${SEED:-42}"
 
 OPTS=""
@@ -61,6 +63,9 @@ OPTS+=" --teacher-model-path ${TEACHER_CKPT}"
 OPTS+=" --ckpt-name ${CKPT_NAME}"
 OPTS+=" --teacher-ckpt-name ${TEACHER_CKPT_NAME}"
 OPTS+=" --teacher-peft-path ${TEACHER_PEFT_PATH}"
+if [[ -n "${PEFT_PATH:-}" ]]; then
+  OPTS+=" --peft-path ${PEFT_PATH}"
+fi
 OPTS+=" --model-type qwen"
 OPTS+=" --n-gpu ${GPUS_PER_NODE}"
 OPTS+=" --gradient-checkpointing"
@@ -96,7 +101,15 @@ OPTS+=" --distillm2-gradual-beta"
 OPTS+=" --distillm2-alpha-t-base ${ALPHA_T_BASE}"
 OPTS+=" --distillm2-alpha-s-base ${ALPHA_S_BASE}"
 OPTS+=" --distillm2-alpha-min ${ALPHA_MIN}"
-OPTS+=" --distillm2-alpha-ema ${ALPHA_EMA}"
+OPTS+=" --distillm2-beta-start ${BETA_START}"
+OPTS+=" --distillm2-current-epoch ${DISTILLM2_CURRENT_EPOCH}"
+OPTS+=" --distillm2-total-epochs ${DISTILLM2_TOTAL_EPOCHS}"
+if [[ -n "${DISTILLM2_CHOSEN_GAP_ANCHOR:-}" ]]; then
+  OPTS+=" --distillm2-chosen-gap-anchor ${DISTILLM2_CHOSEN_GAP_ANCHOR}"
+fi
+if [[ -n "${DISTILLM2_REJECTED_GAP_ANCHOR:-}" ]]; then
+  OPTS+=" --distillm2-rejected-gap-anchor ${DISTILLM2_REJECTED_GAP_ANCHOR}"
+fi
 OPTS+=" --do-sample"
 OPTS+=" --top-k 0"
 OPTS+=" --top-p 0.95"

@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument("--ckpt-revision", default=None)
     parser.add_argument("--device", default=None, choices=["cpu", "cuda", "auto"])
     parser.add_argument("--batch-size", type=int, default=1)
-    parser.add_argument("--max-new-tokens", type=int, default=512)
+    parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--temperature", type=float, default=0.5)
     parser.add_argument("--top-p", type=float, default=0.95)
     parser.add_argument("--top-k", type=int, default=0)
@@ -76,7 +76,7 @@ def main():
                 tokenizer,
                 model,
                 messages,
-                max_length=args.max_new_tokens,
+                max_length=args.max_length,
                 temperature=args.temperature,
                 top_p=args.top_p,
                 top_k=args.top_k,
