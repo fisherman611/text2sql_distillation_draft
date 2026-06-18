@@ -11,10 +11,10 @@ CKPT="${CKPT:-Qwen/Qwen3-0.6B}"
 TEACHER_CKPT="${TEACHER_CKPT:-Qwen/Qwen3-4B-Instruct-2507}"
 TEACHER_PEFT_PATH="${TEACHER_PEFT_PATH:-hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090}"
 
-TOTAL_EPOCHS="${EPOCHS:-3}"
+TOTAL_EPOCHS="${EPOCHS:-5}"
 LIMIT="${LIMIT:-}"
 DEVICE="${DEVICE:-auto}"
-GEN_BATCH_SIZE="${GEN_BATCH_SIZE:-1}"
+BATCH_SIZE="${BATCH_SIZE:-2}"
 MAX_LENGTH="${MAX_LENGTH:-1612}"
 MAX_PROMPT_LENGTH="${MAX_PROMPT_LENGTH:-1479}"
 GEN_TEMPERATURE="${GEN_TEMPERATURE:-0.5}"
@@ -35,7 +35,7 @@ if [[ ! -s "${TEACHER_JSONL}" || "${FORCE_GENERATE_TEACHER:-0}" == "1" ]]; then
     --model "${TEACHER_CKPT}"
     --ckpt-path "${TEACHER_PEFT_PATH}"
     --device "${DEVICE}"
-    --batch-size "${GEN_BATCH_SIZE}"
+    --batch-size "${BATCH_SIZE}"
     --max-length "${MAX_LENGTH}"
     --temperature "${GEN_TEMPERATURE}"
     --top-p "${GEN_TOP_P}"
@@ -62,7 +62,7 @@ for epoch in $(seq 1 "${TOTAL_EPOCHS}"); do
     --output-jsonl "${STUDENT_JSONL}"
     --model "${CKPT}"
     --device "${DEVICE}"
-    --batch-size "${GEN_BATCH_SIZE}"
+    --batch-size "${BATCH_SIZE}"
     --max-length "${MAX_LENGTH}"
     --temperature "${GEN_TEMPERATURE}"
     --top-p "${GEN_TOP_P}"
@@ -106,9 +106,12 @@ for epoch in $(seq 1 "${TOTAL_EPOCHS}"); do
 
   SAVE_PATH="${DISTILLM2_WORK_DIR}/checkpoints/epoch_${epoch}"
   export BASE_PATH
+  export BATCH_SIZE
   export DATA_DIR="${PROCESSED_DIR}/qwen"
   export SAVE_PATH
   export CKPT
+  export MAX_LENGTH
+  export MAX_PROMPT_LENGTH
   export TEACHER_CKPT
   export TEACHER_PEFT_PATH
   export EPOCHS=1
