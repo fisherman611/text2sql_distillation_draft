@@ -122,6 +122,7 @@ OPTS+=" --peft-lora-dropout ${PEFT_LORA_DROPOUT}"
 export NCCL_DEBUG=""
 export WANDB_DISABLED=True
 export TF_CPP_MIN_LOG_LEVEL=3
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export PYTHONPATH="${BASE_PATH}"
 
 CMD="torchrun ${DISTRIBUTED_ARGS} ${BASE_PATH}/finetuning/finetune_distillm2.py ${OPTS} $@"

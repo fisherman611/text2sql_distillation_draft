@@ -555,7 +555,7 @@ def evaluate(args, tokenizer, model, dataset: LMTrainDataset, split, epoch, devi
                 )
                 
                 response_ids = full_ids[:, gen_data["input_ids"].size(1):]
-                all_response_ids.append(response_ids)
+                all_response_ids.append(response_ids.detach().cpu())
                     
             dist.all_reduce(loss, dist.ReduceOp.SUM, group=dp_group)
             loss = loss / dp_world_size
@@ -563,11 +563,12 @@ def evaluate(args, tokenizer, model, dataset: LMTrainDataset, split, epoch, devi
             step += 1
     
     if args.eval_gen:
-        all_response_ids = torch.cat(all_response_ids, dim=0)
+        all_response_ids = torch.cat(all_response_ids, dim=0).to(device)
         all_response_ids = all_gather(all_response_ids, dim=1, world_size=dp_world_size, group=dp_group, op="stack")
-        all_response_ids = all_response_ids.view(-1, all_response_ids.size(-1))
-        
+        all_response_ids = all_response_ids.view(-1, all_response_ids.size(-1)).cpu()
+
         responses = tokenizer.batch_decode(all_response_ids, skip_special_tokens=True)
+        del all_response_ids
     
     if get_rank() == 0:
         if args.eval_gen:
@@ -593,7 +594,8 @@ def evaluate(args, tokenizer, model, dataset: LMTrainDataset, split, epoch, devi
             log_str = f"{split} | avg_loss: {avg_loss} | {res}"
         print_rank(log_str)
         save_rank(log_str, os.path.join(args.save, "log.txt"))
-        
+
+    torch.cuda.empty_cache()
     return all_loss / step
 
 

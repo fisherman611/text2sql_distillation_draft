@@ -84,8 +84,8 @@ def _distillm2_alpha_and_gap(
     anchor,
 ):
     gap = sentence_probability_gap(
-        student_logits,
-        teacher_logits,
+        student_logits.detach(),
+        teacher_logits.detach(),
         labels,
         direction=direction,
     )
@@ -96,7 +96,7 @@ def _distillm2_alpha_and_gap(
         adaptive=adaptive_alpha,
         anchor=anchor,
     )
-    return alpha, gap
+    return alpha.detach(), gap.detach()
 
 
 def finetune_distillm2(
@@ -149,6 +149,7 @@ def finetune_distillm2(
     distillm2_total_epochs = args.distillm2_total_epochs or args.epochs
 
     evaluate(args, tokenizer, model, dataset["dev"], "dev", 0, device)
+    torch.cuda.empty_cache()
 
     for epoch in range(args.epochs):
         paper_epoch = args.distillm2_current_epoch + epoch
@@ -333,6 +334,7 @@ def finetune_distillm2(
 
             if args.eval_interval and global_step % args.eval_interval == 0 and step % args.gradient_accumulation_steps == 0:
                 evaluate(args, tokenizer, model, dataset["dev"], "dev", epoch, device)
+                torch.cuda.empty_cache()
                 model.train()
 
             step += 1
