@@ -28,34 +28,34 @@ fi
 
 mkdir -p "${DISTILLM2_WORK_DIR}/generated" "${DISTILLM2_WORK_DIR}/data" "${DISTILLM2_WORK_DIR}/processed" "${DISTILLM2_WORK_DIR}/checkpoints"
 
-TEACHER_JSONL="${DISTILLM2_WORK_DIR}/generated/teacher_train.jsonl"
-if [[ ! -s "${TEACHER_JSONL}" || "${FORCE_GENERATE_TEACHER:-0}" == "1" ]]; then
-  teacher_opts=(
-    --input-jsonl "${SOURCE_TRAIN_JSONL}"
-    --output-jsonl "${TEACHER_JSONL}"
-    --model "${TEACHER_CKPT}"
-    --ckpt-path "${TEACHER_PEFT_PATH}"
-    --device "${DEVICE}"
-    --batch-size "${GEN_BATCH_SIZE}"
-    --max-length "${MAX_LENGTH}"
-    --temperature "${GEN_TEMPERATURE}"
-    --top-p "${GEN_TOP_P}"
-    --top-k "${GEN_TOP_K}"
-  )
-  if [[ -n "${LIMIT}" ]]; then
-    teacher_opts+=(--limit "${LIMIT}")
-  fi
-  PYTHONPATH="${BASE_PATH}" python "${BASE_PATH}/scripts/distillm2/generate_outputs.py" "${teacher_opts[@]}"
-else
-  echo "Using cached teacher outputs: ${TEACHER_JSONL}"
-fi
-
 PREV_CKPT="${INITIAL_PEFT_PATH:-}"
 CHOSEN_GAP_ANCHOR=""
 REJECTED_GAP_ANCHOR=""
 
 for epoch in $(seq 1 "${TOTAL_EPOCHS}"); do
   echo "========== DistiLLM-2 paper epoch ${epoch}/${TOTAL_EPOCHS} =========="
+
+  TEACHER_JSONL="${DISTILLM2_WORK_DIR}/generated/teacher_epoch_${epoch}.jsonl"
+  if [[ ! -s "${TEACHER_JSONL}" || "${FORCE_GENERATE_TEACHER:-0}" == "1" ]]; then
+    teacher_opts=(
+      --input-jsonl "${SOURCE_TRAIN_JSONL}"
+      --output-jsonl "${TEACHER_JSONL}"
+      --model "${TEACHER_CKPT}"
+      --ckpt-path "${TEACHER_PEFT_PATH}"
+      --device "${DEVICE}"
+      --batch-size "${GEN_BATCH_SIZE}"
+      --max-length "${MAX_LENGTH}"
+      --temperature "${GEN_TEMPERATURE}"
+      --top-p "${GEN_TOP_P}"
+      --top-k "${GEN_TOP_K}"
+    )
+    if [[ -n "${LIMIT}" ]]; then
+      teacher_opts+=(--limit "${LIMIT}")
+    fi
+    PYTHONPATH="${BASE_PATH}" python "${BASE_PATH}/scripts/distillm2/generate_outputs.py" "${teacher_opts[@]}"
+  else
+    echo "Using cached teacher outputs: ${TEACHER_JSONL}"
+  fi
 
   STUDENT_JSONL="${DISTILLM2_WORK_DIR}/generated/student_epoch_${epoch}.jsonl"
   student_opts=(

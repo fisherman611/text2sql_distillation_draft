@@ -162,7 +162,7 @@ def distillm2_srkl_loss(
         torch.stack(
             [
                 torch.log1p(-alpha) + teacher_logps,
-                torch.log(alpha) + student_logps.detach(),
+                torch.log(alpha) + student_logps,
             ],
             dim=0,
         ),
@@ -206,18 +206,18 @@ def distillm2_loss(
     )
 
     alpha_t = compute_distillm2_alpha(
-        chosen_gap,
+        rejected_gap,
         base_alpha=alpha_t_base,
         alpha_min=alpha_min,
         adaptive=adaptive_alpha,
-        anchor=chosen_gap_anchor,
+        anchor=rejected_gap_anchor,
     )
     alpha_s = compute_distillm2_alpha(
-        rejected_gap,
+        chosen_gap,
         base_alpha=alpha_s_base,
         alpha_min=alpha_min,
         adaptive=adaptive_alpha,
-        anchor=rejected_gap_anchor,
+        anchor=chosen_gap_anchor,
     )
 
     skl_loss = distillm2_skl_loss(
