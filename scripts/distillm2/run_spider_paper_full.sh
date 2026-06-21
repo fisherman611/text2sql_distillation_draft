@@ -23,7 +23,7 @@ GEN_TOP_P="${GEN_TOP_P:-0.95}"
 GEN_TOP_K="${GEN_TOP_K:-0}"
 
 if [[ -n "${LIMIT}" && -z "${GRAD_ACC:-}" ]]; then
-  export GRAD_ACC=1
+  export GRAD_ACC=16
 fi
 
 mkdir -p "${DISTILLM2_WORK_DIR}/generated" "${DISTILLM2_WORK_DIR}/data" "${DISTILLM2_WORK_DIR}/processed" "${DISTILLM2_WORK_DIR}/checkpoints"
