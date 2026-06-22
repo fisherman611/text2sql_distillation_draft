@@ -139,7 +139,7 @@ def main():
     encoder = Encoder(args)
     workers = args.data_process_workers if args.data_process_workers and args.data_process_workers > 0 else 1
     pool = multiprocessing.Pool(processes=workers, initializer=encoder.initializer)
-    encoded_docs = pool.imap_unordered(encoder.encode, data, chunksize=50)
+    encoded_docs = pool.imap(encoder.encode, data, chunksize=50)
 
     dtype = get_builder_dtype(args)
     if args.split == "train":

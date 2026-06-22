@@ -203,7 +203,7 @@ def finetune_distillm2(
                 chosen_no_model_batch["label"],
                 alpha_t,
             )
-            chosen_loss = 0.5 * (1.0 - beta) * skl_loss
+            chosen_loss = (2.0 - beta) * skl_loss
             model.backward(chosen_loss)
             chosen_loss_log = chosen_loss.detach()
             skl_loss_log = skl_loss.detach()
@@ -234,7 +234,7 @@ def finetune_distillm2(
                 rejected_no_model_batch["label"],
                 alpha_s,
             )
-            rejected_loss = 0.5 * beta * srkl_loss
+            rejected_loss = beta * srkl_loss
             model.backward(rejected_loss)
             rejected_loss_log = rejected_loss.detach()
             srkl_loss_log = srkl_loss.detach()

@@ -83,11 +83,11 @@ def compute_distillm2_beta(
     global_step: int,
     total_steps: int,
     gradual: bool = True,
-    beta_start: float = 0.5,
+    beta_start: float = 1.0,
     current_epoch: int = 1,
     total_epochs: int = 1,
 ) -> float:
-    beta_start = min(1.0, max(0.0, float(beta_start)))
+    beta_start = max(0.0, float(beta_start))
     if not gradual:
         return beta_start
 
@@ -102,8 +102,8 @@ def compute_distillm2_beta(
         iter_progress = min(1.0, max(0.0, iter_progress))
 
     training_progress = (epoch_progress + iter_progress) / float(total_epochs)
-    progress = beta_start + (1.0 - beta_start) * training_progress
-    return min(1.0, max(beta_start, progress))
+    warmup_progress = min(1.0, 2.0 * training_progress)
+    return beta_start + 0.5 * warmup_progress
 
 
 def distillm2_skl_loss(
@@ -162,7 +162,7 @@ def distillm2_srkl_loss(
         torch.stack(
             [
                 torch.log1p(-alpha) + teacher_logps,
-                torch.log(alpha) + student_logps,
+                torch.log(alpha) + student_logps.detach(),
             ],
             dim=0,
         ),
@@ -184,7 +184,7 @@ def distillm2_loss(
     alpha_t_base: float = 0.1,
     alpha_s_base: float = 0.1,
     alpha_min: float = 0.01,
-    beta_start: float = 0.5,
+    beta_start: float = 1.0,
     adaptive_alpha: bool = True,
     gradual_beta: bool = True,
     current_epoch: int = 1,
@@ -240,7 +240,7 @@ def distillm2_loss(
         current_epoch=current_epoch,
         total_epochs=total_epochs,
     )
-    loss = 0.5 * ((1.0 - beta) * skl_loss + beta * srkl_loss)
+    loss = (2.0 - beta) * skl_loss + beta * srkl_loss
 
     return DistiLLM2LossOutput(
         loss=loss,

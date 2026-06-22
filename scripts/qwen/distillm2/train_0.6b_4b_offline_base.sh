@@ -4,8 +4,10 @@ set -euo pipefail
 
 if [[ -n "${RUN_GPUS:-}" ]]; then
   IFS=', ' read -r -a GPUS <<< "${RUN_GPUS}"
+elif [[ -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+  IFS=', ' read -r -a GPUS <<< "${CUDA_VISIBLE_DEVICES}"
 else
-  GPUS=(0 1)
+  GPUS=(1)
 fi
 export CUDA_VISIBLE_DEVICES=$(IFS=,; echo "${GPUS[*]}")
 
@@ -32,7 +34,7 @@ TEACHER_PEFT_PATH="${TEACHER_PEFT_PATH:-hf://distillation-sql/baselines/qwen3/sf
 
 BATCH_SIZE="${BATCH_SIZE:-1}"
 LR="${LR:-0.0001}"
-GRAD_ACC="${GRAD_ACC:-16}"
+GRAD_ACC="${GRAD_ACC:-32}"
 EVAL_BATCH_SIZE="${EVAL_BATCH_SIZE:-16}"
 EPOCHS="${EPOCHS:-5}"
 
@@ -46,7 +48,7 @@ PEFT_LORA_DROPOUT="${PEFT_LORA_DROPOUT:-0.1}"
 ALPHA_T_BASE="${ALPHA_T_BASE:-0.1}"
 ALPHA_S_BASE="${ALPHA_S_BASE:-0.1}"
 ALPHA_MIN="${ALPHA_MIN:-0.01}"
-BETA_START="${BETA_START:-0.5}"
+BETA_START="${BETA_START:-1.0}"
 DISTILLM2_CURRENT_EPOCH="${DISTILLM2_CURRENT_EPOCH:-1}"
 DISTILLM2_TOTAL_EPOCHS="${DISTILLM2_TOTAL_EPOCHS:-${EPOCHS}}"
 

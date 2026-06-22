@@ -3,6 +3,12 @@
 set -euo pipefail
 
 BASE_PATH="${BASE_PATH:-.}"
+if [[ -z "${RUN_GPUS:-}" && -z "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+  export RUN_GPUS=1
+  export CUDA_VISIBLE_DEVICES=1
+elif [[ -n "${RUN_GPUS:-}" && -z "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+  export CUDA_VISIBLE_DEVICES="${RUN_GPUS}"
+fi
 SOURCE_TRAIN_JSONL="${SOURCE_TRAIN_JSONL:-benchmarks_2/spider_data/format_data/train.jsonl}"
 SOURCE_DEV_JSONL="${SOURCE_DEV_JSONL:-benchmarks_2/spider_data/format_data/dev.jsonl}"
 PAIR_DIR="${PAIR_DIR:-data/distillm2/spider_data}"
