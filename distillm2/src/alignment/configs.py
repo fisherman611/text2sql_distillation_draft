@@ -293,5 +293,14 @@ class DPOConfig(trl.DPOConfig):
         default=True,
         metadata={"help": ("Whether to log and evaluate the first global_step or not.")},
     )
+    max_target_length: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Maximum target/answer length used by the vendored DistiLLM-2 trainer. "
+                "TRL 0.21 no longer exposes this field, but the original trainer still reads it."
+            )
+        },
+    )
     optim: Optional[str] = field(default="rmsprop")
     remove_unused_columns: bool = field(default=False)
