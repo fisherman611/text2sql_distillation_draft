@@ -30,6 +30,7 @@ HUB_MODEL_ID="${HUB_MODEL_ID:-null}"
 REBUILD_INFERENCE="${REBUILD_INFERENCE:-0}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
+GENERATION_BATCH_SIZE="${GENERATION_BATCH_SIZE:-100}"
 
 if [[ -n "${RUN_GPUS:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="${RUN_GPUS}"
@@ -44,6 +45,7 @@ run_student_infer() {
     python infer_spider_sql.py
     --input "${input}"
     --model "${STUDENT_MODEL}"
+    --batch-size "${GENERATION_BATCH_SIZE}"
     --output "${output}"
   )
   if [[ -n "${STUDENT_CKPT_PATH}" ]]; then
@@ -59,6 +61,7 @@ run_teacher_infer() {
     python infer_spider_sql.py
     --input "${input}"
     --model "${TEACHER_BASE}"
+    --batch-size "${GENERATION_BATCH_SIZE}"
     --output "${output}"
   )
   if [[ -n "${TEACHER_LORA}" ]]; then
@@ -89,6 +92,7 @@ echo "Student train source: ${TRAIN_STUDENT}"
 echo "Teacher base: ${TEACHER_BASE}"
 echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Runtime config: ${CONFIG}"
+echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
 
 if [[ "${DRY_RUN}" == "1" ]]; then
   echo "DRY_RUN=1, stopping before inference and training."

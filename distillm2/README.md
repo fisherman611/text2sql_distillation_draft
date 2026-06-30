@@ -152,6 +152,10 @@ It follows the original DistiLLM-2 pairing format: teacher generations become
 `chosen`, student generations become `rejected`, and the teacher is also loaded
 as the reference model during `src/run_distillm.py`. Gold SQL remains useful for
 evaluation, but it is not the default `chosen` response for DistiLLM-2 pairs.
+The default script settings use `GENERATION_BATCH_SIZE=100` for teacher/student
+generation, `per_device_train_batch_size=2` with `gradient_accumulation_steps=8`
+for an effective training batch size of 16 per process, and `BATCH_SIZE=16` for
+Spider inference/evaluation.
 To regenerate both:
 
 ```bash

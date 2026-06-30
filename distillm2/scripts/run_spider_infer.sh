@@ -16,7 +16,7 @@ CKPT_PATH="${CKPT_PATH:-outputs/qwen3-0.6b-4b-spider-distillm2}"
 HF_TOKEN="${HF_TOKEN:-${HF_READ_TOKEN:-}}"
 INPUT="${INPUT:-../processed_data/benchmarks/spider_data/qwen/test.jsonl}"
 OUTPUT="${OUTPUT:-infer_results/qwen3_distillm2_test.json}"
-BATCH_SIZE="${BATCH_SIZE:-1}"
+BATCH_SIZE="${BATCH_SIZE:-16}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-256}"
 
 if [[ -n "${RUN_GPUS:-}" ]]; then

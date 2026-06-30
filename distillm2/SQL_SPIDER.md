@@ -27,6 +27,7 @@ python infer_spider_sql.py \
   --input ../processed_data/benchmarks/spider_data/qwen/test.jsonl \
   --model Qwen/Qwen3-0.6B \
   --ckpt-path outputs/qwen3-0.6b-spider-sft \
+  --batch-size 16 \
   --output infer_results/qwen3_0.6b_sft_test.json
 ```
 
@@ -46,12 +47,14 @@ python infer_spider_sql.py \
   --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl \
   --model Qwen/Qwen3-4B-Instruct-2507 \
   --ckpt-path outputs/qwen3-4b-spider-teacher-lora \
+  --batch-size 100 \
   --output infer_results/qwen3_4b_teacher_train.json
 
 python infer_spider_sql.py \
   --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl \
   --model Qwen/Qwen3-4B-Instruct-2507 \
   --ckpt-path outputs/qwen3-4b-spider-teacher-lora \
+  --batch-size 100 \
   --output infer_results/qwen3_4b_teacher_valid.json
 ```
 
@@ -63,12 +66,14 @@ python infer_spider_sql.py \
   --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl \
   --model Qwen/Qwen3-0.6B \
   --ckpt-path outputs/qwen3-0.6b-spider-sft \
+  --batch-size 100 \
   --output infer_results/qwen3_0.6b_sft_train.json
 
 python infer_spider_sql.py \
   --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl \
   --model Qwen/Qwen3-0.6B \
   --ckpt-path outputs/qwen3-0.6b-spider-sft \
+  --batch-size 100 \
   --output infer_results/qwen3_0.6b_sft_valid.json
 ```
 
