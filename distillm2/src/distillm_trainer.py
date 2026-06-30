@@ -32,6 +32,7 @@ from accelerate.utils import is_deepspeed_available, tqdm
 from datasets import Dataset
 from huggingface_hub.utils._deprecation import _deprecate_arguments
 from torch.utils.data import DataLoader
+from transformers.trainer_callback import TrainerCallback
 from transformers import (
     AutoModelForCausalLM,
     DataCollator,
@@ -40,7 +41,6 @@ from transformers import (
     Trainer,
 )
 from transformers.models.auto.modeling_auto import MODEL_FOR_VISION_2_SEQ_MAPPING_NAMES
-from transformers.trainer_callback import TrainerCallback
 from transformers.trainer_utils import EvalLoopOutput
 
 try:
@@ -55,16 +55,16 @@ except ImportError:
 
 from trl.models import PreTrainedModelWrapper, create_reference_model
 from trl.trainer.dpo_config import DPOConfig, FDivergenceConstants, FDivergenceType
-from trl.trainer.utils import (
-    DPODataCollatorWithPadding,
-    RunningMoments,
-    SyncRefModelCallback,
-    cap_exp,
-    disable_dropout_in_model,
-    pad_to_length,
-    peft_module_casting_to_bf16,
-    trl_sanitze_kwargs_for_tagging,
-)
+from trl.trainer import utils as trl_trainer_utils
+
+DPODataCollatorWithPadding = trl_trainer_utils.DPODataCollatorWithPadding
+RunningMoments = trl_trainer_utils.RunningMoments
+cap_exp = trl_trainer_utils.cap_exp
+disable_dropout_in_model = trl_trainer_utils.disable_dropout_in_model
+pad_to_length = trl_trainer_utils.pad_to_length
+peft_module_casting_to_bf16 = trl_trainer_utils.peft_module_casting_to_bf16
+trl_sanitze_kwargs_for_tagging = trl_trainer_utils.trl_sanitze_kwargs_for_tagging
+SyncRefModelCallback = getattr(trl_trainer_utils, "SyncRefModelCallback", None)
 
 if is_peft_available():
     from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training
@@ -584,6 +584,12 @@ class DistiLLMTrainer(Trainer):
                 self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
 
         if args.sync_ref_model:
+            if SyncRefModelCallback is None:
+                raise ImportError(
+                    "`sync_ref_model=True` requires `SyncRefModelCallback`, but the installed TRL version "
+                    "does not expose it from `trl.trainer.utils`. Disable `sync_ref_model` or install the "
+                    "TRL version pinned by this project."
+                )
             if precompute_ref_log_probs:
                 raise ValueError(
                     "You cannot use `precompute_ref_log_probs=True` with TR-DPO method. Please set `precompute_ref_log_probs=False`."
