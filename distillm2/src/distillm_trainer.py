@@ -32,7 +32,6 @@ from accelerate.utils import is_deepspeed_available, tqdm
 from datasets import Dataset
 from huggingface_hub.utils._deprecation import _deprecate_arguments
 from torch.utils.data import DataLoader
-from transformers.trainer_callback import TrainerCallback
 from transformers import (
     AutoModelForCausalLM,
     DataCollator,
@@ -41,6 +40,7 @@ from transformers import (
     Trainer,
 )
 from transformers.models.auto.modeling_auto import MODEL_FOR_VISION_2_SEQ_MAPPING_NAMES
+from transformers.trainer_callback import TrainerCallback
 from transformers.trainer_utils import EvalLoopOutput
 
 try:
@@ -63,7 +63,11 @@ cap_exp = trl_trainer_utils.cap_exp
 disable_dropout_in_model = trl_trainer_utils.disable_dropout_in_model
 pad_to_length = trl_trainer_utils.pad_to_length
 peft_module_casting_to_bf16 = trl_trainer_utils.peft_module_casting_to_bf16
-trl_sanitze_kwargs_for_tagging = trl_trainer_utils.trl_sanitze_kwargs_for_tagging
+trl_sanitze_kwargs_for_tagging = getattr(
+    trl_trainer_utils,
+    "trl_sanitze_kwargs_for_tagging",
+    getattr(trl_trainer_utils, "trl_sanitize_kwargs_for_tagging", None),
+)
 SyncRefModelCallback = getattr(trl_trainer_utils, "SyncRefModelCallback", None)
 
 if is_peft_available():
@@ -587,8 +591,8 @@ class DistiLLMTrainer(Trainer):
             if SyncRefModelCallback is None:
                 raise ImportError(
                     "`sync_ref_model=True` requires `SyncRefModelCallback`, but the installed TRL version "
-                    "does not expose it from `trl.trainer.utils`. Disable `sync_ref_model` or install the "
-                    "TRL version pinned by this project."
+                    "does not expose it from `trl.trainer.utils`. Disable `sync_ref_model` or install a "
+                    "compatible TRL version."
                 )
             if precompute_ref_log_probs:
                 raise ValueError(
@@ -1391,7 +1395,7 @@ class DistiLLMTrainer(Trainer):
             return (loss, metrics)
         return loss
 
-    def generate_batch_samples(self, model, batch: Dict[str, torch.LongTensor]) -> Tuple[str, str]:
+    def get_batch_samples(self, model, batch: Dict[str, torch.LongTensor]) -> Tuple[str, str]:
         """Generate samples from the model and reference model for the given batch of inputs."""
 
         # If one uses `generate_during_eval` with peft + bf16, we need to explicitly call generate with
@@ -1507,7 +1511,7 @@ class DistiLLMTrainer(Trainer):
             random_batch = self.data_collator(random_batch_dataset)
             random_batch = self._prepare_inputs(random_batch)
 
-            policy_output_decoded, ref_output_decoded = self.generate_batch_samples(self.model, random_batch)
+            policy_output_decoded, ref_output_decoded = self.get_batch_samples(self.model, random_batch)
 
             self.log(
                 {
@@ -1561,6 +1565,7 @@ class DistiLLMTrainer(Trainer):
         Overwrite the `push_to_hub` method in order to force-add the tag "dpo" when pushing the
         model on the Hub. Please refer to `~transformers.Trainer.push_to_hub` for more details.
         """
-        kwargs = trl_sanitze_kwargs_for_tagging(model=self.model, tag_names=self._tag_names, kwargs=kwargs)
+        if trl_sanitze_kwargs_for_tagging is not None:
+            kwargs = trl_sanitze_kwargs_for_tagging(model=self.model, tag_names=self._tag_names, kwargs=kwargs)
 
         return super().push_to_hub(commit_message=commit_message, blocking=blocking, **kwargs)

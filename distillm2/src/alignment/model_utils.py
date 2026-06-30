@@ -27,6 +27,7 @@ from peft import LoraConfig, PeftConfig
 
 from .configs import DataArguments, DPOConfig, ModelArguments, SFTConfig
 from .data import DEFAULT_CHAT_TEMPLATE
+from .hf_utils import get_hf_token, resolve_hf_source
 
 
 def get_current_device() -> int:
@@ -66,7 +67,7 @@ def get_tokenizer(
     model_args: ModelArguments, data_args: DataArguments, auto_set_chat_template: bool = True
 ) -> PreTrainedTokenizer:
     """Get the tokenizer for the model."""
-    token = os.getenv("HF_TOKEN") or os.getenv("HF_READ_TOKEN")
+    token = get_hf_token()
     if model_args.ref_model_name_or_path is not None:
         tokenizer = AutoTokenizer.from_pretrained(
             model_args.ref_model_name_or_path,
@@ -75,13 +76,18 @@ def get_tokenizer(
             token=token,
         )
     else:
+        tokenizer_name_or_path = (
+            model_args.model_name_or_path
+            if model_args.tokenizer_name_or_path is None
+            else model_args.tokenizer_name_or_path
+        )
+        tokenizer_name_or_path, tokenizer_revision = resolve_hf_source(
+            tokenizer_name_or_path,
+            model_args.model_revision,
+        )
         tokenizer = AutoTokenizer.from_pretrained(
-            (
-                model_args.model_name_or_path
-                if model_args.tokenizer_name_or_path is None
-                else model_args.tokenizer_name_or_path
-            ),
-            revision=model_args.model_revision,
+            tokenizer_name_or_path,
+            revision=tokenizer_revision,
             trust_remote_code=model_args.trust_remote_code,
             token=token,
         )
@@ -126,8 +132,7 @@ def get_peft_config(model_args: ModelArguments) -> PeftConfig | None:
 def is_adapter_model(model_name_or_path: str, revision: str = "main") -> bool:
     try:
         # Try first if model on a Hub repo
-        token = os.getenv("HF_TOKEN") or os.getenv("HF_READ_TOKEN")
-        repo_files = list_repo_files(model_name_or_path, revision=revision, token=token)
+        repo_files = list_repo_files(model_name_or_path, revision=revision, token=get_hf_token())
     except (HFValidationError, RepositoryNotFoundError):
         # If not, check local repo
         repo_files = os.listdir(model_name_or_path)

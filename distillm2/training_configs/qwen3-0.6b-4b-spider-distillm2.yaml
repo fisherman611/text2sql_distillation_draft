@@ -1,9 +1,9 @@
 # Prepare SFT and pair data first:
 # python scripts/prepare_spider_sql_data.py --mode sft --output-dir data/spider_sql_sft
-# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 100 --output infer_results/qwen3_4b_teacher_train.json
-# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 100 --output infer_results/qwen3_4b_teacher_valid.json
-# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 100 --output infer_results/qwen3_0.6b_sft_train.json
-# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 100 --output infer_results/qwen3_0.6b_sft_valid.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 4 --output infer_results/qwen3_4b_teacher_train.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 4 --output infer_results/qwen3_4b_teacher_valid.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 4 --output infer_results/qwen3_0.6b_sft_train.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 4 --output infer_results/qwen3_0.6b_sft_valid.json
 # python scripts/prepare_spider_sql_data.py --mode pairs --output-dir data/spider_sql_distillm2 --teacher-train-results infer_results/qwen3_4b_teacher_train.json --teacher-valid-results infer_results/qwen3_4b_teacher_valid.json --student-train-results infer_results/qwen3_0.6b_sft_train.json --student-valid-results infer_results/qwen3_0.6b_sft_valid.json
 
 model_name_or_path: hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_0.6b_spider/e5-bs4-lr5e-05-G4-N2-NN1/1090
@@ -38,8 +38,8 @@ preprocessing_num_workers: 4
 bf16: true
 do_eval: true
 eval_steps: 500
-gradient_accumulation_steps: 8
-gradient_checkpointing: false
+gradient_accumulation_steps: 16
+gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
 learning_rate: 1.0e-4
@@ -52,7 +52,7 @@ num_train_epochs: 5
 optim: adamw_torch
 output_dir: outputs/qwen3-0.6b-4b-spider-distillm2
 run_name: qwen3-0.6b-4b-spider-distillm2
-per_device_train_batch_size: 2
+per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
 push_to_hub: false
 save_strategy: steps

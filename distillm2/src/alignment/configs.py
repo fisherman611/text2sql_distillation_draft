@@ -225,10 +225,6 @@ class DataArguments:
     """
 
     chat_template: Optional[str] = field(default=None, metadata={"help": "The chat template to use."})
-    enable_thinking: Optional[bool] = field(
-        default=None,
-        metadata={"help": "Pass enable_thinking to tokenizer.apply_chat_template when supported, e.g. Qwen3."},
-    )
     dataset_mixer: Optional[Dict[str, float]] = field(
         default=None,
         metadata={"help": ("Datasets and their proportions to be used for training ift/rl.")},
@@ -259,6 +255,10 @@ class DataArguments:
                 "Whether to automatically insert an empty system message as the first message if `system` is mentioned in the chat template."
             )
         },
+    )
+    enable_thinking: Optional[bool] = field(
+        default=None,
+        metadata={"help": "Pass enable_thinking to tokenizer.apply_chat_template when supported, e.g. Qwen3."},
     )
 
 

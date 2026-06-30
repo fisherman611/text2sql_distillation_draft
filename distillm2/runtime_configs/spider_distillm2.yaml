@@ -50,4 +50,4 @@ save_total_limit: 3
 seed: 42
 warmup_ratio: 0.05
 loss_type: distillm_v2
-hub_model_id: distillation-sql/qwen3-0.6b-spider-distillm2
+hub_model_id: null
