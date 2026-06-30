@@ -67,6 +67,31 @@ if is_deepspeed_available():
     import deepspeed
 
 
+def _normalize_model_init_kwargs(init_kwargs: Dict) -> Dict:
+    init_kwargs = deepcopy(init_kwargs)
+    torch_dtype = init_kwargs.get("torch_dtype")
+    if torch_dtype is not None:
+        # Convert to `torch.dtype` if an str is passed.
+        if isinstance(torch_dtype, str) and torch_dtype != "auto":
+            torch_dtype = getattr(torch, torch_dtype)
+
+        if torch_dtype != "auto" and not isinstance(torch_dtype, torch.dtype):
+            raise ValueError(
+                f"Invalid `torch_dtype` passed to the DPOConfig. Expected a string with either `torch.dtype` or 'auto', but got {torch_dtype}."
+            )
+
+    init_kwargs["torch_dtype"] = torch_dtype
+    return init_kwargs
+
+
+def _json_safe_model_init_kwargs(init_kwargs: Dict) -> Dict:
+    init_kwargs = deepcopy(init_kwargs)
+    torch_dtype = init_kwargs.get("torch_dtype")
+    if isinstance(torch_dtype, torch.dtype):
+        init_kwargs["torch_dtype"] = str(torch_dtype).replace("torch.", "")
+    return init_kwargs
+
+
 class DistiLLMTrainer(Trainer):
     r"""
     Initialize DPOTrainer.
@@ -171,7 +196,7 @@ class DistiLLMTrainer(Trainer):
             warnings.warn(
                 "You passed `model_init_kwargs` to the DPOTrainer, the value you passed will override the one in the `DPOConfig`."
             )
-            args.model_init_kwargs = model_init_kwargs
+            args.model_init_kwargs = _json_safe_model_init_kwargs(model_init_kwargs)
 
         if args.model_init_kwargs is None:
             model_init_kwargs = {}
@@ -180,26 +205,14 @@ class DistiLLMTrainer(Trainer):
                 "You passed model_init_kwargs to the DPOTrainer/DPOConfig, but your model is already instantiated."
             )
         else:
-            model_init_kwargs = args.model_init_kwargs
-
-            torch_dtype = model_init_kwargs["torch_dtype"]
-            if torch_dtype is not None:
-                # Convert to `torch.dtype` if an str is passed
-                if isinstance(torch_dtype, str) and torch_dtype != "auto":
-                    torch_dtype = getattr(torch, torch_dtype)
-
-                if torch_dtype != "auto" and not isinstance(torch_dtype, torch.dtype):
-                    raise ValueError(
-                        f"Invalid `torch_dtype` passed to the DPOConfig. Expected a string with either `torch.dtype` or 'auto', but got {torch_dtype}."
-                    )
-
-            model_init_kwargs["torch_dtype"] = torch_dtype
+            model_init_kwargs = _normalize_model_init_kwargs(args.model_init_kwargs)
+            args.model_init_kwargs = _json_safe_model_init_kwargs(model_init_kwargs)
 
         if ref_model_init_kwargs is not None:
             warnings.warn(
                 "You passed `ref_model_init_kwargs` to the DPOTrainer, the value you passed will override the one in the `DPOConfig`."
             )
-            args.ref_model_init_kwargs = ref_model_init_kwargs
+            args.ref_model_init_kwargs = _json_safe_model_init_kwargs(ref_model_init_kwargs)
 
         if args.ref_model_init_kwargs is None:
             ref_model_init_kwargs = {}
@@ -208,19 +221,8 @@ class DistiLLMTrainer(Trainer):
                 "You passed ref_model_init_kwargs to the DPOTrainer/DPOConfig, but your ref_model is already instantiated."
             )
         else:
-            ref_model_init_kwargs = args.ref_model_init_kwargs
-            torch_dtype = ref_model_init_kwargs["torch_dtype"]
-            if torch_dtype is not None:
-                # Convert to `torch.dtype` if an str is passed
-                if isinstance(torch_dtype, str) and torch_dtype != "auto":
-                    torch_dtype = getattr(torch, torch_dtype)
-
-                if torch_dtype != "auto" and not isinstance(torch_dtype, torch.dtype):
-                    raise ValueError(
-                        f"Invalid `torch_dtype` passed to the DPOConfig. Expected a string with either `torch.dtype` or 'auto', but got {torch_dtype}."
-                    )
-
-            ref_model_init_kwargs["torch_dtype"] = torch_dtype
+            ref_model_init_kwargs = _normalize_model_init_kwargs(args.ref_model_init_kwargs)
+            args.ref_model_init_kwargs = _json_safe_model_init_kwargs(ref_model_init_kwargs)
 
         if isinstance(model, str):
             warnings.warn(
