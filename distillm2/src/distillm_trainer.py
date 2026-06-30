@@ -12,8 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
 import inspect
+import importlib.util
+import math
 import random
 import warnings
 from collections import defaultdict
@@ -42,7 +43,16 @@ from transformers.models.auto.modeling_auto import MODEL_FOR_VISION_2_SEQ_MAPPIN
 from transformers.trainer_callback import TrainerCallback
 from transformers.trainer_utils import EvalLoopOutput
 
-from trl.import_utils import is_peft_available, is_wandb_available
+try:
+    from trl.import_utils import is_peft_available, is_wandb_available
+except ImportError:
+    def is_peft_available() -> bool:
+        return importlib.util.find_spec("peft") is not None
+
+    def is_wandb_available() -> bool:
+        return importlib.util.find_spec("wandb") is not None
+
+
 from trl.models import PreTrainedModelWrapper, create_reference_model
 from trl.trainer.dpo_config import DPOConfig, FDivergenceConstants, FDivergenceType
 from trl.trainer.utils import (
