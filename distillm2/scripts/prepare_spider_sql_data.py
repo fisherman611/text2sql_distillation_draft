@@ -87,14 +87,24 @@ def build_sft_records(rows: Iterable[Dict], add_thinking_stub: bool) -> List[Dic
     return records
 
 
-def build_pair_records(rows: Iterable[Dict], rejected_lookup: Dict[str, str], add_thinking_stub: bool) -> List[Dict]:
+def build_pair_records(
+    rows: Iterable[Dict],
+    chosen_lookup: Dict[str, str],
+    rejected_lookup: Dict[str, str],
+    add_thinking_stub: bool,
+) -> List[Dict]:
     records = []
-    missing = 0
+    missing_chosen = 0
+    missing_rejected = 0
     for row in rows:
         prompt = row["prompt"]
+        chosen = chosen_lookup.get(prompt)
+        if chosen is None:
+            missing_chosen += 1
+            chosen = row["response"]
         rejected = rejected_lookup.get(prompt)
         if rejected is None:
-            missing += 1
+            missing_rejected += 1
             rejected = sql_json("")
         records.append(
             {
@@ -102,7 +112,7 @@ def build_pair_records(rows: Iterable[Dict], rejected_lookup: Dict[str, str], ad
                 "chosen": [
                     {
                         "role": "assistant",
-                        "content": assistant_content(row["response"], add_thinking_stub),
+                        "content": assistant_content(chosen, add_thinking_stub),
                     }
                 ],
                 "rejected": [
@@ -113,8 +123,10 @@ def build_pair_records(rows: Iterable[Dict], rejected_lookup: Dict[str, str], ad
                 ],
             }
         )
-    if missing:
-        print(f"Warning: {missing} row(s) had no rejected prediction; filled empty SQL.")
+    if missing_chosen:
+        print(f"Warning: {missing_chosen} row(s) had no teacher prediction; fell back to gold response.")
+    if missing_rejected:
+        print(f"Warning: {missing_rejected} row(s) had no student prediction; filled empty SQL.")
     return records
 
 
@@ -131,6 +143,8 @@ def parse_args():
     parser.add_argument("--train-file", default="train.jsonl")
     parser.add_argument("--valid-file", default="valid.jsonl")
     parser.add_argument("--test-file", default=None)
+    parser.add_argument("--teacher-train-results", type=Path, default=None)
+    parser.add_argument("--teacher-valid-results", type=Path, default=None)
     parser.add_argument("--student-train-results", type=Path, default=None)
     parser.add_argument("--student-valid-results", type=Path, default=None)
     parser.add_argument("--limit", type=int, default=None, help="Optional per-split row limit for smoke tests.")
@@ -157,11 +171,17 @@ def main():
             for split, rows in split_rows.items()
         }
     else:
-        train_lookup = prediction_lookup(args.student_train_results)
-        valid_lookup = prediction_lookup(args.student_valid_results or args.student_train_results)
+        teacher_train_lookup = prediction_lookup(args.teacher_train_results)
+        teacher_valid_lookup = prediction_lookup(args.teacher_valid_results or args.teacher_train_results)
+        student_train_lookup = prediction_lookup(args.student_train_results)
+        student_valid_lookup = prediction_lookup(args.student_valid_results or args.student_train_results)
         datasets = {
-            "train": Dataset.from_list(build_pair_records(train_rows, train_lookup, add_thinking_stub)),
-            "test": Dataset.from_list(build_pair_records(valid_rows, valid_lookup, add_thinking_stub)),
+            "train": Dataset.from_list(
+                build_pair_records(train_rows, teacher_train_lookup, student_train_lookup, add_thinking_stub)
+            ),
+            "test": Dataset.from_list(
+                build_pair_records(valid_rows, teacher_valid_lookup, student_valid_lookup, add_thinking_stub)
+            ),
         }
 
     args.output_dir.parent.mkdir(parents=True, exist_ok=True)

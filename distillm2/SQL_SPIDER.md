@@ -38,7 +38,25 @@ This writes:
 
 ## 4. Prepare DistiLLM-2 pair data
 
-Run student inference on train and valid splits:
+Run teacher inference on train and valid splits. In DistiLLM-2, the teacher
+generation is the `chosen` response:
+
+```bash
+python infer_spider_sql.py \
+  --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl \
+  --model Qwen/Qwen3-4B-Instruct-2507 \
+  --ckpt-path outputs/qwen3-4b-spider-teacher-lora \
+  --output infer_results/qwen3_4b_teacher_train.json
+
+python infer_spider_sql.py \
+  --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl \
+  --model Qwen/Qwen3-4B-Instruct-2507 \
+  --ckpt-path outputs/qwen3-4b-spider-teacher-lora \
+  --output infer_results/qwen3_4b_teacher_valid.json
+```
+
+Run student inference on train and valid splits. The student generation is the
+`rejected` response:
 
 ```bash
 python infer_spider_sql.py \
@@ -54,12 +72,15 @@ python infer_spider_sql.py \
   --output infer_results/qwen3_0.6b_sft_valid.json
 ```
 
-Then build DistiLLM-2 comparison data where gold SQL is `chosen` and student output is `rejected`:
+Then build DistiLLM-2 comparison data where teacher output is `chosen` and
+student output is `rejected`, matching `distillm-2-ref/generate/reformat.py`:
 
 ```bash
 python scripts/prepare_spider_sql_data.py \
   --mode pairs \
   --output-dir data/spider_sql_distillm2 \
+  --teacher-train-results infer_results/qwen3_4b_teacher_train.json \
+  --teacher-valid-results infer_results/qwen3_4b_teacher_valid.json \
   --student-train-results infer_results/qwen3_0.6b_sft_train.json \
   --student-valid-results infer_results/qwen3_0.6b_sft_valid.json
 ```
@@ -100,7 +121,9 @@ The default `.env.hf.example` points to:
 - `Qwen/Qwen3-4B-Instruct-2507`;
 - the uploaded Qwen3-4B Spider teacher LoRA under `distillation-sql/baselines`.
 
-The script writes a generated config to `runtime_configs/spider_distillm2.yaml`, then launches training.
+The script writes a generated config to `runtime_configs/spider_distillm2.yaml`,
+runs teacher and student inference if needed, builds teacher/student pair data,
+then launches training.
 
 Validate the HF mapping and generated config without downloading models:
 

@@ -148,6 +148,10 @@ bash scripts/run_spider_distillm2.sh
 ```
 
 The workflow reuses existing inference results and pair data when available.
+It follows the original DistiLLM-2 pairing format: teacher generations become
+`chosen`, student generations become `rejected`, and the teacher is also loaded
+as the reference model during `src/run_distillm.py`. Gold SQL remains useful for
+evaluation, but it is not the default `chosen` response for DistiLLM-2 pairs.
 To regenerate both:
 
 ```bash
