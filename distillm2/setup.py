@@ -58,7 +58,7 @@ _deps = [
     "numpy>=1.24.2",
     "packaging>=23.0",
     "parameterized>=0.9.0",
-    "peft==0.9.0",
+    "peft==0.18.1",
     "protobuf",  # Needed to avoid conflicts with `transformers`
     "pytest",
     "safetensors>=0.3.3",

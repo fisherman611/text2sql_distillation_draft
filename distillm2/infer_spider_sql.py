@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 import argparse
+import inspect
 import json
 import os
+import shutil
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Iterator, List, Optional
 from urllib.parse import urlparse
 
 import torch
@@ -135,6 +139,85 @@ def materialize_hf_adapter_if_needed(source: str) -> str:
     )
 
 
+def _copy_or_link_file(src: str, dst: str):
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def _unsupported_peft_config_keys(config: Dict) -> List[str]:
+    try:
+        from peft.mapping import PEFT_TYPE_TO_CONFIG_MAPPING
+    except Exception:
+        try:
+            from peft.peft_model import PEFT_TYPE_TO_CONFIG_MAPPING
+        except Exception:
+            return []
+
+    config_cls = PEFT_TYPE_TO_CONFIG_MAPPING.get(config.get("peft_type"))
+    if config_cls is None:
+        return []
+
+    signature = inspect.signature(config_cls.__init__)
+    if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()):
+        return []
+
+    supported_keys = {name for name in signature.parameters if name != "self"}
+    return sorted(key for key in config if key not in supported_keys)
+
+
+def _is_empty_peft_config_value(value) -> bool:
+    return value is None or value is False or value == "" or value == [] or value == {}
+
+
+@contextmanager
+def compatible_peft_adapter_path(adapter_path: str) -> Iterator[str]:
+    path = Path(adapter_path)
+    config_path = path / "adapter_config.json"
+    if not path.is_dir() or not config_path.exists():
+        yield adapter_path
+        return
+
+    with config_path.open("r", encoding="utf-8") as fin:
+        config = json.load(fin)
+
+    unsupported_keys = _unsupported_peft_config_keys(config)
+    if not unsupported_keys:
+        yield adapter_path
+        return
+
+    non_empty_keys = [key for key in unsupported_keys if not _is_empty_peft_config_value(config[key])]
+    if non_empty_keys:
+        raise RuntimeError(
+            "The adapter_config.json contains PEFT options that the installed peft package does not support: "
+            + ", ".join(non_empty_keys)
+            + ". Upgrade peft in this runtime environment, or use an adapter saved with a compatible peft version."
+        )
+
+    with tempfile.TemporaryDirectory(prefix="peft_adapter_") as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        for child in path.iterdir():
+            target = tmp_path / child.name
+            if child.name == "adapter_config.json":
+                continue
+            if child.is_file():
+                _copy_or_link_file(str(child), str(target))
+            elif child.is_dir():
+                shutil.copytree(child, target, copy_function=_copy_or_link_file)
+
+        sanitized_config = {key: value for key, value in config.items() if key not in unsupported_keys}
+        (tmp_path / "adapter_config.json").write_text(
+            json.dumps(sanitized_config, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(
+            "Ignoring PEFT adapter_config keys unsupported by installed peft: "
+            + ", ".join(unsupported_keys)
+        )
+        yield str(tmp_path)
+
+
 def load_model(model_name_or_path: str, ckpt_path: Optional[str], device: str):
     model_name_or_path, _ = resolve_hf_source(model_name_or_path)
     ckpt_path, _ = resolve_hf_source(ckpt_path)
@@ -174,8 +257,9 @@ def load_model(model_name_or_path: str, ckpt_path: Optional[str], device: str):
         from peft import PeftModel
 
         ckpt_path = materialize_hf_adapter_if_needed(ckpt_path)
-        model = PeftModel.from_pretrained(model, ckpt_path, token=hf_token())
-        model = model.merge_and_unload()
+        with compatible_peft_adapter_path(ckpt_path) as adapter_path:
+            model = PeftModel.from_pretrained(model, adapter_path, token=hf_token())
+            model = model.merge_and_unload()
 
     model.eval()
     return tokenizer, model
