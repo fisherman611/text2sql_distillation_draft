@@ -1515,7 +1515,7 @@ class DistiLLMTrainer(Trainer):
 
         return initial_output
 
-    def log(self, logs: Dict[str, float]) -> None:
+    def log(self, logs: Dict[str, float], start_time: Optional[float] = None) -> None:
         """
         Log `logs` on the various objects watching training, including stored metrics.
 
@@ -1534,7 +1534,10 @@ class DistiLLMTrainer(Trainer):
             if self.logq_logp is None:
                 self.logq_logp = self._stored_metrics['logqs_logps/rejected']
         del self._stored_metrics[train_eval]
-        return super().log(logs)
+        try:
+            return super().log(logs, start_time)
+        except TypeError:
+            return super().log(logs)
 
     @wraps(Trainer.push_to_hub)
     def push_to_hub(self, commit_message: Optional[str] = "End of training", blocking: bool = True, **kwargs) -> str:
