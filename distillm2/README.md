@@ -18,31 +18,195 @@ by [Jongwoo Ko](https://sites.google.com/view/jongwooko)<sup>1,2</sup>, Tianyi C
 
 ## 🔧 Environment Setup
 
-Our codebase builds upon the [alignment-handbook repository](https://github.com/huggingface/alignment-handbook). Follow the steps below to set up your environment:
+Our codebase builds upon the [alignment-handbook repository](https://github.com/huggingface/alignment-handbook).
 
-1. Create a Python virtual environment using e.g. Conda:
-```bash
-conda create -n distillm2 python=3.10 && conda activate distillm2
-```
+Use a dedicated environment for this directory. Do not install it into the
+repository-root environment: the root project and `distillm2/` pin different
+versions of PyTorch, PEFT, Transformers, and TRL.
 
-2. install PyTorch `v2.4.0`. Installation is hardware-dependent, so please refer to the [PyTorch Installation Page](https://pytorch.org/get-started/locally/). 
+The training stack depends on vLLM, DeepSpeed, bitsandbytes, FlashAttention, and
+Bash scripts. Run it on Linux or WSL2 with an NVIDIA GPU rather than native
+Windows PowerShell.
 
-3. Install the remaining dependencies:
-```bash
-python -m pip install .
-```
-
-4. Install FlashAttention-2, which can be done by running:
+### 1. Create and activate the environment
 
 ```bash
-python -m pip install flash-attn --no-build-isolation
+cd distillm2
+
+conda create -n distillm2 python=3.11 -y
+conda activate distillm2
+
+python -m pip install --upgrade pip setuptools wheel
 ```
 
-5. (Optional) If you are running decoding with `gemma-2` models, you will also need to install `flashinfer`.
+To discard a broken existing environment and recreate it:
 
-```shell
-python -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4
+```bash
+conda deactivate
+conda env remove -n distillm2 -y
+conda create -n distillm2 python=3.11 -y
+conda activate distillm2
 ```
+
+When accessing this Windows checkout from WSL2, the equivalent project path is
+typically:
+
+```bash
+cd /mnt/d/GitHub/text2sql_distillation_draft/distillm2
+```
+
+### 2. Install CUDA 12.8, DistiLLM-2, and FlashAttention
+
+```bash
+conda install -y \
+  -c nvidia/label/cuda-12.8.0 \
+  -c nvidia \
+  "cuda=12.8.0"
+
+export CUDA_HOME="${CONDA_PREFIX}"
+export PATH="${CUDA_HOME}/bin:${PATH}"
+export CPATH="${CUDA_HOME}/targets/x86_64-linux/include:${CPATH:-}"
+export LD_LIBRARY_PATH="${CUDA_HOME}/targets/x86_64-linux/lib:${LD_LIBRARY_PATH:-}"
+
+python -m pip install torch==2.9.0 \
+  --index-url https://download.pytorch.org/whl/cu128
+python -m pip install vllm==0.11.1
+python -m pip install -e .
+```
+
+The editable install is recommended for this repository so changes under
+`src/` are used immediately. `setup.py` accepts Python 3.10.9 or newer; this
+workflow uses Python 3.11, PyTorch 2.9.0 built for CUDA 12.8, and a matching
+CUDA 12.8 development toolkit. The older PyTorch 2.4 instruction from the
+upstream project does not apply to this Qwen3 setup.
+
+Before building FlashAttention, verify that the CUDA compiler, development
+headers, and PyTorch build all use CUDA 12.8:
+
+```bash
+which nvcc
+nvcc --version
+find "${CUDA_HOME}" -name cuda_runtime.h | head
+python -c "import torch; print('torch:', torch.__version__); print('torch CUDA:', torch.version.cuda); print('CUDA available:', torch.cuda.is_available()); print('GPU count:', torch.cuda.device_count())"
+nvidia-smi
+```
+
+Both `nvcc --version` and `torch.version.cuda` must report CUDA 12.8. The
+`CUDA Version` shown by `nvidia-smi` is the maximum version supported by the
+driver; it does not prove that a complete CUDA development toolkit is
+installed.
+
+Build FlashAttention with limited parallelism to avoid exhausting host RAM.
+On an NVIDIA A40, restrict the CUDA architecture list to Ampere `sm_80`;
+otherwise FlashAttention may try to compile extra targets such as `sm_90`,
+`sm_100`, and `sm_120`, which is slow and can fail during the ninja build:
+
+```bash
+TORCH_CUDA_ARCH_LIST="8.0" MAX_JOBS=2 \
+  python -m pip install flash-attn --no-build-isolation
+python -c "import torch, flash_attn; print(torch.__version__, torch.version.cuda); print('flash-attn OK')"
+```
+
+### 3. Configure Hugging Face access
+
+Copy the provided environment template:
+
+```bash
+cp .env.hf.example .env.hf
+```
+
+Edit `.env.hf` and set at least:
+
+```dotenv
+HF_TOKEN=hf_your_token
+HF_HOME=.hf_cache
+RUN_GPUS=0,1
+```
+
+`HF_TOKEN` is required when the configured model or adapter repository is
+private. Do not commit `.env.hf`.
+
+### 4. Validate the Spider configuration
+
+Generate and inspect the runtime configuration without downloading models or
+starting training:
+
+```bash
+DRY_RUN=1 bash scripts/run_spider_distillm2.sh
+```
+
+The script uses the paths from `.env.hf`, writes
+`runtime_configs/spider_distillm2.yaml`, and stops before inference and
+training.
+
+### 5. Run the complete Spider DistiLLM-2 workflow
+
+For the default two-GPU setup:
+
+```bash
+bash scripts/run_spider_distillm2.sh
+```
+
+The workflow reuses existing inference results and pair data when available.
+To regenerate both:
+
+```bash
+REBUILD_INFERENCE=1 REBUILD_PAIRS=1 bash scripts/run_spider_distillm2.sh
+```
+
+To select two specific GPUs:
+
+```bash
+RUN_GPUS=2,3 bash scripts/run_spider_distillm2.sh
+```
+
+For a single GPU:
+
+```bash
+RUN_GPUS=0 NUM_PROCESSES=1 bash scripts/run_spider_distillm2.sh
+```
+
+Single-GPU training may run out of memory because training holds both the
+Qwen3-0.6B student and Qwen3-4B teacher. If this happens, reduce
+`per_device_train_batch_size`, `max_length`, or `max_prompt_length` in
+`training_configs/qwen3-0.6b-4b-spider-distillm2.yaml`. Increasing gradient
+accumulation alone does not reduce the peak memory of one micro-batch.
+
+### Optional Gemma-2 dependency
+
+If you are decoding with Gemma-2, install a FlashInfer build compatible with
+the PyTorch and CUDA versions in the active environment. Do not use the old
+hard-coded Torch 2.4/CUDA 12.1 wheel command unless those versions exactly
+match your environment.
+
+### Setup troubleshooting
+
+- If `vllm`, DeepSpeed, bitsandbytes, or FlashAttention fails to install on
+  native Windows, move the environment to Linux or WSL2.
+- If FlashAttention reports `cuda_runtime.h: No such file or directory`, the
+  selected CUDA toolkit is missing development headers or `CUDA_HOME` points
+  to an incomplete installation.
+- If FlashAttention reports detected CUDA 13.3 versus PyTorch CUDA 12.8, the
+  compiler toolkit is wrong. Reactivate the environment, set
+  `CUDA_HOME="${CONDA_PREFIX}"`, and confirm `nvcc --version` before retrying.
+- If FlashAttention reaches ninja compilation but fails after compiling many
+  architectures such as `sm_80`, `sm_90`, `sm_100`, and `sm_120`, restrict the
+  build to the GPU architecture you actually use. For A40 and A100 use
+  `TORCH_CUDA_ARCH_LIST="8.0"`; for H100 use `"9.0"`; for RTX 4090 use
+  `"8.9"`. The `nvcc warning : incompatible redefinition for option
+  'compiler-bindir'` message is usually only a warning; the real error is the
+  first `FAILED:` or `fatal error:` line before `ninja: build stopped`.
+- Do not install CUDA 12.8 using only the labeled channel with
+  `--override-channels`; the solver also needs the main `nvidia` channel for
+  the `cuda-version` dependency.
+- If CUDA is unavailable inside WSL2, verify `nvidia-smi` before reinstalling
+  Python packages.
+- If dependency resolution changes packages used by the repository root,
+  confirm that the `distillm2` Conda environment is active.
+
+The detailed data preparation, SFT, inference, pair-building, training, and
+Hugging Face checkpoint workflow is documented in
+[`SQL_SPIDER.md`](SQL_SPIDER.md).
 
 ## 🚀 Generation
 
