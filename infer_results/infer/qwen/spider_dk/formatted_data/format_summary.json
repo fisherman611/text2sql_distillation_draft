@@ -1,10 +1,10 @@
 [
   {
-    "input": "infer_results/infer/qwen/spider_dk/distillm2__test__full_sql_result.json",
+    "input": "infer_results/infer/qwen/spider_dk/distillm2_paper_full__ckpt218__test__full_sql_result.json",
     "rows": 535,
     "empty_pred": 0,
-    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.pred.sql",
-    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.gold.sql",
-    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.meta.jsonl"
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.meta.jsonl"
   }
 ]
