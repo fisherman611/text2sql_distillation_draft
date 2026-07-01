@@ -29,6 +29,11 @@ BENCHMARKS = {
         "db": "benchmarks/spider_dk/database",
         "table": "benchmarks_2/spider_dk/tables.json",
     },
+    "bird_dev": {
+        "gold": "benchmarks_2/bird/dev/dev.sql",
+        "db": "benchmarks/bird/dev/dev_databases",
+        "table": "benchmarks_2/bird/dev/dev_tables.json",
+    },
     "sparc_dev": {
         "gold": "benchmarks/sparc/dev_gold.txt",
         "db": "benchmarks/sparc/database",

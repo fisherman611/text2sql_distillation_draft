@@ -34,6 +34,7 @@ BENCHMARK_SPLIT_FILES = {
     ("spider_realistic", "test"): Path("benchmarks_2/spider_realistic/test.json"),
     ("spider_syn", "train"): Path("benchmarks_2/spider_syn/train_spider.json"),
     ("spider_syn", "test"): Path("benchmarks_2/spider_syn/test.json"),
+    ("bird", "dev"): Path("benchmarks_2/bird/dev/dev.json"),
 }
 
 
@@ -98,7 +99,7 @@ def get_gold_sql(row: dict[str, Any], gold_rows: list[dict[str, Any]] | None) ->
         sample_id = get_field(row, "sample_id", required=False)
         index = parse_sample_index(sample_id)
         if index is not None and 0 <= index < len(gold_rows):
-            query = gold_rows[index].get("query")
+            query = gold_rows[index].get("query") or gold_rows[index].get("SQL")
             if query:
                 return one_line_sql(query, empty_value="")
     return one_line_sql(get_field(row, "gold_sql"), empty_value="")

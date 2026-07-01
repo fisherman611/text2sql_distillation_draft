@@ -59,6 +59,16 @@ SPIDER_STYLE_BENCHMARKS = {
         "tables": "../spider_data/tables.json",
         "question_fields": ("SpiderSynQuestion", "question", "SpiderQuestion"),
     },
+    "bird": {
+        "splits": {
+            "dev": "dev/dev.json",
+        },
+        "tables": {
+            "dev": "dev/dev_tables.json",
+        },
+        "question_fields": ("question",),
+        "gold_sql_fields": ("SQL",),
+    },
 }
 DIALOG_BENCHMARKS = {"sparc", "cosql_dataset"}
 SUPPORTED_BENCHMARKS = tuple(sorted(set(SPIDER_STYLE_BENCHMARKS) | DIALOG_BENCHMARKS))
@@ -492,6 +502,14 @@ def get_spider_question(item: Dict, question_fields: Tuple[str, ...]) -> str:
     raise KeyError(f"missing question field; expected one of: {', '.join(question_fields)}")
 
 
+def get_gold_sql(item: Dict, gold_sql_fields: Tuple[str, ...]) -> Optional[str]:
+    for field in gold_sql_fields:
+        value = item.get(field)
+        if value:
+            return str(value)
+    return None
+
+
 def get_benchmark_paths(benchmark: str, split: str) -> Tuple[Path, Path]:
     if is_spider_style_benchmark(benchmark):
         config = SPIDER_STYLE_BENCHMARKS[benchmark]
@@ -570,6 +588,7 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
 
     if is_spider_style_benchmark(benchmark):
         question_fields = SPIDER_STYLE_BENCHMARKS[benchmark]["question_fields"]
+        gold_sql_fields = SPIDER_STYLE_BENCHMARKS[benchmark].get("gold_sql_fields", ("query",))
         for idx, item in enumerate(raw_data):
             db_id = item["db_id"]
             available_db_ids.add(db_id)
@@ -582,7 +601,7 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
                     "sample_id": f"{benchmark}:{split}:{idx}",
                     "db_id": db_id,
                     "question": get_spider_question(item, question_fields),
-                    "gold_sql": item.get("query"),
+                    "gold_sql": get_gold_sql(item, gold_sql_fields),
                     "schema": schema_lookup[db_id],
                     "is_dialog": False,
                     "dialog_id": None,
