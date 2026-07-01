@@ -61,3 +61,4 @@ save_total_limit: 3
 seed: 42
 warmup_ratio: 0.05
 loss_type: distillm_v2
+kd_loss_weight: 1.0

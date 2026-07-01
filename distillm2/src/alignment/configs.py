@@ -302,5 +302,15 @@ class DPOConfig(trl.DPOConfig):
             )
         },
     )
+    kd_loss_weight: float = field(
+        default=1.0,
+        metadata={
+            "help": (
+                "Beta weight for mixing gold-response SFT cross entropy with the DistiLLM-2 objective: "
+                "loss = (1 - kd_loss_weight) * gold_ce_loss + kd_loss_weight * distillm2_loss. "
+                "The default 1.0 preserves the original DistiLLM-2-only behavior."
+            )
+        },
+    )
     optim: Optional[str] = field(default="rmsprop")
     remove_unused_columns: bool = field(default=False)

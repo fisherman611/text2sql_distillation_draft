@@ -95,7 +95,7 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=["messages", "chosen", "rejected", "prompt", "completion", "label"],
+        columns_to_keep=["messages", "chosen", "rejected", "gold", "prompt", "completion", "label"],
     )
     logger.info(
         f"Training on the following splits: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
@@ -141,17 +141,28 @@ def main():
         f"Decontaminated {num_filtered_train_samples} ({num_filtered_train_samples/num_raw_train_samples * 100:.2f}%) samples from the training set."
     )
 
-    # Replace column names with what TRL needs, text_chosen -> chosen and text_rejected -> rejected
-    for split in ["train", "test"]:
-        raw_datasets[split] = raw_datasets[split].rename_columns(
-            {"text_prompt": "prompt", "text_chosen": "chosen", "text_rejected": "rejected"}
+    if not 0.0 <= training_args.kd_loss_weight <= 1.0:
+        raise ValueError(f"kd_loss_weight must be in [0, 1], got {training_args.kd_loss_weight}.")
+    if training_args.kd_loss_weight < 1.0 and "text_gold" not in raw_datasets["train"].column_names:
+        raise ValueError(
+            "kd_loss_weight < 1 requires a gold response in the pair dataset. "
+            "Rebuild it with scripts/prepare_spider_sql_data.py --mode pairs."
         )
+
+    # Replace formatted column names with what the trainer expects.
+    for split in ["train", "test"]:
+        rename_map = {"text_prompt": "prompt", "text_chosen": "chosen", "text_rejected": "rejected"}
+        if "text_gold" in raw_datasets[split].column_names:
+            rename_map["text_gold"] = "gold"
+        raw_datasets[split] = raw_datasets[split].rename_columns(rename_map)
 
     # Log a few random samples from the training set:
     for index in random.sample(range(len(raw_datasets["train"])), 3):
         logger.info(f"Prompt sample {index} of the raw training set:\n\n{raw_datasets['train'][index]['prompt']}")
         logger.info(f"Chosen sample {index} of the raw training set:\n\n{raw_datasets['train'][index]['chosen']}")
         logger.info(f"Rejected sample {index} of the raw training set:\n\n{raw_datasets['train'][index]['rejected']}")
+        if training_args.kd_loss_weight < 1.0:
+            logger.info(f"Gold sample {index} of the raw training set:\n\n{raw_datasets['train'][index]['gold']}")
 
     torch_dtype = (
         model_args.torch_dtype if model_args.torch_dtype in ["auto", None] else getattr(torch, model_args.torch_dtype)

@@ -107,6 +107,13 @@ def apply_chat_template(
             example["text_prompt"] = render_chat(prompt_messages, tokenize=False)
             example["text_chosen"] = render_chat(chosen_messages, tokenize=False)
             example["text_rejected"] = render_chat(rejected_messages, tokenize=False)
+            if "gold" in example:
+                gold_messages = example["gold"]
+                if not is_openai_format(gold_messages):
+                    raise ValueError(
+                        f"Could not format gold response for `{task}` task! Require OpenAI message format."
+                    )
+                example["text_gold"] = render_chat(gold_messages, tokenize=False)
         else:
             raise ValueError(
                 f"Could not format example as dialogue for `{task}` task! Require either the "

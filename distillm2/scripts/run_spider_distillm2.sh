@@ -31,6 +31,7 @@ REBUILD_INFERENCE="${REBUILD_INFERENCE:-0}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 GENERATION_BATCH_SIZE="${GENERATION_BATCH_SIZE:-4}"
+KD_LOSS_WEIGHT="${KD_LOSS_WEIGHT:-1.0}"
 
 if [[ -n "${RUN_GPUS:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="${RUN_GPUS}"
@@ -86,6 +87,7 @@ python scripts/make_hf_config.py \
   --set "run_name=$(basename "${OUTPUT_DIR}")" \
   --set "push_to_hub=${PUSH_TO_HUB}" \
   --set "hub_model_id=${HUB_MODEL_ID}" \
+  --set "kd_loss_weight=${KD_LOSS_WEIGHT}" \
   --set "dataset_mixer={'${PAIR_DATA_DIR}': 1.0}"
 
 echo "Student train source: ${TRAIN_STUDENT}"
@@ -93,6 +95,7 @@ echo "Teacher base: ${TEACHER_BASE}"
 echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Runtime config: ${CONFIG}"
 echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
+echo "Loss: (1 - ${KD_LOSS_WEIGHT}) * gold SFT CE + ${KD_LOSS_WEIGHT} * DistiLLM-2"
 
 if [[ "${DRY_RUN}" == "1" ]]; then
   echo "DRY_RUN=1, stopping before inference and training."

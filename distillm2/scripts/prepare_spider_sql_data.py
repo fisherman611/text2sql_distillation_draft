@@ -121,6 +121,12 @@ def build_pair_records(
                         "content": assistant_content(rejected, add_thinking_stub),
                     }
                 ],
+                "gold": [
+                    {
+                        "role": "assistant",
+                        "content": assistant_content(row["response"], add_thinking_stub),
+                    }
+                ],
             }
         )
     if missing_chosen:

@@ -98,6 +98,33 @@ accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml \
   src/run_distillm.py training_configs/qwen3-0.6b-4b-spider-distillm2.yaml
 ```
 
+The base config keeps the original objective unchanged:
+
+```text
+loss = distillm2_loss
+```
+
+To add supervised cross entropy on the gold SQL response:
+
+```bash
+bash scripts/run_spider_distillm2_ce.sh
+```
+
+This branch uses:
+
+```text
+loss = (1 - kd_loss_weight) * gold_sft_ce + kd_loss_weight * distillm2_loss
+```
+
+`KD_LOSS_WEIGHT` is beta and defaults to `0.5`, so the wrapper runs an even
+CE/KD mix. It also rebuilds the pair dataset by default
+because older pair datasets do not contain the `gold` field. To choose another
+coefficient:
+
+```bash
+KD_LOSS_WEIGHT=0.8 bash scripts/run_spider_distillm2_ce.sh
+```
+
 ## Using HF SFT and HF teacher LoRA
 
 The repository includes the existing Spider SFT and teacher LoRA paths in `.env.hf.example`.

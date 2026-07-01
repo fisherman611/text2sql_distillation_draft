@@ -519,6 +519,7 @@ class DistiLLMTrainer(Trainer):
         self.beta = args.beta
         self.label_smoothing = args.label_smoothing
         self.loss_type = args.loss_type
+        self.kd_loss_weight = args.kd_loss_weight
         self.base_alpha_1, self.base_alpha_2 = 0.1, 0.1
         self.update_alpha = False
         self.gradual_beta = False
@@ -807,6 +808,7 @@ class DistiLLMTrainer(Trainer):
         prompt = feature["prompt"]
         chosen = feature["chosen"]
         rejected = feature["rejected"]
+        gold = feature.get("gold") if self.kd_loss_weight < 1.0 else None
         images = feature.get("images")
 
         if not self.is_encoder_decoder:
@@ -833,6 +835,7 @@ class DistiLLMTrainer(Trainer):
             if not isinstance(rejected, str):
                 raise ValueError(f"rejected should be an str but got {type(rejected)}")
             rejected_tokens = self.build_tokenized_answer(prompt, rejected, images)
+            gold_tokens = self.build_tokenized_answer(prompt, gold, images) if gold is not None else None
 
             # Last prompt token might get merged by tokenizer and
             # it should not be included for generation if that happens
@@ -868,6 +871,11 @@ class DistiLLMTrainer(Trainer):
             if rejected_prompt_len_input_ids == 0 or bos_token_id != rejected_tokens["prompt_input_ids"][0]:
                 rejected_tokens["prompt_input_ids"] = [bos_token_id] + rejected_tokens["prompt_input_ids"]
                 rejected_tokens["prompt_attention_mask"] = [1] + rejected_tokens["prompt_attention_mask"]
+            if gold_tokens is not None:
+                gold_prompt_len_input_ids = len(gold_tokens["prompt_input_ids"])
+                if gold_prompt_len_input_ids == 0 or bos_token_id != gold_tokens["prompt_input_ids"][0]:
+                    gold_tokens["prompt_input_ids"] = [bos_token_id] + gold_tokens["prompt_input_ids"]
+                    gold_tokens["prompt_attention_mask"] = [1] + gold_tokens["prompt_attention_mask"]
 
             # add EOS token to end of answer. Avoid adding if it's already there
             eos_token_id = self.tokenizer.eos_token_id
@@ -877,11 +885,19 @@ class DistiLLMTrainer(Trainer):
             if len(rejected_tokens["input_ids"]) == 0 or eos_token_id != rejected_tokens["input_ids"][-1]:
                 rejected_tokens["input_ids"].append(eos_token_id)
                 rejected_tokens["attention_mask"].append(1)
+            if gold_tokens is not None and (
+                len(gold_tokens["input_ids"]) == 0 or eos_token_id != gold_tokens["input_ids"][-1]
+            ):
+                gold_tokens["input_ids"].append(eos_token_id)
+                gold_tokens["attention_mask"].append(1)
 
-            longer_response_length = max(len(chosen_tokens["input_ids"]), len(rejected_tokens["input_ids"]))
+            response_tokens = [chosen_tokens, rejected_tokens]
+            if gold_tokens is not None:
+                response_tokens.append(gold_tokens)
+            longer_response_length = max(len(tokens["input_ids"]) for tokens in response_tokens)
 
             # if combined sequence is too long, truncate the prompt
-            for answer_tokens in [chosen_tokens, rejected_tokens, prompt_tokens]:
+            for answer_tokens in [*response_tokens, prompt_tokens]:
                 if len(answer_tokens["prompt_input_ids"]) + longer_response_length > self.max_length:
                     if self.truncation_mode == "keep_start":
                         for k in ["prompt_input_ids", "prompt_attention_mask"]:
@@ -893,7 +909,7 @@ class DistiLLMTrainer(Trainer):
                         raise ValueError(f"Unknown truncation mode: {self.truncation_mode}")
 
             # if that's still too long, truncate the response
-            for answer_tokens in [chosen_tokens, rejected_tokens]:
+            for answer_tokens in response_tokens:
                 if len(answer_tokens["prompt_input_ids"]) + longer_response_length > self.max_length:
                     for k in ["input_ids", "attention_mask"]:
                         answer_tokens[k] = answer_tokens[k][: self.max_length - self.max_prompt_length]
@@ -913,12 +929,24 @@ class DistiLLMTrainer(Trainer):
             rejected_sequence_tokens["labels"][: len(rejected_tokens["prompt_input_ids"])] = [
                 self.label_pad_token_id
             ] * len(rejected_tokens["prompt_input_ids"])
+            gold_sequence_tokens = None
+            if gold_tokens is not None:
+                gold_sequence_tokens = {
+                    k: gold_tokens[f"prompt_{k}"] + gold_tokens[k] for k in ["input_ids", "attention_mask"]
+                }
+                gold_sequence_tokens["labels"] = gold_sequence_tokens["input_ids"][:]
+                gold_sequence_tokens["labels"][: len(gold_tokens["prompt_input_ids"])] = [
+                    self.label_pad_token_id
+                ] * len(gold_tokens["prompt_input_ids"])
 
-            for k, toks in {
+            sequences = {
                 "chosen_": chosen_sequence_tokens,
                 "rejected_": rejected_sequence_tokens,
                 "": prompt_tokens,
-            }.items():
+            }
+            if gold_sequence_tokens is not None:
+                sequences["gold_"] = gold_sequence_tokens
+            for k, toks in sequences.items():
                 for type_key, tokens in toks.items():
                     if type_key == "token_type_ids":
                         continue
@@ -1354,19 +1382,37 @@ class DistiLLMTrainer(Trainer):
             chosen_position_kl, rejected_position_kl, *_
         ) = forward_output[:7]
 
-        losses = self.kd_loss(
+        kd_loss = self.kd_loss(
             policy_chosen_logps, policy_rejected_logps,
             reference_chosen_logps, reference_rejected_logps,
             chosen_position_kl, rejected_position_kl
         )
 
         prefix = "eval_" if train_eval == "eval" else ""
+        if self.kd_loss_weight < 1.0:
+            if "gold_input_ids" not in batch:
+                raise ValueError(
+                    "Gold-response tensors are missing while kd_loss_weight < 1. "
+                    "Rebuild the pair dataset with gold responses."
+                )
+            gold_outputs = model(
+                batch["gold_input_ids"],
+                attention_mask=batch["gold_attention_mask"],
+                labels=batch["gold_labels"],
+                use_cache=False,
+            )
+            sft_loss = gold_outputs.loss
+            loss = (1.0 - self.kd_loss_weight) * sft_loss + self.kd_loss_weight * kd_loss.mean()
+            metrics[f"{prefix}loss/kd"] = kd_loss.detach().mean().cpu()
+            metrics[f"{prefix}loss/sft"] = sft_loss.detach().cpu()
+        else:
+            loss = kd_loss.mean()
         metrics[f"{prefix}logqs/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logqs/chosen"] = policy_chosen_logps.detach().mean().cpu()
         metrics[f"{prefix}logqs_logps/rejected"] = (policy_rejected_logps.exp() - reference_rejected_logps.exp()).detach().mean().cpu()
         metrics[f"{prefix}logps_logqs/chosen"] = (reference_chosen_logps.exp() - policy_chosen_logps.exp()).detach().mean().cpu()
 
-        return losses.mean(), metrics
+        return loss, metrics
 
     def compute_loss(
         self,
