@@ -125,6 +125,13 @@ coefficient:
 KD_LOSS_WEIGHT=0.8 bash scripts/run_spider_distillm2_ce.sh
 ```
 
+If the output directory already contains an old DeepSpeed checkpoint and you
+want to start a fresh run instead of auto-resuming:
+
+```bash
+RESUME=0 KD_LOSS_WEIGHT=0.5 bash scripts/run_spider_distillm2_ce.sh
+```
+
 ## Using HF SFT and HF teacher LoRA
 
 The repository includes the existing Spider SFT and teacher LoRA paths in `.env.hf.example`.

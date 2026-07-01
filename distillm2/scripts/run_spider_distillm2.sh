@@ -32,6 +32,13 @@ REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 GENERATION_BATCH_SIZE="${GENERATION_BATCH_SIZE:-4}"
 KD_LOSS_WEIGHT="${KD_LOSS_WEIGHT:-1.0}"
+RESUME="${RESUME:-1}"
+
+if [[ "${RESUME}" == "0" || "${RESUME}" == "false" ]]; then
+  AUTO_RESUME_FROM_CHECKPOINT=false
+else
+  AUTO_RESUME_FROM_CHECKPOINT=true
+fi
 
 if [[ -n "${RUN_GPUS:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="${RUN_GPUS}"
@@ -88,6 +95,7 @@ python scripts/make_hf_config.py \
   --set "push_to_hub=${PUSH_TO_HUB}" \
   --set "hub_model_id=${HUB_MODEL_ID}" \
   --set "kd_loss_weight=${KD_LOSS_WEIGHT}" \
+  --set "auto_resume_from_checkpoint=${AUTO_RESUME_FROM_CHECKPOINT}" \
   --set "dataset_mixer={'${PAIR_DATA_DIR}': 1.0}"
 
 echo "Student train source: ${TRAIN_STUDENT}"
@@ -96,6 +104,7 @@ echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Runtime config: ${CONFIG}"
 echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
 echo "Loss: (1 - ${KD_LOSS_WEIGHT}) * gold SFT CE + ${KD_LOSS_WEIGHT} * DistiLLM-2"
+echo "Auto resume: ${AUTO_RESUME_FROM_CHECKPOINT}"
 
 if [[ "${DRY_RUN}" == "1" ]]; then
   echo "DRY_RUN=1, stopping before inference and training."

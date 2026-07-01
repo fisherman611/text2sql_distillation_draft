@@ -11,10 +11,12 @@ BASE_CONFIG="${BASE_CONFIG:-training_configs/qwen3-0.6b-4b-spider-distillm2.yaml
 CONFIG="${CONFIG:-runtime_configs/spider_distillm2_ce.yaml}"
 OUTPUT_DIR="${OUTPUT_DIR:-outputs/qwen3-0.6b-4b-spider-distillm2-beta${KD_LOSS_WEIGHT}}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-1}"
+RESUME="${RESUME:-0}"
 
 BASE_CONFIG="${BASE_CONFIG}" \
 CONFIG="${CONFIG}" \
 OUTPUT_DIR="${OUTPUT_DIR}" \
 REBUILD_PAIRS="${REBUILD_PAIRS}" \
 KD_LOSS_WEIGHT="${KD_LOSS_WEIGHT}" \
+RESUME="${RESUME}" \
 bash scripts/run_spider_distillm2.sh

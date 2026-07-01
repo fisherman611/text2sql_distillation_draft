@@ -312,5 +312,15 @@ class DPOConfig(trl.DPOConfig):
             )
         },
     )
+    auto_resume_from_checkpoint: bool = field(
+        default=True,
+        metadata={
+            "help": (
+                "Whether to automatically resume from the last checkpoint found in output_dir when "
+                "resume_from_checkpoint is not explicitly set. Disable this to start a fresh run in "
+                "an output_dir that already contains old DeepSpeed checkpoints."
+            )
+        },
+    )
     optim: Optional[str] = field(default="rmsprop")
     remove_unused_columns: bool = field(default=False)

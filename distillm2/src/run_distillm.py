@@ -82,8 +82,17 @@ def main():
 
     # Check for last checkpoint
     last_checkpoint = get_checkpoint(training_args)
-    if last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+    if (
+        last_checkpoint is not None
+        and training_args.resume_from_checkpoint is None
+        and training_args.auto_resume_from_checkpoint
+    ):
         logger.info(f"Checkpoint detected, resuming training at {last_checkpoint=}.")
+    elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+        logger.info(
+            "Checkpoint detected in output_dir, but auto_resume_from_checkpoint=False; "
+            "starting a fresh training run."
+        )
 
     # Set seed for reproducibility
     set_seed(training_args.seed)
@@ -278,7 +287,7 @@ def main():
     checkpoint = None
     if training_args.resume_from_checkpoint is not None:
         checkpoint = training_args.resume_from_checkpoint
-    elif last_checkpoint is not None:
+    elif last_checkpoint is not None and training_args.auto_resume_from_checkpoint:
         checkpoint = last_checkpoint
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
     metrics = train_result.metrics
