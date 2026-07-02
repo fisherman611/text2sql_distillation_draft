@@ -2,6 +2,7 @@ from functools import lru_cache
 import numpy as np
 import os
 import time
+from urllib.parse import unquote, urlparse
 import torch.distributed as dist
 from torch.distributed import get_rank
 import random
@@ -129,6 +130,19 @@ def resolve_hf_path(path):
         return path
 
     normalized_path = path.replace("\\", "/").rstrip("/")
+    parsed = urlparse(normalized_path)
+    if parsed.scheme in {"http", "https"} and parsed.netloc == "huggingface.co":
+        url_parts = [unquote(part) for part in parsed.path.strip("/").split("/") if part]
+        if len(url_parts) >= 2:
+            owner, repo = url_parts[:2]
+            subdir_parts = []
+            if len(url_parts) >= 4 and url_parts[2] in {"tree", "blob", "resolve"}:
+                subdir_parts = url_parts[4:]
+            elif len(url_parts) > 2:
+                subdir_parts = url_parts[2:]
+            path = "hf://" + "/".join([owner, repo, *subdir_parts])
+            normalized_path = path.replace("\\", "/").rstrip("/")
+
     if normalized_path in HF_PATH_ALIASES and not os.path.exists(path):
         hf_path = HF_PATH_ALIASES[normalized_path]
         print_rank(f"Local model path '{path}' not found. Falling back to '{hf_path}'.")
@@ -167,7 +181,8 @@ def resolve_hf_path(path):
 
 # Load and save model
 def get_model(args, device):
-    config = AutoConfig.from_pretrained(args.model_path)
+    model_path = resolve_hf_path(args.model_path)
+    config = AutoConfig.from_pretrained(model_path)
     
     st_time = time.time()
     if args.model_parallel:
@@ -178,9 +193,9 @@ def get_model(args, device):
         if args.bf16:
             dtype = torch.bfloat16
         try:
-            model = AutoModelForCausalLM.from_pretrained(args.model_path, config=config, device_map={"": device}, torch_dtype=dtype)
+            model = AutoModelForCausalLM.from_pretrained(model_path, config=config, device_map={"": device}, torch_dtype=dtype)
         except:
-            model = AutoModelForCausalLM.from_pretrained(args.model_path, config=config, device_map={"": device}, torch_dtype=torch.float32)
+            model = AutoModelForCausalLM.from_pretrained(model_path, config=config, device_map={"": device}, torch_dtype=torch.float32)
             model = model.half()
         
         if args.peft is not None:
@@ -260,7 +275,8 @@ def get_optimizer_params_peft(args, model: nn.Module):
 
 
 def get_tokenizer(args):
-    tokenizer = AutoTokenizer.from_pretrained(args.model_path, padding_side="right")
+    model_path = resolve_hf_path(args.model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="right")
 
     if args.model_type == "qwen":
         tokenizer.eos_token_id = 151645 

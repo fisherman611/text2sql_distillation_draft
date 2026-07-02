@@ -53,14 +53,15 @@ torch.set_num_threads(4)
 
 
 def get_teacher_model(args, device):
-    config = AutoConfig.from_pretrained(args.teacher_model_path)
+    teacher_model_path = resolve_hf_path(args.teacher_model_path)
+    config = AutoConfig.from_pretrained(teacher_model_path)
     if args.model_parallel:
         raise NotImplementedError
     else:
         config.is_model_parallel = False
-        try: model = AutoModelForCausalLM.from_pretrained(args.teacher_model_path, config=config, device_map={"": device}, torch_dtype=torch.bfloat16)
+        try: model = AutoModelForCausalLM.from_pretrained(teacher_model_path, config=config, device_map={"": device}, torch_dtype=torch.bfloat16)
         except:
-            model = AutoModelForCausalLM.from_pretrained(args.teacher_model_path, config=config, device_map={"": device}, torch_dtype=torch.float32)
+            model = AutoModelForCausalLM.from_pretrained(teacher_model_path, config=config, device_map={"": device}, torch_dtype=torch.float32)
             model = model.half()
         
         if args.teacher_peft_path is not None:
