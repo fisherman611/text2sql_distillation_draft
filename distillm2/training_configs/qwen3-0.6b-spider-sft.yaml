@@ -1,0 +1,43 @@
+# Prepare first:
+# python scripts/prepare_spider_sql_data.py --mode sft --output-dir data/spider_sql_sft
+
+model_name_or_path: Qwen/Qwen3-0.6B
+torch_dtype: bfloat16
+trust_remote_code: true
+attn_implementation: flash_attention_2
+
+enable_thinking: false
+auto_insert_empty_system_msg: false
+dataset_mixer:
+  data/spider_sql_sft: 1.0
+dataset_splits:
+- train
+- test
+preprocessing_num_workers: 4
+
+bf16: true
+do_eval: true
+eval_strategy: epoch
+gradient_accumulation_steps: 8
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+learning_rate: 5.0e-5
+log_level: info
+logging_steps: 50
+logging_strategy: steps
+lr_scheduler_type: cosine
+max_seq_length: 1612
+max_steps: -1
+num_train_epochs: 5
+output_dir: outputs/qwen3-0.6b-spider-sft
+overwrite_output_dir: true
+per_device_eval_batch_size: 1
+per_device_train_batch_size: 2
+push_to_hub: false
+remove_unused_columns: true
+save_strategy: steps
+save_steps: 500
+save_total_limit: 3
+seed: 42
+warmup_ratio: 0.05

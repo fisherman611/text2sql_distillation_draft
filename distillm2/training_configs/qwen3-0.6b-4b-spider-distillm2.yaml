@@ -1,0 +1,65 @@
+# Prepare SFT and pair data first:
+# python scripts/prepare_spider_sql_data.py --mode sft --output-dir data/spider_sql_sft
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 4 --output infer_results/qwen3_4b_teacher_train.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-4B-Instruct-2507 --ckpt-path outputs/qwen3-4b-spider-teacher-lora --batch-size 4 --output infer_results/qwen3_4b_teacher_valid.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/train.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 4 --output infer_results/qwen3_0.6b_sft_train.json
+# python infer_spider_sql.py --input ../processed_data/benchmarks/spider_data/qwen/valid.jsonl --model Qwen/Qwen3-0.6B --ckpt-path outputs/qwen3-0.6b-spider-sft --batch-size 4 --output infer_results/qwen3_0.6b_sft_valid.json
+# python scripts/prepare_spider_sql_data.py --mode pairs --output-dir data/spider_sql_distillm2 --teacher-train-results infer_results/qwen3_4b_teacher_train.json --teacher-valid-results infer_results/qwen3_4b_teacher_valid.json --student-train-results infer_results/qwen3_0.6b_sft_train.json --student-valid-results infer_results/qwen3_0.6b_sft_valid.json
+
+model_name_or_path: hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_0.6b_spider/e5-bs4-lr5e-05-G4-N2-NN1/1090
+ref_model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+ref_adapter_name_or_path: hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090
+torch_dtype: bfloat16
+trust_remote_code: true
+attn_implementation: flash_attention_2
+
+use_peft: true
+lora_r: 16
+lora_alpha: 64
+lora_dropout: 0.1
+lora_target_modules:
+- q_proj
+- k_proj
+- v_proj
+- o_proj
+- gate_proj
+- up_proj
+- down_proj
+
+enable_thinking: false
+auto_insert_empty_system_msg: false
+dataset_mixer:
+  data/spider_sql_distillm2: 1.0
+dataset_splits:
+- train
+- test
+preprocessing_num_workers: 4
+
+bf16: true
+do_eval: true
+eval_steps: 500
+gradient_accumulation_steps: 16
+gradient_checkpointing: false
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+learning_rate: 1.0e-4
+log_level: info
+logging_steps: 50
+lr_scheduler_type: cosine
+max_length: 1612
+max_prompt_length: 1479
+num_train_epochs: 5
+optim: adamw_torch
+output_dir: outputs/qwen3-0.6b-4b-spider-distillm2
+run_name: qwen3-0.6b-4b-spider-distillm2
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+push_to_hub: false
+save_strategy: steps
+save_steps: 500
+save_total_limit: 3
+seed: 42
+warmup_ratio: 0.05
+loss_type: distillm_v2
+kd_loss_weight: 1.0
+auto_resume_from_checkpoint: true
