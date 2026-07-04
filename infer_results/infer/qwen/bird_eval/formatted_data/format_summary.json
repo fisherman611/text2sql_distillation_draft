@@ -1,0 +1,10 @@
+[
+  {
+    "input": "infer_results/infer/qwen/bird_eval/sft_sft_qwen3_0.6b_bird_sql_result.json",
+    "rows": 1534,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.pred.sql",
+    "gold": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.gold.sql",
+    "meta": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.meta.jsonl"
+  }
+]
