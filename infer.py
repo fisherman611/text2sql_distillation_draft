@@ -23,6 +23,8 @@ logger = setup_logger(__name__, log_file=log_path)
 
 SPIDER_SYSTEM_PROMPT_PATH = Path("prompts/single_turn/generator/system_prompt.txt")
 SPIDER_USER_PROMPT_PATH = Path("prompts/single_turn/generator/user_prompt.txt")
+BIRD_SYSTEM_PROMPT_PATH = Path("prompts/single_turn/bird_generator/system_prompt.txt")
+BIRD_USER_PROMPT_PATH = Path("prompts/single_turn/bird_generator/user_prompt.txt")
 SPIDER_STYLE_BENCHMARKS = {
     "spider_data": {
         "splits": {
@@ -578,6 +580,12 @@ def load_prompt_templates() -> Tuple[str, str]:
     return load_text(SPIDER_SYSTEM_PROMPT_PATH), load_text(SPIDER_USER_PROMPT_PATH)
 
 
+def load_single_turn_prompt_templates(benchmark: str) -> Tuple[str, str]:
+    if benchmark == "bird":
+        return load_text(BIRD_SYSTEM_PROMPT_PATH), load_text(BIRD_USER_PROMPT_PATH)
+    return load_prompt_templates()
+
+
 def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Optional[int]) -> List[Dict]:
     data_path, tables_path = get_benchmark_paths(benchmark, split)
     raw_data = read_json(data_path)
@@ -601,6 +609,7 @@ def load_records(benchmark: str, split: str, db_filter: Optional[str], limit: Op
                     "sample_id": f"{benchmark}:{split}:{idx}",
                     "db_id": db_id,
                     "question": get_spider_question(item, question_fields),
+                    "evidence": str(item.get("evidence") or ""),
                     "gold_sql": get_gold_sql(item, gold_sql_fields),
                     "schema": schema_lookup[db_id],
                     "is_dialog": False,
@@ -660,7 +669,11 @@ def build_dialog_history(history_utterances: List[str], history_sql: List[str]) 
 
 def build_messages_for_record(record: Dict, single_turn_system: str, single_turn_user: str, history_sql: Optional[List[str]] = None):
     if not record["is_dialog"]:
-        user_prompt = single_turn_user.format(question=record["question"], schema=record["schema"])
+        user_prompt = single_turn_user.format(
+            question=record["question"],
+            evidence=record.get("evidence", ""),
+            schema=record["schema"],
+        )
         return [
             {"role": "system", "content": single_turn_system},
             {"role": "user", "content": user_prompt},
@@ -707,6 +720,8 @@ def compact_output(results: List[Dict]) -> List[Dict]:
             "success": row["success"],
             "error": row["error"],
         }
+        if "evidence" in row:
+            compact["evidence"] = row["evidence"]
         if row["dialog_id"] is not None:
             compact["dialog_id"] = row["dialog_id"]
             compact["turn_index"] = row["turn_index"]
@@ -734,12 +749,13 @@ def run_spider_inference(
     output_path: Optional[Path],
     flush_every: Optional[int],
 ) -> Tuple[List[Dict], List[Dict]]:
-    single_turn_system, single_turn_user = load_prompt_templates()
+    benchmark = records[0]["benchmark"] if records else ""
+    single_turn_system, single_turn_user = load_single_turn_prompt_templates(benchmark)
     results: List[Dict] = []
     errors: List[Dict] = []
     next_flush_at = flush_every if flush_every else None
 
-    progress_bar = tqdm(total=len(records), desc="Running spider_data")
+    progress_bar = tqdm(total=len(records), desc=f"Running {benchmark or 'spider-style'}")
     for i in range(0, len(records), batch_size):
         batch_records = records[i : i + batch_size]
         batch_messages = [
