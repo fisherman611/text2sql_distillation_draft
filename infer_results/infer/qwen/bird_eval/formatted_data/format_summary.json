@@ -1,5 +1,37 @@
 [
   {
+    "input": "infer_results/infer/qwen/bird_eval/fkl_train_0.6b_4b_bird_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev__full_sql_result.json",
+    "rows": 1534,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/bird_eval/formatted_data/fkl_train_0.6b_4b_bird_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.pred.sql",
+    "gold": "infer_results/infer/qwen/bird_eval/formatted_data/fkl_train_0.6b_4b_bird_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.gold.sql",
+    "meta": "infer_results/infer/qwen/bird_eval/formatted_data/fkl_train_0.6b_4b_bird_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/bird_eval/rkl_train_0.6b_4b_bird_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev__full_sql_result.json",
+    "rows": 1534,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/bird_eval/formatted_data/rkl_train_0.6b_4b_bird_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.pred.sql",
+    "gold": "infer_results/infer/qwen/bird_eval/formatted_data/rkl_train_0.6b_4b_bird_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.gold.sql",
+    "meta": "infer_results/infer/qwen/bird_eval/formatted_data/rkl_train_0.6b_4b_bird_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/bird_eval/sfkl_train_0.6b_4b_bird_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev__full_sql_result.json",
+    "rows": 1534,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/bird_eval/formatted_data/sfkl_train_0.6b_4b_bird_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.pred.sql",
+    "gold": "infer_results/infer/qwen/bird_eval/formatted_data/sfkl_train_0.6b_4b_bird_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.gold.sql",
+    "meta": "infer_results/infer/qwen/bird_eval/formatted_data/sfkl_train_0.6b_4b_bird_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__dev.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/bird_eval/sft_sft_qwen3_0.6b_bird_sql_result.json",
+    "rows": 1534,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.pred.sql",
+    "gold": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.gold.sql",
+    "meta": "infer_results/infer/qwen/bird_eval/formatted_data/sft_sft_qwen3_0.6b_bird.meta.jsonl"
+  },
+  {
     "input": "infer_results/infer/qwen/bird_eval/sft_sft_qwen3_4b_bird_lora_sql_result.json",
     "rows": 1534,
     "empty_pred": 0,
