@@ -255,9 +255,15 @@ def get_optimizer_params(args, model: nn.Module):
 
     optimizer_grouped_parameters = [
         {'params': [p for n, p in param_optimizer
-                    if not any(nd in n for nd in no_decay) and not any(nd in n for nd in projector_param)]},
+                    if p.requires_grad
+                    and not any(nd in n for nd in no_decay)
+                    and not any(nd in n for nd in projector_param)]},
         {'params': [p for n, p in param_optimizer
-                    if any(nd in n for nd in no_decay) and not any(nd in n for nd in projector_param)], 'weight_decay': 0.0},
+                    if p.requires_grad
+                    and any(nd in n for nd in no_decay)
+                    and not any(nd in n for nd in projector_param)], 'weight_decay': 0.0},
+        {'params': [p for n, p in param_optimizer
+                    if p.requires_grad and 'synid_projector' in n], 'weight_decay': 0.0},
     ]
 
     return [g for g in optimizer_grouped_parameters if len(g['params']) > 0]
@@ -269,9 +275,10 @@ def get_optimizer_params_peft(args, model: nn.Module):
     projector_param = ['projectors', 'projector']
     optimizer_grouped_parameters = [
         {'params': [p for n, p in param_optimizer if p.requires_grad and not any(nd in n for nd in projector_param)]},
+        {'params': [p for n, p in param_optimizer if p.requires_grad and 'synid_projector' in n], 'weight_decay': 0.0},
     ]
 
-    return optimizer_grouped_parameters
+    return [g for g in optimizer_grouped_parameters if len(g['params']) > 0]
 
 
 def get_tokenizer(args):

@@ -52,7 +52,7 @@ from distillm import skewed_forward_kl, skewed_reverse_kl, csd
 from distillm import ab_div, bdkd, AKL, wsd, alphanet, amid
 from distillm import SampleGenerator, ReplayBuffer
 
-from src.synid_sql import synid_loss
+from src.synid_sql import LastHiddenStateCapture, synid_loss
 from rouge_metric import compute_metrics
 
 from peft import PeftModel
@@ -357,6 +357,11 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
         pt_train_iter = iter(pt_train_dataloader)
         
     student_generator = SampleGenerator(args, tokenizer)
+    student_hidden_capture = None
+    teacher_hidden_capture = None
+    if teacher_model is not None:
+        student_hidden_capture = LastHiddenStateCapture(model.module)
+        teacher_hidden_capture = LastHiddenStateCapture(teacher_model)
 
     step, global_step = 1, 1
     total_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0
@@ -425,7 +430,9 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                     
                 model.train()
 
-            outputs = model(**model_batch, use_cache=False, output_hidden_states=(teacher_model is not None))
+            if student_hidden_capture is not None:
+                student_hidden_capture.clear()
+            outputs = model(**model_batch, use_cache=False, output_hidden_states=False)
             
             logits = outputs.logits
             if args.model_parallel:
@@ -438,11 +445,14 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                 teacher_no_model_batch = t_no_model_data if t_no_model_data is not None else no_model_batch
                 with torch.no_grad():
                     teacher_model.eval()
+                    teacher_hidden_capture.clear()
                     teacher_outputs = teacher_model(
                         **teacher_batch,
                         use_cache=False,
-                        output_hidden_states=True,
+                        output_hidden_states=False,
                     )
+                student_hidden_states = student_hidden_capture.pop()
+                teacher_hidden_states = teacher_hidden_capture.pop()
                 loss_parts = synid_loss(
                     args=args,
                     tokenizer=tokenizer,
@@ -453,6 +463,8 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                     teacher_batch=teacher_batch,
                     teacher_no_model_batch=teacher_no_model_batch,
                     student_projector=getattr(model.module, "synid_projector", None),
+                    student_hidden_states=student_hidden_states,
+                    teacher_hidden_states=teacher_hidden_states,
                 )
                 distil_loss = loss_parts.kd
                 con1_loss = loss_parts.con1
@@ -565,6 +577,9 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
             if global_step > args.total_iters:
                 break
             
+    if student_hidden_capture is not None:
+        student_hidden_capture.close()
+        teacher_hidden_capture.close()
     return model
 
 

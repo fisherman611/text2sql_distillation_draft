@@ -31,7 +31,7 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
 - [x] Add `finetuning/synid_sql_finetune.py`.
   - [x] Start from the current `finetuning/finetune.py` training flow.
   - [x] Import SynID loss helpers.
-  - [x] Request `output_hidden_states=True` from student.
+  - [x] Capture only the final hidden state entering each LM head, avoiding the full hidden-state stack.
   - [x] Forward teacher on the same current `model_batch` for phase 1.
   - [x] Compute `L_KD + alpha * L_con1 + beta * L_con2`.
   - [x] Log `kd_loss`, `con1_loss`, `con2_loss` separately.
@@ -52,8 +52,10 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
 - [ ] Validate phase 1.
   - [ ] Run a tiny sliced train on Spider with `--slice-data`.
   - [ ] Run a tiny sliced train on BIRD with `--slice-data`.
+  - [x] Add regression tests for response alignment, SC masks/anchors, syntax weights, KD variants, and final-hidden-state capture.
   - [x] Verify no shape mismatch when pooling hidden states.
   - [x] Verify loss parts are finite.
+  - [x] Verify the SynID Spider and BIRD shell scripts pass `bash -n`.
   - [ ] Verify existing KD scripts still parse and train.
 
 ## Phase 2: Privileged Teacher Prompt

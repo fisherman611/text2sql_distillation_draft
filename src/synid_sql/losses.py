@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
 import string
 from typing import Optional
 import re
+from weakref import WeakKeyDictionary
 
 import torch
 import torch.nn as nn
@@ -64,6 +64,8 @@ SQL_KEYWORDS = {
     "WHERE",
     "WITH",
 }
+
+_TOKEN_TEXT_CACHES: WeakKeyDictionary = WeakKeyDictionary()
 
 
 @dataclass
@@ -129,20 +131,43 @@ def response_kd_loss(
     Student and teacher prompts may have different lengths in later phases, so
     this aligns response tokens by the label masks instead of absolute positions.
     """
+    if temperature <= 0:
+        raise ValueError(f"SynID KD temperature must be positive, got {temperature}.")
+    if kd_loss in {"sfkl", "srkl"} and not 0.0 <= skew_alpha <= 1.0:
+        raise ValueError(f"SynID skew alpha must be in [0, 1], got {skew_alpha}.")
+    if student_logits.size(0) != student_labels.size(0):
+        raise ValueError("Student logits and labels must have the same batch size.")
+
     if teacher_labels is None:
         teacher_labels = student_labels
+    if teacher_logits.size(0) != teacher_labels.size(0):
+        raise ValueError("Teacher logits and labels must have the same batch size.")
+    if student_logits.size(0) != teacher_logits.size(0):
+        raise ValueError("Student and teacher batches must have the same size.")
+    if student_logits.size(-1) != teacher_logits.size(-1):
+        raise ValueError("Student and teacher logits must use the same vocabulary.")
 
     student_parts = _compact_by_label_mask(student_logits, student_labels)
     teacher_parts = _compact_by_label_mask(teacher_logits, teacher_labels)
+    student_token_parts = _compact_by_label_mask(student_labels, student_labels)
+    teacher_token_parts = _compact_by_label_mask(teacher_labels, teacher_labels)
 
     loss_sum = student_logits.new_zeros((), dtype=torch.float32)
     token_count = 0
-    for s_logits, t_logits in zip(student_parts, teacher_parts):
-        length = min(s_logits.size(0), t_logits.size(0))
-        if length == 0:
-            continue
-        s_logits = s_logits[:length].float() / temperature
-        t_logits = t_logits[:length].float() / temperature
+    for row, (s_logits, t_logits, s_tokens, t_tokens) in enumerate(
+        zip(student_parts, teacher_parts, student_token_parts, teacher_token_parts)
+    ):
+        if s_logits.size(0) != t_logits.size(0):
+            raise ValueError(
+                "Student and teacher response lengths differ at batch row "
+                f"{row}: {s_logits.size(0)} != {t_logits.size(0)}."
+            )
+        if s_logits.size(0) == 0:
+            raise ValueError(f"SynID received an empty response at batch row {row}.")
+        if not torch.equal(s_tokens, t_tokens):
+            raise ValueError(f"Student and teacher response tokens differ at batch row {row}.")
+        s_logits = s_logits.float() / temperature
+        t_logits = t_logits.float() / temperature
         if kd_loss == "fkl":
             token_loss = _token_forward_kl(s_logits, t_logits)
         elif kd_loss == "rkl":
@@ -156,15 +181,15 @@ def response_kd_loss(
         loss_sum = loss_sum + token_loss.sum() * (temperature ** 2)
         token_count += int(token_loss.numel())
 
-    if token_count == 0:
-        return _zero_like(student_logits)
     return loss_sum / token_count
 
 
 def _last_valid_hidden(hidden_states: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-    lengths = mask.long().sum(dim=1).clamp(min=1)
+    mask = mask.bool()
+    positions = torch.arange(mask.size(1), device=mask.device).unsqueeze(0)
+    last_positions = positions.masked_fill(~mask, -1).max(dim=1).values.clamp(min=0)
     batch_idx = torch.arange(hidden_states.size(0), device=hidden_states.device)
-    return hidden_states[batch_idx, lengths - 1]
+    return hidden_states[batch_idx, last_positions]
 
 
 def _normalize_token_text(text: str) -> str:
@@ -176,7 +201,11 @@ def _term_variants(term: str) -> set[str]:
     if not normalized:
         return set()
     variants = {normalized}
-    variants.update(part for part in re.split(r"[_\W]+", normalized) if part)
+    variants.update(
+        part
+        for part in re.split(r"[_\W]+", normalized)
+        if len(part) >= 4 and part not in SQL_KEYWORDS
+    )
     return variants
 
 
@@ -194,17 +223,32 @@ def _extract_schema_terms(text: str) -> set[str]:
     return terms
 
 
-def _sql_keyword_weight_for_token(
-    token_id: int,
-    tokenizer,
-    syntax_lambda: float,
-    schema_terms: Optional[set[str]] = None,
-) -> float:
-    text = tokenizer.decode([int(token_id)], clean_up_tokenization_spaces=False)
-    normalized = _normalize_token_text(text)
-    if normalized in SQL_KEYWORDS or (schema_terms is not None and normalized in schema_terms):
-        return syntax_lambda
-    return 1.0
+def _normalized_token_texts(tokenizer, token_ids: set[int]) -> dict[int, str]:
+    try:
+        cache = _TOKEN_TEXT_CACHES.setdefault(tokenizer, {})
+    except TypeError:
+        cache = getattr(tokenizer, "_synid_normalized_token_cache", None)
+        if cache is None:
+            cache = {}
+            setattr(tokenizer, "_synid_normalized_token_cache", cache)
+
+    missing = sorted(token_ids.difference(cache))
+    if missing:
+        if hasattr(tokenizer, "batch_decode"):
+            decoded = tokenizer.batch_decode(
+                [[token_id] for token_id in missing],
+                clean_up_tokenization_spaces=False,
+            )
+        else:
+            decoded = [
+                tokenizer.decode([token_id], clean_up_tokenization_spaces=False)
+                for token_id in missing
+            ]
+        cache.update(
+            (token_id, _normalize_token_text(text))
+            for token_id, text in zip(missing, decoded)
+        )
+    return {token_id: cache[token_id] for token_id in token_ids}
 
 
 def _syntax_weights(
@@ -213,6 +257,7 @@ def _syntax_weights(
     tokenizer,
     syntax_lambda: float,
     use_syntax_weights: bool,
+    context_mask: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     weights = torch.ones_like(mask, dtype=torch.float32)
     if not use_syntax_weights:
@@ -220,28 +265,27 @@ def _syntax_weights(
 
     ids_cpu = input_ids.detach().cpu()
     mask_cpu = mask.detach().cpu()
+    context_mask_cpu = context_mask.detach().cpu() if context_mask is not None else mask_cpu
 
-    @lru_cache(maxsize=8192)
-    def cached_weight(token_id: int) -> float:
-        return _sql_keyword_weight_for_token(token_id, tokenizer, syntax_lambda)
+    token_ids = {
+        int(ids_cpu[row, col])
+        for row in range(ids_cpu.size(0))
+        for col in range(ids_cpu.size(1))
+        if mask_cpu[row, col].item()
+    }
+    normalized_tokens = _normalized_token_texts(tokenizer, token_ids)
 
     for row in range(ids_cpu.size(0)):
-        valid_ids = [int(ids_cpu[row, col]) for col in range(ids_cpu.size(1)) if mask_cpu[row, col].item()]
+        valid_ids = [int(ids_cpu[row, col]) for col in range(ids_cpu.size(1)) if context_mask_cpu[row, col].item()]
         row_text = tokenizer.decode(valid_ids, clean_up_tokenization_spaces=False)
         schema_terms = _extract_schema_terms(row_text)
         for col in range(ids_cpu.size(1)):
             if not mask_cpu[row, col].item():
                 continue
             token_id = int(ids_cpu[row, col])
-            if schema_terms:
-                weights[row, col] = _sql_keyword_weight_for_token(
-                    token_id,
-                    tokenizer,
-                    syntax_lambda,
-                    schema_terms,
-                )
-            else:
-                weights[row, col] = cached_weight(token_id)
+            normalized = normalized_tokens[token_id]
+            if normalized in SQL_KEYWORDS or normalized in schema_terms:
+                weights[row, col] = syntax_lambda
 
     return weights.to(device=input_ids.device, dtype=torch.float32)
 
@@ -255,6 +299,8 @@ def _pool_hidden(
     pool_tau: float,
     syntax_lambda: float,
     use_syntax_weights: bool,
+    context_mask: Optional[torch.Tensor] = None,
+    syntax_weights: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     mask = mask.bool()
     if pooling == "mean":
@@ -263,17 +309,44 @@ def _pool_hidden(
 
     if pooling != "sc":
         raise ValueError(f"Unsupported SynID pooling mode: {pooling}")
+    if pool_tau <= 0:
+        raise ValueError(f"SynID pooling temperature must be positive, got {pool_tau}.")
 
-    anchor = _last_valid_hidden(hidden_states, mask)
+    valid_rows = mask.any(dim=1)
+    safe_mask = mask.clone()
+    safe_mask[~valid_rows, 0] = True
+    anchor = _last_valid_hidden(hidden_states, safe_mask)
     cosine = F.cosine_similarity(hidden_states.float(), anchor[:, None, :].float(), dim=-1)
-    syntax_weights = _syntax_weights(input_ids, mask, tokenizer, syntax_lambda, use_syntax_weights)
+    if syntax_weights is None:
+        syntax_weights = _syntax_weights(
+            input_ids,
+            safe_mask,
+            tokenizer,
+            syntax_lambda,
+            use_syntax_weights,
+            context_mask,
+        )
     scores = cosine * syntax_weights / pool_tau
-    scores = scores.masked_fill(~mask, torch.finfo(scores.dtype).min)
+    scores = scores.masked_fill(~safe_mask, torch.finfo(scores.dtype).min)
     alpha = torch.softmax(scores, dim=1).to(hidden_states.dtype)
-    return (hidden_states * alpha.unsqueeze(-1)).sum(dim=1)
+    pooled = (hidden_states * alpha.unsqueeze(-1)).sum(dim=1)
+    return pooled.masked_fill(~valid_rows.unsqueeze(-1), 0)
+
+
+def _response_hidden_mask(labels: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    label_mask = labels != -100
+    hidden_mask = torch.zeros_like(label_mask, dtype=torch.bool)
+    hidden_mask[:, 1:] = label_mask[:, :-1]
+    return hidden_mask & attention_mask.bool()
 
 
 def _info_nce(anchor: torch.Tensor, positive: torch.Tensor, temperature: float) -> torch.Tensor:
+    if temperature <= 0:
+        raise ValueError(f"SynID contrastive temperature must be positive, got {temperature}.")
+    if anchor.shape != positive.shape:
+        raise ValueError(
+            f"SynID contrastive embeddings must have equal shapes, got {anchor.shape} and {positive.shape}."
+        )
     if anchor.size(0) <= 1:
         return _zero_like(anchor)
     anchor = F.normalize(anchor.float(), dim=-1)
@@ -301,6 +374,8 @@ def synid_loss(
     teacher_batch: Optional[dict[str, torch.Tensor]] = None,
     teacher_no_model_batch: Optional[dict[str, torch.Tensor]] = None,
     student_projector: Optional[nn.Module] = None,
+    student_hidden_states: Optional[torch.Tensor] = None,
+    teacher_hidden_states: Optional[torch.Tensor] = None,
 ) -> SynIDLossParts:
     if teacher_batch is None:
         teacher_batch = student_batch
@@ -320,12 +395,48 @@ def synid_loss(
         temperature=args.synid_kd_temperature,
     )
 
-    student_hidden = student_outputs.hidden_states[-1]
-    teacher_hidden = teacher_outputs.hidden_states[-1]
+    if args.synid_pool_tau <= 0:
+        raise ValueError(f"SynID pooling temperature must be positive, got {args.synid_pool_tau}.")
+    if args.synid_syntax_lambda <= 0:
+        raise ValueError(f"SynID syntax lambda must be positive, got {args.synid_syntax_lambda}.")
+    if args.synid_alpha < 0 or args.synid_beta < 0:
+        raise ValueError("SynID contrastive loss weights must be non-negative.")
 
-    student_response_mask = student_labels != -100
-    teacher_response_mask = teacher_labels != -100
-    student_prompt_mask = student_batch["attention_mask"].bool() & ~student_response_mask
+    if student_hidden_states is None:
+        student_hidden_states = student_outputs.hidden_states[-1]
+    if teacher_hidden_states is None:
+        teacher_hidden_states = teacher_outputs.hidden_states[-1]
+    student_hidden = student_hidden_states
+    teacher_hidden = teacher_hidden_states
+
+    student_attention_mask = student_batch["attention_mask"].bool()
+    teacher_attention_mask = teacher_batch["attention_mask"].bool()
+    student_response_mask = _response_hidden_mask(student_labels, student_attention_mask)
+    teacher_response_mask = _response_hidden_mask(teacher_labels, teacher_attention_mask)
+    student_prompt_mask = student_attention_mask & ~student_response_mask
+
+    student_syntax_weights = None
+    teacher_syntax_weights = None
+    if args.synid_pooling == "sc":
+        student_syntax_weights = _syntax_weights(
+            student_batch["input_ids"],
+            student_attention_mask,
+            tokenizer,
+            args.synid_syntax_lambda,
+            args.synid_use_syntax_weights,
+            student_attention_mask,
+        )
+        if teacher_batch is student_batch:
+            teacher_syntax_weights = student_syntax_weights
+        else:
+            teacher_syntax_weights = _syntax_weights(
+                teacher_batch["input_ids"],
+                teacher_attention_mask,
+                tokenizer,
+                args.synid_syntax_lambda,
+                args.synid_use_syntax_weights,
+                teacher_attention_mask,
+            )
 
     # Teacher response is the positive solution representation. In phase 1 it is
     # from the same prompt as the student; later it can come from privileged input.
@@ -338,6 +449,8 @@ def synid_loss(
         args.synid_pool_tau,
         args.synid_syntax_lambda,
         args.synid_use_syntax_weights,
+        teacher_attention_mask,
+        teacher_syntax_weights,
     )
     student_prompt_embedding = _pool_hidden(
         student_hidden,
@@ -348,6 +461,8 @@ def synid_loss(
         args.synid_pool_tau,
         args.synid_syntax_lambda,
         args.synid_use_syntax_weights,
+        student_attention_mask,
+        student_syntax_weights,
     )
     student_response_embedding = _pool_hidden(
         student_hidden,
@@ -358,6 +473,8 @@ def synid_loss(
         args.synid_pool_tau,
         args.synid_syntax_lambda,
         args.synid_use_syntax_weights,
+        student_attention_mask,
+        student_syntax_weights,
     )
 
     student_prompt_embedding = _project_if_needed(student_prompt_embedding, student_projector)
