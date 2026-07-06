@@ -113,3 +113,21 @@ $$
 
   1. *Loss Functions Dissection:* Semantic Alignment Loss ($\mathcal{L}_{con1}$) và Geometry-Preserving Loss ($\mathcal{L}_{con2}$).
   2. *Pooling Mechanism Verification:* Mean Pooling, SC Pooling, SC Pooling ko trọng số cho quy tắc cú pháp.
+
+## Implementation Checklist
+
+Trạng thái dưới đây phản ánh code hiện tại. Phần KD loss chủ động dùng cùng implementation với `distillm` và không nằm trong phạm vi checklist này.
+
+- [x] Privileged prompt chứa Question, Schema và $Y_{\text{gold}}$.
+- [x] Tạo riêng student/teacher binary và kiểm tra số dòng cùng `response` trước khi merge.
+- [x] Student và Teacher dùng giới hạn sequence/prompt riêng; response không bị lẫn phần prompt khi prompt bị truncate.
+- [x] Teacher forward trên privileged input, Student forward trên input không đặc quyền.
+- [x] Thu Last Hidden States và ánh xạ projector khi hidden size Student/Teacher khác nhau.
+- [x] SC Pooling với last-token anchor, $\tau_p=0.1$, syntax weight $\lambda=2.0$, cùng ablation mean/no-syntax-weight.
+- [x] Hai nhánh InfoNCE $E_{sp}\rightarrow E_{tr}$ và $E_{sr}\rightarrow E_{tr}$, có cờ ablation độc lập.
+- [x] Script train mặc định dùng privileged dataset; có cấu hình contrastive temperature `0.05`, `0.07`, `0.1`.
+- [ ] Sinh $Y_{\text{aug}}$ từ Teacher. Formatter hiện vẫn dùng $Y_{\text{gold}}$ làm response, nên pipeline hiện tại tương ứng *SynID-SQL w/o Augment*.
+- [ ] Execution-equivalence filtering giữa $Y_{\text{gold}}$ và $Y_{\text{aug}}$.
+- [ ] Jaccard filtering với $\gamma=0.6$. Tham số đã có nhưng chưa được nối vào preprocessing.
+- [ ] Chạy lại preprocessing cho binary hiện tại sau bản sửa truncation.
+- [ ] GPU end-to-end smoke test và toàn bộ benchmark/ablation trong mục Experimental.

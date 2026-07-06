@@ -1,9 +1,10 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from process_data import merge_teacher_train_data
+from process_data import Encoder, merge_teacher_train_data
 
 
 def _json_line(record):
@@ -95,3 +96,39 @@ def test_merge_teacher_train_data_rejects_missing_teacher_fields(tmp_path: Path)
             ],
             str(teacher_path),
         )
+
+
+def test_encoder_keeps_only_response_tokens_after_prompt_truncation():
+    class FakeTokenizer:
+        eos_token_id = 0
+
+        @staticmethod
+        def apply_chat_template(messages, **_kwargs):
+            return "".join(message["content"] for message in messages)
+
+        @staticmethod
+        def encode(text, add_special_tokens=False):
+            assert not add_special_tokens
+            return [ord(character) for character in text]
+
+    args = SimpleNamespace(
+        split="train",
+        max_prompt_length=3,
+        t_max_prompt_length=10,
+    )
+    encoder = Encoder(args)
+    Encoder.tokenizer = FakeTokenizer()
+    response = "SQL"
+
+    _, _, prompt_tokens, response_tokens, _, _, _ = encoder.encode(
+        json.dumps(
+            {
+                "system_prompt": "long",
+                "user_prompt": "prompt",
+                "response": response,
+            }
+        )
+    )
+
+    assert len(prompt_tokens) == args.max_prompt_length
+    assert response_tokens == FakeTokenizer.encode(response) + [FakeTokenizer.eos_token_id]

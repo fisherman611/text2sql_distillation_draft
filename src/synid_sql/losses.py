@@ -106,41 +106,47 @@ def _compact_by_label_mask(values: torch.Tensor, labels: torch.Tensor) -> list[t
 
 
 def _token_forward_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
-    student_log_probs = F.log_softmax(student_logits, dim=-1)
-    teacher_log_probs = F.log_softmax(teacher_logits, dim=-1)
-    teacher_probs = teacher_log_probs.exp()
-    return (teacher_probs * (teacher_log_probs - student_log_probs)).sum(dim=-1)
+    """Token-wise equivalent of ``distillm.losses.forward_kl``."""
+    teacher_probs = F.softmax(teacher_logits, dim=-1, dtype=torch.float32)
+    inf_mask = torch.isinf(student_logits)
+    student_log_probs = F.log_softmax(student_logits, dim=-1, dtype=torch.float32)
+    prod_probs = torch.masked_fill(teacher_probs * student_log_probs, inf_mask, 0)
+    return -torch.sum(prod_probs, dim=-1)
 
 
 def _token_reverse_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
+    """Token-wise equivalent of ``distillm.losses.reverse_kl``."""
+    student_probs = F.softmax(student_logits, dim=-1, dtype=torch.float32)
+    student_log_probs = F.log_softmax(student_logits, dim=-1, dtype=torch.float32)
+    teacher_log_probs = F.log_softmax(teacher_logits, dim=-1, dtype=torch.float32)
     inf_mask = torch.isinf(student_logits) | torch.isinf(teacher_logits)
-    finite_min = torch.finfo(student_logits.dtype).min
-    safe_student_logits = student_logits.masked_fill(inf_mask, finite_min)
-    safe_teacher_logits = teacher_logits.masked_fill(inf_mask, finite_min)
-    student_log_probs = F.log_softmax(safe_student_logits, dim=-1)
-    teacher_log_probs = F.log_softmax(safe_teacher_logits, dim=-1)
-    student_probs = student_log_probs.exp()
-    student_term = (student_probs * student_log_probs).masked_fill(inf_mask, 0.0)
-    teacher_term = (student_probs * teacher_log_probs).masked_fill(inf_mask, 0.0)
-    return (student_term - teacher_term).sum(dim=-1)
+    prod_probs = torch.masked_fill(student_probs * teacher_log_probs, inf_mask, 0)
+    prod_probs -= torch.masked_fill(student_probs * student_log_probs, inf_mask, 0)
+    return -torch.sum(prod_probs, dim=-1)
 
 
 def _token_skewed_forward_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor, lam: float) -> torch.Tensor:
-    student_probs = F.softmax(student_logits, dim=-1)
-    teacher_probs = F.softmax(teacher_logits, dim=-1)
-    teacher_log_probs = F.log_softmax(teacher_logits, dim=-1)
+    """Token-wise equivalent of ``distillm.losses.skewed_forward_kl``."""
+    teacher_probs = F.softmax(teacher_logits, dim=-1, dtype=torch.float32)
+    student_probs = F.softmax(student_logits, dim=-1, dtype=torch.float32)
     mixed_probs = lam * teacher_probs + (1.0 - lam) * student_probs
-    mixed_log_probs = torch.log(mixed_probs.clamp_min(1e-12))
-    return (teacher_probs * (teacher_log_probs - mixed_log_probs)).sum(dim=-1)
+    mixed_log_probs = torch.log(mixed_probs)
+    inf_mask = torch.isinf(student_logits) | torch.isinf(teacher_logits)
+    prod_probs = torch.masked_fill(teacher_probs * mixed_log_probs, inf_mask, 0)
+    return -torch.sum(prod_probs, dim=-1)
 
 
 def _token_skewed_reverse_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor, lam: float) -> torch.Tensor:
-    student_probs = F.softmax(student_logits, dim=-1)
-    student_log_probs = F.log_softmax(student_logits, dim=-1)
-    teacher_probs = F.softmax(teacher_logits, dim=-1)
+    """Token-wise equivalent of ``distillm.losses.skewed_reverse_kl``."""
+    teacher_probs = F.softmax(teacher_logits, dim=-1, dtype=torch.float32)
+    student_probs = F.softmax(student_logits, dim=-1, dtype=torch.float32)
     mixed_probs = (1.0 - lam) * teacher_probs + lam * student_probs
-    mixed_log_probs = torch.log(mixed_probs.clamp_min(1e-12))
-    return (student_probs * (student_log_probs - mixed_log_probs)).sum(dim=-1)
+    student_log_probs = F.log_softmax(student_logits, dim=-1, dtype=torch.float32)
+    mixed_log_probs = torch.log(mixed_probs)
+    inf_mask = torch.isinf(student_logits) | torch.isinf(teacher_logits)
+    prod_probs = torch.masked_fill(student_probs * mixed_log_probs, inf_mask, 0)
+    prod_probs -= torch.masked_fill(student_probs * student_log_probs, inf_mask, 0)
+    return -torch.sum(prod_probs, dim=-1)
 
 
 def _token_csd(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:

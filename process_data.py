@@ -40,8 +40,9 @@ class Encoder(object):
         )
 
         prompt_tokens = Encoder.tokenizer.encode(prompt, add_special_tokens=False)
+        prompt_token_count = len(prompt_tokens)
 
-        if len(prompt_tokens) > self.args.max_prompt_length:
+        if prompt_token_count > self.args.max_prompt_length:
             prompt_tokens = prompt_tokens[:self.args.max_prompt_length]
 
         response_tokens = None
@@ -50,7 +51,7 @@ class Encoder(object):
                 prompt + response,
                 add_special_tokens=False,
             ) + [Encoder.tokenizer.eos_token_id]
-            response_tokens = full_tokens[len(prompt_tokens):]
+            response_tokens = full_tokens[prompt_token_count:]
 
         t_prompt_tokens = None
         t_prompt_token_count = None

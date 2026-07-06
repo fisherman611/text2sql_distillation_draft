@@ -142,7 +142,11 @@ class LMTrainDataset(Dataset):
         self.lm_ctx = DistributedMMapIndexedDataset(path, f"{split}", get_rank(), get_world_size())
         self.t_lm_ctx = None
 
-        if os.path.exists(os.path.join(path, f"teacher_train_0.bin")) and split == "train":
+        if (
+            getattr(args, "type", None) == "synid"
+            and os.path.exists(os.path.join(path, f"teacher_train_0.bin"))
+            and split == "train"
+        ):
             self.t_lm_ctx = DistributedMMapIndexedDataset(path, f"teacher_train", get_rank(), get_world_size())
 
         if os.path.exists(os.path.join(path, f"{split}.jsonl")):
@@ -206,7 +210,10 @@ class LMTrainDataset(Dataset):
             sample["offset_mapping"] = self.offset_mapping[index]
         return sample
 
-    def _process_lm(self, i, samp, model_data, no_model_data, gen_data):
+    def _process_lm(self, i, samp, model_data, no_model_data, gen_data, max_length=None):
+        if max_length is None:
+            max_length = self.max_length
+
         input_ids = samp["input_ids"]
         source_len = 1
         
@@ -217,7 +224,7 @@ class LMTrainDataset(Dataset):
             prompt = input_ids[:source_len]
             input_ids = np.concatenate([input_ids[:source_len], input_ids[source_len+1:]], axis=0)
         
-        input_ids = input_ids[:self.max_length]
+        input_ids = input_ids[:max_length]
         input_len = len(input_ids)
         model_data["input_ids"][i][:input_len-1] = torch.tensor(input_ids[:-1], dtype=torch.long)
         model_data["attention_mask"][i][:input_len-1] = 1.0
@@ -291,7 +298,14 @@ class LMTrainDataset(Dataset):
             }
 
             for i, samp in enumerate(samples):
-                self._process_lm(i, {"input_ids": samp["t_input_ids"]}, t_model_data, t_no_model_data, None)
+                self._process_lm(
+                    i,
+                    {"input_ids": samp["t_input_ids"]},
+                    t_model_data,
+                    t_no_model_data,
+                    None,
+                    max_length=self.args.t_max_length,
+                )
         
         return model_data, no_model_data, gen_data, t_model_data, t_no_model_data
 

@@ -4,6 +4,7 @@ import pytest
 import torch
 import torch.nn as nn
 
+import distillm.losses as distillm_losses
 from src.synid_sql.losses import (
     SynIDLossParts,
     _extract_schema_terms,
@@ -182,25 +183,40 @@ def test_response_kd_variants_are_finite(kd_loss):
     assert torch.isfinite(student_logits.grad).all()
 
 
-@pytest.mark.parametrize("infinite_value", [float("-inf"), float("inf")])
-def test_response_rkl_masks_infinite_logits(infinite_value):
-    student_logits = torch.randn(1, 3, 7)
-    teacher_logits = torch.randn(1, 3, 7)
-    student_logits[0, 1, 2] = infinite_value
-    teacher_logits[0, 2, 4] = infinite_value
-    student_logits.requires_grad_()
-    labels = torch.tensor([[-100, 1, 2]])
+@pytest.mark.parametrize(
+    ("kd_loss", "reference_fn"),
+    [
+        ("fkl", distillm_losses.forward_kl),
+        ("rkl", distillm_losses.reverse_kl),
+        ("sfkl", distillm_losses.skewed_forward_kl),
+        ("srkl", distillm_losses.skewed_reverse_kl),
+        ("csd", distillm_losses.csd),
+    ],
+)
+def test_response_kd_matches_distillm_loss_implementation(kd_loss, reference_fn):
+    student_logits = torch.randn(2, 5, 11, requires_grad=True)
+    teacher_logits = torch.randn(2, 5, 11)
+    reference_student_logits = student_logits.detach().clone().requires_grad_()
+    labels = torch.tensor(
+        [
+            [-100, -100, 1, 2, 3],
+            [-100, 1, 2, 3, 4],
+        ]
+    )
+    no_model_batch = {"label": labels}
 
-    loss = response_kd_loss(
+    synid_result = response_kd_loss(
         student_logits,
         teacher_logits,
         labels,
-        kd_loss="rkl",
+        kd_loss=kd_loss,
     )
-    loss.backward()
+    reference_result = reference_fn(reference_student_logits, teacher_logits, no_model_batch)
+    synid_result.backward()
+    reference_result.backward()
 
-    assert torch.isfinite(loss)
-    assert torch.isfinite(student_logits.grad).all()
+    assert synid_result.item() == pytest.approx(reference_result.item())
+    assert torch.allclose(student_logits.grad, reference_student_logits.grad, atol=1e-6)
 
 
 def test_response_csd_matches_existing_distillm_ss_implementation():

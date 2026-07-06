@@ -25,7 +25,7 @@ BASE_PATH="${BASE_PATH:-.}"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .sh)"
 SCRIPT_GROUP="$(basename "$(dirname "${BASH_SOURCE[0]}")")"
 
-DATA_DIR="${DATA_DIR:-processed_data/benchmarks/spider_data/qwen}"
+DATA_DIR="${DATA_DIR:-processed_data/benchmarks/spider_data/synid_privileged/qwen}"
 
 CKPT_NAME="${CKPT_NAME:-qwen3-0.6B}"
 CKPT="${CKPT:-Qwen/Qwen3-0.6B}"
@@ -43,6 +43,8 @@ KD_TYPE="${KD_TYPE:-synid}"
 
 MAX_LENGTH="${MAX_LENGTH:-1612}"
 MAX_PROMPT_LENGTH="${MAX_PROMPT_LENGTH:-1479}"
+T_MAX_LENGTH="${T_MAX_LENGTH:-1800}"
+T_MAX_PROMPT_LENGTH="${T_MAX_PROMPT_LENGTH:-1625}"
 
 PEFT_LORA_R="${PEFT_LORA_R:-16}"
 PEFT_LORA_ALPHA="${PEFT_LORA_ALPHA:-64}"
@@ -97,6 +99,8 @@ OPTS+=" --kd-ratio ${KD_RATIO}"
 # length
 OPTS+=" --max-length ${MAX_LENGTH}"
 OPTS+=" --max-prompt-length ${MAX_PROMPT_LENGTH}"
+OPTS+=" --t-max-length ${T_MAX_LENGTH}"
+OPTS+=" --t-max-prompt-length ${T_MAX_PROMPT_LENGTH}"
 # runtime
 OPTS+=" --do-train"
 OPTS+=" --do-valid"

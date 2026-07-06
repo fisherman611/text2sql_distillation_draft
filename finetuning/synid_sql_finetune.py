@@ -355,6 +355,14 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
     sampler = DistributedSampler(dataset["train"], shuffle=True, drop_last=True, rank=dp_rank, num_replicas=dp_world_size)
     train_dataloader = DataLoader(
         dataset['train'], sampler=sampler, batch_size=args.batch_size, num_workers=args.num_workers, collate_fn=dataset["train"].collate)
+    if teacher_model is not None and args.type == "synid":
+        if getattr(dataset["train"], "t_lm_ctx", None) is None:
+            raise ValueError(
+                "SynID privileged teacher training requires processed "
+                "teacher_train_0.bin/teacher_train_0.idx in --data-dir. "
+                "Run process_data.py on a data_dir that contains teacher_train.jsonl."
+            )
+        print_rank("Using privileged teacher_train_0 dataset for SynID teacher inputs.")
     
     if "pt_train" in dataset:
         pt_sampler = DistributedSampler(dataset["pt_train"], shuffle=True, drop_last=True, rank=dp_rank, num_replicas=dp_world_size)
