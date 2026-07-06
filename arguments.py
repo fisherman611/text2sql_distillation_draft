@@ -18,6 +18,17 @@ import os
 import deepspeed
 
 
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    lowered = value.lower()
+    if lowered in ("yes", "true", "t", "1", "y"):
+        return True
+    if lowered in ("no", "false", "f", "0", "n"):
+        return False
+    raise argparse.ArgumentTypeError(f"Boolean value expected, got {value!r}")
+
+
 def add_model_args(parser: argparse.ArgumentParser):
     """Model arguments"""
 
@@ -221,6 +232,25 @@ def add_distillm_args(parser: argparse.ArgumentParser):
     return parser
 
 
+def add_synid_sql_args(parser: argparse.ArgumentParser):
+    group = parser.add_argument_group('synid_sql', 'SynID-SQL configurations')
+
+    group.add_argument("--synid-alpha", type=float, default=1.0)
+    group.add_argument("--synid-beta", type=float, default=1.0)
+    group.add_argument("--synid-pool-tau", type=float, default=0.1)
+    group.add_argument("--synid-contrastive-tau", type=float, default=0.1)
+    group.add_argument("--synid-syntax-lambda", type=float, default=2.0)
+    group.add_argument("--synid-pooling", type=str, default="sc", choices=["sc", "mean"])
+    group.add_argument("--synid-use-syntax-weights", type=str2bool, default=True)
+    group.add_argument("--synid-use-con1", type=str2bool, default=True)
+    group.add_argument("--synid-use-con2", type=str2bool, default=True)
+    group.add_argument("--synid-kd-loss", type=str, default="fkl", choices=["fkl", "rkl", "sfkl", "srkl"])
+    group.add_argument("--synid-kd-temperature", type=float, default=1.0)
+    group.add_argument("--synid-jaccard-gamma", type=float, default=0.6)
+
+    return parser
+
+
 def add_gen_args(parser: argparse.ArgumentParser):
     group = parser.add_argument_group('generation', 'generation configurations')
     
@@ -258,6 +288,7 @@ def get_args():
     parser = add_ppo_args(parser)
     parser = add_minillm_args(parser)
     parser = add_distillm_args(parser)
+    parser = add_synid_sql_args(parser)
     parser = add_gen_args(parser)
     parser = add_peft_args(parser)
     parser = deepspeed.add_config_arguments(parser)
