@@ -4,11 +4,9 @@ import time
 import torch
 import json
 import sys
-from numerize.numerize import numerize
 import numpy as np
 from data_utils.indexed_dataset import make_builder
 from transformers import AutoTokenizer
-from arguments import get_args
 
 
 class Encoder(object):
@@ -90,7 +88,55 @@ def load_split_data(args):
     with open(file_path, "r", encoding="utf-8") as f:
         data = f.readlines()
 
+    if args.split == "train":
+        teacher_file_path = os.path.join(args.data_dir, "teacher_train.jsonl")
+        if os.path.exists(teacher_file_path):
+            data = merge_teacher_train_data(data, teacher_file_path)
+
     return data
+
+
+def merge_teacher_train_data(student_lines, teacher_file_path):
+    with open(teacher_file_path, "r", encoding="utf-8") as f:
+        teacher_lines = [line for line in f.readlines() if line.strip()]
+
+    student_lines = [line for line in student_lines if line.strip()]
+    if len(student_lines) != len(teacher_lines):
+        raise ValueError(
+            "Student train and teacher train row counts differ: "
+            f"{len(student_lines)} != {len(teacher_lines)}. "
+            f"Teacher file: {teacher_file_path}"
+        )
+
+    merged_lines = []
+    for index, (student_line, teacher_line) in enumerate(zip(student_lines, teacher_lines)):
+        student = json.loads(student_line)
+        teacher = json.loads(teacher_line)
+
+        missing_teacher_fields = [
+            field
+            for field in ("t_system_prompt", "t_user_prompt", "response")
+            if field not in teacher
+        ]
+        if missing_teacher_fields:
+            raise ValueError(
+                f"Missing teacher fields at row {index}: {missing_teacher_fields}. "
+                f"Teacher file: {teacher_file_path}"
+            )
+
+        if student.get("response") != teacher["response"]:
+            raise ValueError(
+                f"Student and teacher responses differ at train row {index}. "
+                f"Teacher file: {teacher_file_path}"
+            )
+
+        merged = dict(student)
+        merged["t_system_prompt"] = teacher["t_system_prompt"]
+        merged["t_user_prompt"] = teacher["t_user_prompt"]
+        merged_lines.append(json.dumps(merged, ensure_ascii=False) + "\n")
+
+    print(f"Merged privileged teacher prompts from {teacher_file_path}")
+    return merged_lines
 
 
 def get_builder_dtype(args):
@@ -99,6 +145,8 @@ def get_builder_dtype(args):
 
 def main():
     print("OK")
+    from arguments import get_args
+
     args = get_args()
 
     if args.split is None:
