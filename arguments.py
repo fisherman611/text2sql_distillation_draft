@@ -244,7 +244,12 @@ def add_synid_sql_args(parser: argparse.ArgumentParser):
     group.add_argument("--synid-use-syntax-weights", type=str2bool, default=True)
     group.add_argument("--synid-use-con1", type=str2bool, default=True)
     group.add_argument("--synid-use-con2", type=str2bool, default=True)
-    group.add_argument("--synid-kd-loss", type=str, default="fkl", choices=["fkl", "rkl", "sfkl", "srkl"])
+    group.add_argument(
+        "--synid-kd-loss",
+        type=str,
+        default="fkl",
+        choices=["fkl", "rkl", "sfkl", "srkl", "csd"],
+    )
     group.add_argument("--synid-kd-temperature", type=float, default=1.0)
     group.add_argument("--synid-jaccard-gamma", type=float, default=0.6)
 

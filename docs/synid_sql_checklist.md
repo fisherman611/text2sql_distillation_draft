@@ -16,14 +16,14 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
   - [x] `--synid-use-syntax-weights`, default `True`, enables SQL/schema token upweighting. Set `false` for ablation.
   - [x] `--synid-use-con1`, default `True`, enables semantic alignment loss. Set `false` for ablation.
   - [x] `--synid-use-con2`, default `True`, enables geometry-preserving loss. Set `false` for ablation.
-  - [x] `--synid-kd-loss`, default `fkl`, choices `fkl`, `rkl`, `sfkl`, `srkl`, selects response-token KD divergence.
+  - [x] `--synid-kd-loss`, default `fkl`, choices `fkl`, `rkl`, `sfkl`, `srkl`, `csd`, selects response-token KD loss.
   - [x] `--synid-kd-temperature`, default `1.0`, distillation temperature for response-token FKL.
   - [x] `--synid-jaccard-gamma`, default `0.6`, later used by augmentation filtering.
   - [x] Reuse `--kd-ratio`, default `1.0` in SynID scripts, to interpolate CE and KD while keeping CE disabled by default.
 
 - [x] Add `src/synid_sql/losses.py`.
   - [x] Implement response-token compaction from `label != -100`.
-  - [x] Implement KD variants on compacted student/teacher response logits: `fkl`, `rkl`, `sfkl`, `srkl`. `fkl` and `sfkl` use full KL values.
+  - [x] Implement KD variants on compacted student/teacher response logits: `fkl`, `rkl`, `sfkl`, `srkl`, `csd`. `fkl` and `sfkl` use full KL values; `csd` matches the existing SS-mode surrogate implementation.
   - [x] Implement SQL keyword and schema-token weight construction.
   - [x] Implement SC pooling over hidden states.
   - [x] Implement in-batch InfoNCE.

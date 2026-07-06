@@ -113,10 +113,16 @@ def _token_forward_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor
 
 
 def _token_reverse_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
-    student_log_probs = F.log_softmax(student_logits, dim=-1)
-    teacher_log_probs = F.log_softmax(teacher_logits, dim=-1)
+    inf_mask = torch.isinf(student_logits) | torch.isinf(teacher_logits)
+    finite_min = torch.finfo(student_logits.dtype).min
+    safe_student_logits = student_logits.masked_fill(inf_mask, finite_min)
+    safe_teacher_logits = teacher_logits.masked_fill(inf_mask, finite_min)
+    student_log_probs = F.log_softmax(safe_student_logits, dim=-1)
+    teacher_log_probs = F.log_softmax(safe_teacher_logits, dim=-1)
     student_probs = student_log_probs.exp()
-    return (student_probs * (student_log_probs - teacher_log_probs)).sum(dim=-1)
+    student_term = (student_probs * student_log_probs).masked_fill(inf_mask, 0.0)
+    teacher_term = (student_probs * teacher_log_probs).masked_fill(inf_mask, 0.0)
+    return (student_term - teacher_term).sum(dim=-1)
 
 
 def _token_skewed_forward_kl(student_logits: torch.Tensor, teacher_logits: torch.Tensor, lam: float) -> torch.Tensor:
@@ -135,6 +141,15 @@ def _token_skewed_reverse_kl(student_logits: torch.Tensor, teacher_logits: torch
     mixed_probs = (1.0 - lam) * teacher_probs + lam * student_probs
     mixed_log_probs = torch.log(mixed_probs.clamp_min(1e-12))
     return (student_probs * (student_log_probs - mixed_log_probs)).sum(dim=-1)
+
+
+def _token_csd(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
+    """CSD-SS surrogate loss, matching ``distillm.losses.csd`` token-wise."""
+    student_probs = F.softmax(student_logits, dim=-1)
+    logit_gap = student_logits - teacher_logits
+    centered_gap = logit_gap - (student_probs * logit_gap).sum(dim=-1, keepdim=True)
+    surrogate = centered_gap.detach() * student_probs.detach() * student_logits
+    return surrogate.sum(dim=-1)
 
 
 def response_kd_loss(
@@ -196,6 +211,8 @@ def response_kd_loss(
             token_loss = _token_skewed_forward_kl(s_logits, t_logits, skew_alpha)
         elif kd_loss == "srkl":
             token_loss = _token_skewed_reverse_kl(s_logits, t_logits, skew_alpha)
+        elif kd_loss == "csd":
+            token_loss = _token_csd(s_logits, t_logits)
         else:
             raise ValueError(f"Unsupported SynID KD loss: {kd_loss}")
         loss_sum = loss_sum + token_loss.sum() * (temperature ** 2)

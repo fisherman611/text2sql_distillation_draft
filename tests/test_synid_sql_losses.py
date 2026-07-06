@@ -159,7 +159,7 @@ def test_response_kd_rejects_misaligned_target_tokens():
         )
 
 
-@pytest.mark.parametrize("kd_loss", ["fkl", "rkl", "sfkl", "srkl"])
+@pytest.mark.parametrize("kd_loss", ["fkl", "rkl", "sfkl", "srkl", "csd"])
 def test_response_kd_variants_are_finite(kd_loss):
     student_logits = torch.randn(2, 5, 11, requires_grad=True)
     teacher_logits = torch.randn(2, 5, 11)
@@ -180,6 +180,56 @@ def test_response_kd_variants_are_finite(kd_loss):
 
     assert torch.isfinite(loss)
     assert torch.isfinite(student_logits.grad).all()
+
+
+@pytest.mark.parametrize("infinite_value", [float("-inf"), float("inf")])
+def test_response_rkl_masks_infinite_logits(infinite_value):
+    student_logits = torch.randn(1, 3, 7)
+    teacher_logits = torch.randn(1, 3, 7)
+    student_logits[0, 1, 2] = infinite_value
+    teacher_logits[0, 2, 4] = infinite_value
+    student_logits.requires_grad_()
+    labels = torch.tensor([[-100, 1, 2]])
+
+    loss = response_kd_loss(
+        student_logits,
+        teacher_logits,
+        labels,
+        kd_loss="rkl",
+    )
+    loss.backward()
+
+    assert torch.isfinite(loss)
+    assert torch.isfinite(student_logits.grad).all()
+
+
+def test_response_csd_matches_existing_distillm_ss_implementation():
+    student_logits = torch.randn(2, 5, 11, requires_grad=True)
+    teacher_logits = torch.randn(2, 5, 11)
+    labels = torch.tensor(
+        [
+            [-100, -100, 1, 2, 3],
+            [-100, 1, 2, 3, 4],
+        ]
+    )
+
+    synid_result = response_kd_loss(
+        student_logits,
+        teacher_logits,
+        labels,
+        kd_loss="csd",
+    )
+
+    student_probs = torch.softmax(student_logits, dim=-1)
+    logit_gap = student_logits - teacher_logits
+    centered_gap = logit_gap - (student_probs * logit_gap).sum(dim=-1, keepdim=True)
+    token_loss = (
+        centered_gap.detach() * student_probs.detach() * student_logits
+    ).sum(dim=-1)
+    mask = labels.ne(-100)
+    expected = token_loss.masked_select(mask).mean()
+
+    assert synid_result.item() == pytest.approx(expected.item())
 
 
 def test_schema_terms_do_not_promote_short_generic_fragments():
