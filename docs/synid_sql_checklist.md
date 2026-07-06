@@ -19,6 +19,7 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
   - [x] `--synid-kd-loss`, default `fkl`, choices `fkl`, `rkl`, `sfkl`, `srkl`, selects response-token KD divergence.
   - [x] `--synid-kd-temperature`, default `1.0`, distillation temperature for response-token FKL.
   - [x] `--synid-jaccard-gamma`, default `0.6`, later used by augmentation filtering.
+  - [x] Reuse `--kd-ratio`, default `1.0` in SynID scripts, to interpolate CE and KD while keeping CE disabled by default.
 
 - [x] Add `src/synid_sql/losses.py`.
   - [x] Implement response-token compaction from `label != -100`.
@@ -33,8 +34,8 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
   - [x] Import SynID loss helpers.
   - [x] Capture only the final hidden state entering each LM head, avoiding the full hidden-state stack.
   - [x] Forward teacher on the same current `model_batch` for phase 1.
-  - [x] Compute `L_KD + alpha * L_con1 + beta * L_con2`.
-  - [x] Log `kd_loss`, `con1_loss`, `con2_loss` separately.
+  - [x] Compute `(1 - kd_ratio) * L_CE + kd_ratio * L_KD + alpha * L_con1 + beta * L_con2`.
+  - [x] Log `ce_loss`, `kd_loss`, `con1_loss`, `con2_loss` separately.
   - [x] Leave existing `finetuning/finetune.py` and FKL/RKL/SFKL/SRKL behavior unchanged.
 
 - [x] Add one Spider train script.

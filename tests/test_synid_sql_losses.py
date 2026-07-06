@@ -5,10 +5,12 @@ import torch
 import torch.nn as nn
 
 from src.synid_sql.losses import (
+    SynIDLossParts,
     _extract_schema_terms,
     _last_valid_hidden,
     _response_hidden_mask,
     _syntax_weights,
+    combine_synid_with_ce,
     response_kd_loss,
     synid_loss,
 )
@@ -54,6 +56,60 @@ def make_args(**overrides):
     }
     values.update(overrides)
     return SimpleNamespace(**values)
+
+
+def test_combine_synid_with_ce_defaults_to_zero_ce_at_kd_ratio_one():
+    ce_loss = torch.tensor(5.0)
+    parts = SynIDLossParts(
+        total=torch.tensor(0.0),
+        kd=torch.tensor(2.0),
+        con1=torch.tensor(3.0),
+        con2=torch.tensor(4.0),
+    )
+
+    result = combine_synid_with_ce(
+        ce_loss,
+        parts,
+        kd_ratio=1.0,
+        con1_weight=0.1,
+        con2_weight=0.2,
+    )
+
+    assert result.item() == pytest.approx(3.1)
+
+
+def test_combine_synid_with_ce_interpolates_only_ce_and_kd():
+    ce_loss = torch.tensor(4.0)
+    parts = SynIDLossParts(
+        total=torch.tensor(0.0),
+        kd=torch.tensor(2.0),
+        con1=torch.tensor(1.0),
+        con2=torch.tensor(3.0),
+    )
+
+    result = combine_synid_with_ce(
+        ce_loss,
+        parts,
+        kd_ratio=0.25,
+        con1_weight=0.1,
+        con2_weight=0.2,
+    )
+
+    assert result.item() == pytest.approx(4.2)
+
+
+def test_combine_synid_with_ce_rejects_invalid_kd_ratio():
+    zero = torch.tensor(0.0)
+    parts = SynIDLossParts(total=zero, kd=zero, con1=zero, con2=zero)
+
+    with pytest.raises(ValueError, match="KD ratio"):
+        combine_synid_with_ce(
+            zero,
+            parts,
+            kd_ratio=1.1,
+            con1_weight=0.1,
+            con2_weight=0.1,
+        )
 
 
 def test_response_hidden_mask_selects_response_inputs_not_prediction_positions():

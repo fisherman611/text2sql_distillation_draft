@@ -100,7 +100,7 @@ $$
 \mathcal{L}_{con2} = -\log \frac{\exp(\text{sim}(E_{sr}, E_{tr}) / \tau)}{\exp(\text{sim}(E_{sr}, E_{tr}) / \tau) + \sum_{j \in \mathcal{N}} \exp(\text{sim}(E_{sr}, E_{tr, j}^-) / \tau)}
 $$
 
-**Hàm mục tiêu tổng thể:** $\mathcal{L}_{total} = \mathcal{L}_{KD} + \alpha \mathcal{L}_{con1} + \beta \mathcal{L}_{con2}$, trong đó $\alpha$ và $\beta$ là các siêu tham số điều hòa trọng số hàm loss.
+**Hàm mục tiêu tổng thể:** $\mathcal{L}_{total} = (1 - \lambda_{KD})\mathcal{L}_{CE} + \lambda_{KD}\mathcal{L}_{KD} + \alpha \mathcal{L}_{con1} + \beta \mathcal{L}_{con2}$, trong đó $\lambda_{KD} \in [0, 1]$ điều hòa giữa giám sát nhãn cứng và chưng cất phân phối, còn $\alpha$ và $\beta$ điều hòa hai hàm loss tương phản. Mặc định $\lambda_{KD}=1.0$, do đó cấu hình mặc định khôi phục mục tiêu chỉ gồm KD và hai thành phần tương phản.
 
 ## Experimental
 

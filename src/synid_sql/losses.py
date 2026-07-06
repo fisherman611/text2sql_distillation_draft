@@ -76,6 +76,26 @@ class SynIDLossParts:
     con2: torch.Tensor
 
 
+def combine_synid_with_ce(
+    ce_loss: torch.Tensor,
+    loss_parts: SynIDLossParts,
+    *,
+    kd_ratio: float,
+    con1_weight: float,
+    con2_weight: float,
+) -> torch.Tensor:
+    if not 0.0 <= kd_ratio <= 1.0:
+        raise ValueError(f"SynID KD ratio must be in [0, 1], got {kd_ratio}.")
+    if con1_weight < 0 or con2_weight < 0:
+        raise ValueError("SynID contrastive loss weights must be non-negative.")
+    return (
+        (1.0 - kd_ratio) * ce_loss
+        + kd_ratio * loss_parts.kd
+        + con1_weight * loss_parts.con1
+        + con2_weight * loss_parts.con2
+    )
+
+
 def _zero_like(reference: torch.Tensor) -> torch.Tensor:
     return reference.new_zeros(())
 

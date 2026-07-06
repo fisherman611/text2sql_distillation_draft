@@ -52,7 +52,7 @@ from distillm import skewed_forward_kl, skewed_reverse_kl, csd
 from distillm import ab_div, bdkd, AKL, wsd, alphanet, amid
 from distillm import SampleGenerator, ReplayBuffer
 
-from src.synid_sql import LastHiddenStateCapture, synid_loss
+from src.synid_sql import LastHiddenStateCapture, combine_synid_with_ce, synid_loss
 from rouge_metric import compute_metrics
 
 from peft import PeftModel
@@ -336,6 +336,10 @@ def get_teacher_lm_loss(args, tokenizer, model, teacher_model, model_batch):
 
 def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, optimizer: AdamW, lr_scheduler, dataset, device, teacher_model=None):
     print_rank("Start Fine-tuning")
+    if args.kd_ratio is None:
+        args.kd_ratio = 1.0
+    if not 0.0 <= args.kd_ratio <= 1.0:
+        raise ValueError(f"SynID KD ratio must be in [0, 1], got {args.kd_ratio}.")
 
     # print_inspect(model, '*')
     if args.model_parallel:
@@ -364,7 +368,7 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
         teacher_hidden_capture = LastHiddenStateCapture(teacher_model)
 
     step, global_step = 1, 1
-    total_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0
+    total_loss, total_ce_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     
     adaptive_threshold = args.init_threshold if "adaptive" in args.type else -1.0
     prev_avg_loss = evaluate(args, tokenizer, model, dataset["dev"], "dev", 0, device, adaptive_threshold)
@@ -469,7 +473,13 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                 distil_loss = loss_parts.kd
                 con1_loss = loss_parts.con1
                 con2_loss = loss_parts.con2
-                loss = loss_parts.total
+                loss = combine_synid_with_ce(
+                    lm_loss,
+                    loss_parts,
+                    kd_ratio=args.kd_ratio,
+                    con1_weight=args.synid_alpha,
+                    con2_weight=args.synid_beta,
+                )
             else:
                 loss = lm_loss
                 distil_loss = torch.zeros_like(loss)
@@ -487,15 +497,19 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
             global_loss = loss.item() / dp_world_size
 
             global_distil_loss = 0
+            global_ce_loss = 0
             global_con1_loss = 0
             global_con2_loss = 0
             if teacher_model is not None:
+                dist.all_reduce(lm_loss, dist.ReduceOp.SUM, group=dp_group)
                 dist.all_reduce(distil_loss, dist.ReduceOp.SUM, group=dp_group)
                 dist.all_reduce(con1_loss, dist.ReduceOp.SUM, group=dp_group)
                 dist.all_reduce(con2_loss, dist.ReduceOp.SUM, group=dp_group)
+                global_ce_loss = lm_loss.item() / dp_world_size
                 global_distil_loss = distil_loss.item() / dp_world_size
                 global_con1_loss = con1_loss.item() / dp_world_size
                 global_con2_loss = con2_loss.item() / dp_world_size
+                total_ce_loss += global_ce_loss
                 total_distil_loss += global_distil_loss
                 total_con1_loss += global_con1_loss
                 total_con2_loss += global_con2_loss
@@ -507,14 +521,15 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
             total_time += elapsed_time
 
             # Logging
-            def get_log(log_loss, log_distil_loss, log_con1_loss, log_con2_loss, log_time):
-                return "train | epoch {:3d} | Iter: {:6d}/{:6d} | global iter: {:6d}/{:6d} | loss: {:.4f} | kd_loss: {:.4f} | con1_loss: {:.4f} | con2_loss: {:.4f} | lr: {:.4e} | scale: {:10.4f} | micro time: {:.3f} | step time: {:.3f}".format(
+            def get_log(log_loss, log_ce_loss, log_distil_loss, log_con1_loss, log_con2_loss, log_time):
+                return "train | epoch {:3d} | Iter: {:6d}/{:6d} | global iter: {:6d}/{:6d} | loss: {:.4f} | ce_loss: {:.4f} | kd_loss: {:.4f} | con1_loss: {:.4f} | con2_loss: {:.4f} | lr: {:.4e} | scale: {:10.4f} | micro time: {:.3f} | step time: {:.3f}".format(
                     epoch,
                     step,
                     args.total_iters * args.gradient_accumulation_steps,
                     global_step,
                     args.total_iters,
                     log_loss,
+                    log_ce_loss,
                     log_distil_loss,
                     log_con1_loss,
                     log_con2_loss,
@@ -528,11 +543,12 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                 mid_log_step = args.gradient_accumulation_steps // args.mid_log_num
                 mid_log_step = 1 if mid_log_step == 0 else mid_log_step
                 if step % mid_log_step == 0:
-                    print_rank(get_log(global_loss, global_distil_loss, global_con1_loss, global_con2_loss, 0))
+                    print_rank(get_log(global_loss, global_ce_loss, global_distil_loss, global_con1_loss, global_con2_loss, 0))
 
             if global_step % args.log_interval == 0 and step % args.gradient_accumulation_steps == 0:
                 log_str = get_log(
                     total_loss / (args.log_interval * args.gradient_accumulation_steps),
+                    total_ce_loss / (args.log_interval * args.gradient_accumulation_steps),
                     total_distil_loss / (args.log_interval * args.gradient_accumulation_steps),
                     total_con1_loss / (args.log_interval * args.gradient_accumulation_steps),
                     total_con2_loss / (args.log_interval * args.gradient_accumulation_steps),
@@ -542,7 +558,7 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                 print_rank(args.save)
                 print_rank("*" * 100)
                 save_rank(log_str, os.path.join(args.save, "log.txt"))
-                total_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0
+                total_loss, total_ce_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
             
             # Checkpointing
             if args.save and args.save_interval and global_step % args.save_interval == 0 and step % args.gradient_accumulation_steps == 0:
@@ -698,6 +714,10 @@ def main():
     torch.backends.cudnn.enabled = False
     
     args = get_args()
+    if args.kd_ratio is None:
+        args.kd_ratio = 1.0
+    if not 0.0 <= args.kd_ratio <= 1.0:
+        raise ValueError(f"SynID KD ratio must be in [0, 1], got {args.kd_ratio}.")
     initialize(args)
     
     if dist.get_rank() == 0:
