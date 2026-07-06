@@ -53,6 +53,7 @@ class Encoder(object):
             response_tokens = full_tokens[len(prompt_tokens):]
 
         t_prompt_tokens = None
+        t_prompt_token_count = None
         if self.args.split == "train" and t_system_prompt is not None and t_user_prompt is not None:
             t_prompt = Encoder.tokenizer.apply_chat_template(
                 [
@@ -65,10 +66,11 @@ class Encoder(object):
             )
 
             t_prompt_tokens = Encoder.tokenizer.encode(t_prompt, add_special_tokens=False)
+            t_prompt_token_count = len(t_prompt_tokens)
             if len(t_prompt_tokens) > self.args.t_max_prompt_length:
                 t_prompt_tokens = t_prompt_tokens[:self.args.t_max_prompt_length]
 
-        return line, prompt, prompt_tokens, response_tokens, t_prompt_tokens, len(line)
+        return line, prompt, prompt_tokens, response_tokens, t_prompt_tokens, t_prompt_token_count, len(line)
 
 
 def load_split_data(args):
@@ -187,6 +189,8 @@ def main():
     print("#" * 10, args.split, "#" * 10)
 
     prompt_lens = []
+    t_prompt_lens = []
+    t_prompt_raw_lens = []
     response_lens = []
 
     json_file = open(
@@ -195,7 +199,15 @@ def main():
         encoding="utf-8"
     )
 
-    for lid, (line, prompt_str, prompt, response, t_prompt, bytes_processed) in enumerate(encoded_docs):
+    for lid, (
+        line,
+        prompt_str,
+        prompt,
+        response,
+        t_prompt,
+        t_prompt_token_count,
+        bytes_processed,
+    ) in enumerate(encoded_docs):
         total_bytes_processed += bytes_processed
 
         if prompt is None:
@@ -217,6 +229,8 @@ def main():
                     if t_binary_builder is None:
                         t_binary_builder = make_builder(t_bin_file, impl="mmap", dtype=dtype)
                     t_binary_builder.add_item(torch.IntTensor(t_prompt + [-1] + response))
+                    t_prompt_lens.append(len(t_prompt))
+                    t_prompt_raw_lens.append(t_prompt_token_count)
 
             response_lens.append(len(response))
 
@@ -264,6 +278,20 @@ def main():
             "Mean:", np.mean(prompt_lens),
             "Max:", np.max(prompt_lens),
             "Min:", np.min(prompt_lens),
+        )
+    if len(t_prompt_lens) > 0:
+        t_truncated_num = sum(
+            raw_len > args.t_max_prompt_length
+            for raw_len in t_prompt_raw_lens
+            if raw_len is not None
+        )
+        print(
+            "Teacher prompt lengths.",
+            "Mean:", np.mean(t_prompt_lens),
+            "Max:", np.max(t_prompt_lens),
+            "Min:", np.min(t_prompt_lens),
+            "Raw max:", np.max(t_prompt_raw_lens),
+            "Truncated:", t_truncated_num,
         )
     if len(response_lens) > 0:
         print(
