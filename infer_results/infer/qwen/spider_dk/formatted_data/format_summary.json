@@ -1,10 +1,122 @@
 [
   {
+    "input": "infer_results/infer/qwen/spider_dk/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/amid_train_0.6b_4b_spider_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/csd_train_0.6b_4b_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/distillm2__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2__test.meta.jsonl"
+  },
+  {
     "input": "infer_results/infer/qwen/spider_dk/distillm2_paper_full__ckpt218__test__full_sql_result.json",
     "rows": 535,
     "empty_pred": 0,
     "pred": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.pred.sql",
     "gold": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.gold.sql",
     "meta": "infer_results/infer/qwen/spider_dk/formatted_data/distillm2_paper_full__ckpt218__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/fdd_train_0.6b_4b_spider_sfkl_t33-36_s25-28_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/fkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/fkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_kd0.6_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/rkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/rkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/sfkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/sft_sft_qwen3_0.6b_spider__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_0.6b_spider__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/sft_sft_qwen3_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/sft_sft_qwen3_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/srkl_train_0.6b_4b_spider_lora__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_dk/synid_train_0.6b_4b_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a1.0-b1.0-poolsc-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_dk/formatted_data/synid_train_0.6b_4b_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a1.0-b1.0-poolsc-lora-16-64-0.1__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_dk/formatted_data/synid_train_0.6b_4b_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a1.0-b1.0-poolsc-lora-16-64-0.1__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_dk/formatted_data/synid_train_0.6b_4b_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a1.0-b1.0-poolsc-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
   }
 ]
