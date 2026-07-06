@@ -15,7 +15,11 @@
 
 import argparse
 import os
-import deepspeed
+
+try:
+    import deepspeed
+except ImportError:
+    deepspeed = None
 
 
 def str2bool(value):
@@ -296,7 +300,8 @@ def get_args():
     parser = add_synid_sql_args(parser)
     parser = add_gen_args(parser)
     parser = add_peft_args(parser)
-    parser = deepspeed.add_config_arguments(parser)
+    if deepspeed is not None:
+        parser = deepspeed.add_config_arguments(parser)
     
     args, unknown = parser.parse_known_args()
     
