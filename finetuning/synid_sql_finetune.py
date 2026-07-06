@@ -132,6 +132,8 @@ def attach_synid_projector(args, model, teacher_model, device):
         device=device,
         dtype=dtype,
     )
+    with torch.no_grad():
+        model.synid_projector.weight.normal_(mean=0.0, std=1e-3)
     print_rank(f"SynID projector: {student_hidden_size} -> {teacher_hidden_size}")
     return model
 
