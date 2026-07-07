@@ -90,9 +90,12 @@ def combine_synid_with_ce(
         raise ValueError("SynID contrastive loss weights must be non-negative.")
     return (
         (1.0 - kd_ratio) * ce_loss
-        + kd_ratio * loss_parts.kd
-        + con1_weight * loss_parts.con1
-        + con2_weight * loss_parts.con2
+        + kd_ratio
+        * (
+            loss_parts.kd
+            + con1_weight * loss_parts.con1
+            + con2_weight * loss_parts.con2
+        )
     )
 
 

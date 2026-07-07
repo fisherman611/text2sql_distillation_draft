@@ -112,6 +112,14 @@
     "meta": "infer_results/infer/qwen/spider_syn/formatted_data/srkl_train_0.6b_4b_spider_lora__ckpt1090__test.meta.jsonl"
   },
   {
+    "input": "infer_results/infer/qwen/spider_syn/synid_fkl_a0.1_b0.1_hf_1090__ckpt1090__test__full_sql_result.json",
+    "rows": 1034,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_syn/formatted_data/synid_fkl_a0.1_b0.1_hf_1090__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_syn/formatted_data/synid_fkl_a0.1_b0.1_hf_1090__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_syn/formatted_data/synid_fkl_a0.1_b0.1_hf_1090__ckpt1090__test.meta.jsonl"
+  },
+  {
     "input": "infer_results/infer/qwen/spider_syn/synid_train_0.6b_4b_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a1.0-b1.0-poolsc-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
     "rows": 1034,
     "empty_pred": 0,

@@ -79,7 +79,7 @@ def test_combine_synid_with_ce_defaults_to_zero_ce_at_kd_ratio_one():
     assert result.item() == pytest.approx(3.1)
 
 
-def test_combine_synid_with_ce_interpolates_only_ce_and_kd():
+def test_combine_synid_with_ce_interpolates_ce_and_full_synid_objective():
     ce_loss = torch.tensor(4.0)
     parts = SynIDLossParts(
         total=torch.tensor(0.0),
@@ -96,7 +96,7 @@ def test_combine_synid_with_ce_interpolates_only_ce_and_kd():
         con2_weight=0.2,
     )
 
-    assert result.item() == pytest.approx(4.2)
+    assert result.item() == pytest.approx(3.675)
 
 
 def test_combine_synid_with_ce_rejects_invalid_kd_ratio():
