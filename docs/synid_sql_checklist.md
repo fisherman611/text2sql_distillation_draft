@@ -34,13 +34,13 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
   - [x] Import SynID loss helpers.
   - [x] Capture only the final hidden state entering each LM head, avoiding the full hidden-state stack.
   - [x] Forward teacher on the same current `model_batch` for phase 1.
-  - [x] Compute `(1 - kd_ratio) * L_CE + kd_ratio * L_KD + alpha * L_con1 + beta * L_con2`.
+  - [x] Compute `(1 - kd_ratio) * L_CE + kd_ratio * (L_KD + alpha * L_con1 + beta * L_con2)`.
   - [x] Log `ce_loss`, `kd_loss`, `con1_loss`, `con2_loss` separately.
   - [x] Leave existing `finetuning/finetune.py` and FKL/RKL/SFKL/SRKL behavior unchanged.
 
 - [x] Add one Spider train script.
   - [x] `scripts/qwen/synid/train_0.6b_4b.sh`
-  - [x] Reuse existing Spider processed data path.
+  - [x] Use the Spider privileged processed data path when running current SynID scripts.
   - [x] Set `--type synid`.
   - [x] Use teacher model and teacher PEFT path like existing KD scripts.
 
@@ -61,48 +61,68 @@ Implement SynID-SQL for both Spider and BIRD. The first evaluation phase trains 
 
 ## Phase 2: Privileged Teacher Prompt
 
-- [ ] Extend `scripts/format_spider_variant_jsonl.py` or add `scripts/format_spider_synid_jsonl.py`.
-  - [ ] Preserve normal student `system_prompt/user_prompt`.
-  - [ ] Add `t_system_prompt/t_user_prompt` containing `Y_gold`.
-  - [ ] Keep `response=Y_gold` for no-augmentation privileged distillation.
+- [x] Add `scripts/format_spider_synid_jsonl.py`.
+  - [x] Preserve normal student `system_prompt/user_prompt` in the existing student train JSONL.
+  - [x] Add `t_system_prompt/t_user_prompt` containing `Y_gold`.
+  - [x] Keep `response=Y_gold` for no-augmentation privileged distillation.
+  - [x] Validate student/teacher row count and response alignment.
 
-- [ ] Extend `scripts/format_bird_jsonl.py` or add `scripts/format_bird_synid_jsonl.py`.
-  - [ ] Preserve normal student `system_prompt/user_prompt`.
-  - [ ] Add `t_system_prompt/t_user_prompt` containing `Y_gold`.
-  - [ ] Keep `response=Y_gold` for no-augmentation privileged distillation.
+- [x] Add `scripts/format_bird_synid_jsonl.py`.
+  - [x] Preserve normal student `system_prompt/user_prompt` in the existing student train JSONL.
+  - [x] Add `t_system_prompt/t_user_prompt` containing `Y_gold`.
+  - [x] Keep `response=Y_gold` for no-augmentation privileged distillation.
+  - [x] Validate student/teacher row count and response alignment.
 
-- [ ] Update `process_data.py` if needed.
-  - [ ] Confirm `teacher_train_0.bin` is generated from `t_system_prompt/t_user_prompt`.
-  - [ ] Preserve useful metadata in processed JSONL for debugging.
+- [x] Update `process_data.py`.
+  - [x] Merge `teacher_train.jsonl` into train processing when present.
+  - [x] Generate `teacher_train_0.bin` and `teacher_train_0.idx` from `t_system_prompt/t_user_prompt`.
+  - [x] Validate teacher/student response alignment before processing.
 
-- [ ] Update `data_utils/lm_datasets.py` if needed.
-  - [ ] Ensure `t_model_data/t_no_model_data` is moved to device.
-  - [ ] Ensure train loop can consume teacher batch alongside student batch.
+- [x] Update `data_utils/lm_datasets.py`.
+  - [x] Load `teacher_train_0` for SynID training when present.
+  - [x] Return `t_model_data/t_no_model_data` from the training collate path.
 
-- [ ] Update `finetuning/synid_sql_finetune.py`.
-  - [ ] Use `t_model_data` for teacher forward when present.
-  - [ ] Align response logits between student and teacher by label mask, not absolute positions.
+- [x] Update `finetuning/synid_sql_finetune.py`.
+  - [x] Require `teacher_train_0.bin/.idx` for current privileged SynID training.
+  - [x] Move `t_model_data/t_no_model_data` to device.
+  - [x] Use `t_model_data` for teacher forward when present.
+  - [x] Align response logits between student and teacher by label mask, not absolute positions.
+  - [x] Capture final hidden states and project student embeddings when hidden sizes differ.
 
 ## Phase 3: Execution-Guided Augmentation
 
-- [ ] Add Spider augmentation generation script.
-  - [ ] Generate teacher SQL candidates with privileged prompt.
-  - [ ] Parse strict JSON SQL output.
+- [x] Add Spider augmentation generation script.
+  - [x] Generate teacher SQL candidates with privileged prompt.
+  - [x] Parse strict JSON SQL output with fallback handling for fenced/bare SQL responses.
+  - [x] Support three-loop repair over failed candidates.
+  - [ ] Run full Spider augmentation generation.
 
-- [ ] Add BIRD augmentation generation script.
-  - [ ] Generate teacher SQL candidates with privileged prompt.
-  - [ ] Parse strict JSON SQL output.
+- [x] Add BIRD augmentation generation script.
+  - [x] Generate teacher SQL candidates with privileged prompt.
+  - [x] Parse strict JSON SQL output with fallback handling for fenced/bare SQL responses.
+  - [x] Support three-loop repair over failed candidates.
+  - [ ] Run full BIRD augmentation generation.
 
-- [ ] Add shared SQL augmentation filter.
-  - [ ] Execute gold and candidate SQL against the corresponding database.
-  - [ ] Keep only execution-equivalent candidates.
-  - [ ] Apply Jaccard token threshold.
-  - [ ] Save rejection reasons for audit.
+- [x] Add shared SQL augmentation filter.
+  - [x] Execute gold and candidate SQL against the corresponding database.
+  - [x] Keep only execution-equivalent candidates.
+  - [x] Apply Jaccard token threshold.
+  - [x] Save rejection reasons for audit.
+  - [x] Save per-loop accepted/rejected/repair queues and final summary.
 
-- [ ] Update SynID format scripts.
-  - [ ] Set `response=Y_aug`.
-  - [ ] Keep privileged teacher prompt with `Y_gold`.
-  - [ ] Keep student prompt unchanged.
+- [x] Add augmented SynID JSONL builder for Spider.
+  - [x] Set `response=Y_aug`.
+  - [x] Keep privileged teacher prompt with `Y_gold`.
+  - [x] Keep student prompt unchanged.
+  - [x] Optionally copy dev/test JSONL from the existing formatted Spider data.
+  - [ ] Process generated augmented JSONL into binary train data.
+
+- [x] Add augmented SynID JSONL builder for BIRD.
+  - [x] Set `response=Y_aug`.
+  - [x] Keep privileged teacher prompt with `Y_gold`.
+  - [x] Keep student prompt unchanged with BIRD evidence.
+  - [x] Optionally copy val/test JSONL from the existing formatted BIRD data.
+  - [ ] Process generated augmented JSONL into binary train data.
 
 ## Phase 4: Ablations
 
