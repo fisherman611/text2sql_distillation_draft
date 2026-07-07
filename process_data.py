@@ -71,6 +71,16 @@ class Encoder(object):
             if len(t_prompt_tokens) > self.args.t_max_prompt_length:
                 t_prompt_tokens = t_prompt_tokens[:self.args.t_max_prompt_length]
 
+            if response_tokens is not None:
+                max_response_len = min(
+                    self.args.max_length - len(prompt_tokens),
+                    self.args.t_max_length - len(t_prompt_tokens),
+                )
+                if max_response_len <= 0:
+                    response_tokens = None
+                else:
+                    response_tokens = response_tokens[:max_response_len]
+
         return line, prompt, prompt_tokens, response_tokens, t_prompt_tokens, t_prompt_token_count, len(line)
 
 
