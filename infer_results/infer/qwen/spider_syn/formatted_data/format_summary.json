@@ -1,10 +1,10 @@
 [
   {
-    "input": "infer_results/infer/qwen/spider_syn/synid_train_0.6b_4b_tau0.07_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a0.1-b0.1-poolsc-lora-16-64-0.1__ckpt1090__test__full_sql_result.json",
+    "input": "infer_results/infer/qwen/spider_syn/synid_ce_2_train_0.6b_4b_tau0.07_kd0.7_spider_synid__ckpt1090__test__full_sql_result.json",
     "rows": 1034,
     "empty_pred": 0,
-    "pred": "infer_results/infer/qwen/spider_syn/formatted_data/synid_train_0.6b_4b_tau0.07_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a0.1-b0.1-poolsc-lora-16-64-0.1__ckpt1090__test.pred.sql",
-    "gold": "infer_results/infer/qwen/spider_syn/formatted_data/synid_train_0.6b_4b_tau0.07_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a0.1-b0.1-poolsc-lora-16-64-0.1__ckpt1090__test.gold.sql",
-    "meta": "infer_results/infer/qwen/spider_syn/formatted_data/synid_train_0.6b_4b_tau0.07_spider_synid_e5-bs2-lr0.0001-G8-N2-NN1-kd1.0-fkl-a0.1-b0.1-poolsc-lora-16-64-0.1__ckpt1090__test.meta.jsonl"
+    "pred": "infer_results/infer/qwen/spider_syn/formatted_data/synid_ce_2_train_0.6b_4b_tau0.07_kd0.7_spider_synid__ckpt1090__test.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_syn/formatted_data/synid_ce_2_train_0.6b_4b_tau0.07_kd0.7_spider_synid__ckpt1090__test.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_syn/formatted_data/synid_ce_2_train_0.6b_4b_tau0.07_kd0.7_spider_synid__ckpt1090__test.meta.jsonl"
   }
 ]
