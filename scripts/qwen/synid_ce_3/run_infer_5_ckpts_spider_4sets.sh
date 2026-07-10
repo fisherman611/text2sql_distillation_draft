@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 cd "${REPO_ROOT}"
 
-if [[ -n "${RUN_GPUS:-0 1}" ]]; then
+if [[ -n "${RUN_GPUS:-}" ]]; then
   export CUDA_VISIBLE_DEVICES="${RUN_GPUS}"
 fi
 
@@ -75,4 +75,3 @@ for ckpt_item in "${CKPTS[@]}"; do
     python scripts/format_spider_infer_results.py --input-dir "${out_dir}"
   fi
 done
-
