@@ -1,0 +1,34 @@
+[
+  {
+    "input": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/spider_data_test_full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_data_test_full.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_data_test_full.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_data_test_full.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/spider_dk_test_full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_dk_test_full.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_dk_test_full.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_dk_test_full.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/spider_realistic_test_full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_realistic_test_full.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_realistic_test_full.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_realistic_test_full.meta.jsonl"
+  },
+  {
+    "input": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/spider_syn_test_full_sql_result.json",
+    "rows": 1034,
+    "empty_pred": 0,
+    "pred": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_syn_test_full.pred.sql",
+    "gold": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_syn_test_full.gold.sql",
+    "meta": "infer_results/infer/qwen/spider_4sets/synid_ce_3_csd_tau0.05_1090/a0.2/formatted_data/spider_syn_test_full.meta.jsonl"
+  }
+]
