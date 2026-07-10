@@ -6,10 +6,20 @@ import torch
 import torch.nn.functional as F
 
 
+_TOKENIZED_MARKER_CACHE = {}
 MAX_REL_LOSS = 4.0
 MAX_GROUNDING_LOSS = 1e4
 NEG_INF = -1e4
 EPS = 1e-5
+QUESTION_MARKER_TEXT = "QUESTION:\n"
+EVIDENCE_MARKER_TEXT = "EVIDENCE:\n"
+SCHEMA_MARKER_TEXT = "SCHEMA:\n"
+SQL_SCHEMA_END_MARKER_TEXTS = (
+    "\n\nGenerate a valid SQLite SQL query that answers the question using only the provided schema.\n"
+    "Return only the JSON object in the required format.",
+    "\n\nGenerate a valid SQLite SQL query that answers the question using only the provided schema and evidence.\n"
+    "Return only the JSON object in the required format.",
+)
 
 
 def _zero_scalar_like(tensor: torch.Tensor) -> torch.Tensor:
@@ -20,13 +30,86 @@ def _sanitize_loss(value: torch.Tensor, cap: float) -> torch.Tensor:
     return torch.nan_to_num(value, nan=0.0, posinf=cap, neginf=0.0).clamp(min=0.0, max=cap)
 
 
-def build_prompt_context_mask(_tokenizer, _input_ids, attention_mask, labels):
+def build_prompt_token_mask(attention_mask, labels):
     valid_token_mask = attention_mask.bool()
     prompt_mask = (labels == -100) & valid_token_mask
     no_prompt = (~prompt_mask.any(dim=-1)) & valid_token_mask.any(dim=-1)
     if no_prompt.any():
         prompt_mask[no_prompt] = valid_token_mask[no_prompt]
-    return prompt_mask & valid_token_mask
+    return prompt_mask
+
+
+def _tokenize_marker(tokenizer, marker_text):
+    return tokenizer.encode(marker_text, add_special_tokens=False)
+
+
+def _find_subsequence(sequence, pattern, start=0):
+    if not pattern:
+        return -1, 0
+    max_start = len(sequence) - len(pattern)
+    if start > max_start:
+        return -1, 0
+    for idx in range(max(0, start), max_start + 1):
+        if sequence[idx : idx + len(pattern)] == pattern:
+            return idx, len(pattern)
+    return -1, 0
+
+
+def _get_tokenized_markers(tokenizer):
+    cache_key = id(tokenizer)
+    markers = _TOKENIZED_MARKER_CACHE.get(cache_key)
+    if markers is None:
+        markers = {
+            "question": _tokenize_marker(tokenizer, QUESTION_MARKER_TEXT),
+            "evidence": _tokenize_marker(tokenizer, EVIDENCE_MARKER_TEXT),
+            "schema": _tokenize_marker(tokenizer, SCHEMA_MARKER_TEXT),
+            "schema_end": [_tokenize_marker(tokenizer, marker) for marker in SQL_SCHEMA_END_MARKER_TEXTS],
+        }
+        _TOKENIZED_MARKER_CACHE[cache_key] = markers
+    return markers
+
+
+def build_question_schema_context_mask(tokenizer, input_ids, attention_mask, labels):
+    prompt_mask = build_prompt_token_mask(attention_mask, labels)
+    source_mask = torch.zeros_like(prompt_mask)
+    markers = _get_tokenized_markers(tokenizer)
+
+    for batch_idx in range(input_ids.size(0)):
+        prompt_indices = torch.nonzero(prompt_mask[batch_idx], as_tuple=False).flatten()
+        if prompt_indices.numel() == 0:
+            continue
+
+        token_ids = input_ids[batch_idx, prompt_indices].detach().cpu().tolist()
+        question_pos, question_len = _find_subsequence(token_ids, markers["question"])
+        if question_pos < 0:
+            continue
+
+        schema_pos, schema_len = _find_subsequence(token_ids, markers["schema"], start=question_pos + question_len)
+        if schema_pos < 0:
+            continue
+
+        evidence_pos, evidence_len = _find_subsequence(token_ids, markers["evidence"], start=question_pos + question_len)
+        evidence_is_before_schema = evidence_pos >= 0 and evidence_pos < schema_pos
+        question_start = question_pos + question_len
+        question_end = evidence_pos if evidence_is_before_schema else schema_pos
+        evidence_start = evidence_pos + evidence_len if evidence_is_before_schema else -1
+        evidence_end = schema_pos if evidence_is_before_schema else -1
+        schema_start = schema_pos + schema_len
+        schema_end = len(token_ids)
+        for marker in markers["schema_end"]:
+            marker_pos, _ = _find_subsequence(token_ids, marker, start=schema_start)
+            if marker_pos >= 0:
+                schema_end = marker_pos
+                break
+
+        if question_start < question_end:
+            source_mask[batch_idx, prompt_indices[question_start:question_end]] = True
+        if evidence_start >= 0 and evidence_start < evidence_end:
+            source_mask[batch_idx, prompt_indices[evidence_start:evidence_end]] = True
+        if schema_start < schema_end:
+            source_mask[batch_idx, prompt_indices[schema_start:schema_end]] = True
+
+    return source_mask & attention_mask.bool()
 
 
 def build_token_to_span_map(attention_mask, offsets_mapping, spans_offsets):
@@ -148,11 +231,9 @@ def compute_grounding_losses_for_layer(
     span_mask,
     source_mask,
     attention_mask,
-    student_projector=None,
     use_teacher_shared_attn=True,
     use_span_weight=True,
 ):
-    student_hidden_state = _project_if_needed(student_hidden_state, student_projector)
     valid_sample_mask = span_mask.any(dim=-1) & source_mask.any(dim=-1)
     if not valid_sample_mask.any():
         return _zero_scalar_like(student_hidden_state)
@@ -205,7 +286,6 @@ def compute_span_rels_sql_loss(
     offsets_mapping,
     spans_offsets,
     args,
-    student_projector=None,
 ):
     if offsets_mapping is None or spans_offsets is None:
         return _zero_scalar_like(attention_mask)
@@ -217,7 +297,7 @@ def compute_span_rels_sql_loss(
     token_to_span_map, span_mask = build_token_to_span_map(attention_mask, offsets_mapping, spans_offsets)
     if token_to_span_map is None:
         return _zero_scalar_like(attention_mask)
-    source_mask = build_prompt_context_mask(tokenizer, input_ids, attention_mask, labels)
+    source_mask = build_question_schema_context_mask(tokenizer, input_ids, attention_mask, labels)
     if not source_mask.any():
         return _zero_scalar_like(attention_mask)
 
@@ -244,7 +324,6 @@ def compute_span_rels_sql_loss(
             span_mask,
             source_mask,
             attention_mask,
-            student_projector=student_projector,
             use_teacher_shared_attn=use_teacher_shared_attn,
             use_span_weight=use_span_weight,
         )

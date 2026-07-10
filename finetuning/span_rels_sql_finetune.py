@@ -34,7 +34,7 @@ except ImportError:
 configure_project_paths()
 
 from data_utils.span_rels_sql_lm_datasets import SpanRelsSQLTrainDataset
-from distillm import skewed_reverse_kl
+from distillm import ReplayBuffer, SampleGenerator, skewed_reverse_kl
 from rouge_metric import compute_metrics
 from src.span_rels_sql.span_rels_sql_args import get_span_rels_sql_args
 from src.span_rels_sql.span_rels_sql_relation_loss import MAX_GROUNDING_LOSS, compute_span_rels_sql_loss
@@ -103,34 +103,6 @@ def get_optimizer(args, model):
     return optimizer
 
 
-def _hidden_size(model):
-    config = getattr(model, "config", None)
-    if config is not None and hasattr(config, "hidden_size"):
-        return config.hidden_size
-    base_model = getattr(model, "base_model", None)
-    config = getattr(base_model, "config", None)
-    if config is not None and hasattr(config, "hidden_size"):
-        return config.hidden_size
-    raise ValueError("Cannot infer hidden_size for SpanRels-SQL projector.")
-
-
-def attach_span_rels_sql_projector(model, teacher_model, device):
-    if teacher_model is None:
-        return model
-    student_hidden_size = _hidden_size(model)
-    teacher_hidden_size = _hidden_size(teacher_model)
-    if student_hidden_size == teacher_hidden_size:
-        model.span_rels_sql_projector = nn.Identity()
-        print_rank(f"SpanRels-SQL projector: identity ({student_hidden_size})")
-        return model
-    dtype = next(model.parameters()).dtype
-    model.span_rels_sql_projector = nn.Linear(student_hidden_size, teacher_hidden_size, bias=False).to(device=device, dtype=dtype)
-    with torch.no_grad():
-        model.span_rels_sql_projector.weight.normal_(mean=0.0, std=1e-3)
-    print_rank(f"SpanRels-SQL projector: {student_hidden_size} -> {teacher_hidden_size}")
-    return model
-
-
 def get_learning_rate_scheduler(args, optimizer):
     if args.total_iters is None:
         args.total_iters = args.train_iters_per_epoch * args.epochs
@@ -156,7 +128,6 @@ def get_learning_rate_scheduler(args, optimizer):
 
 def setup_model_and_optimizer(args, ds_config, device, set_optim=True, teacher_model=None):
     model = get_model(args, device)
-    model = attach_span_rels_sql_projector(model, teacher_model, device)
     if set_optim:
         optimizer = get_optimizer(args, model)
         lr_scheduler = get_learning_rate_scheduler(args, optimizer)
@@ -227,6 +198,35 @@ def _should_run_interval(global_step, step, interval, grad_accum_steps):
     if not interval:
         return False
     return global_step % interval == 0 and step % grad_accum_steps == 0
+
+
+def _compute_sampling_threshold(args, adaptive_threshold, global_step):
+    if "adaptive" not in args.type:
+        return adaptive_threshold * (1 - global_step / args.total_iters)
+    if args.replay_ratio == "constant":
+        return adaptive_threshold * 0.5
+    if args.replay_ratio == "increasing":
+        return adaptive_threshold * global_step / args.total_iters
+    return adaptive_threshold * (1 - global_step / args.total_iters)
+
+
+def _get_layer_stack(root):
+    current = root
+    for attr in ("base_model", "model", "model", "layers"):
+        current = getattr(current, attr, None)
+        if current is None:
+            return None
+    return current
+
+
+def _iter_student_layers(model):
+    for candidate in (model, getattr(model, "module", None)):
+        if candidate is None:
+            continue
+        layers = _get_layer_stack(candidate)
+        if layers is not None:
+            return list(layers)
+    return []
 
 
 def build_generated_no_model_batch(tokenizer, args, model_batch, labels):
@@ -308,7 +308,7 @@ def _format_train_log(
     )
 
 
-def evaluate(args, tokenizer, model, dataset, split, epoch, device):
+def evaluate(args, tokenizer, model, dataset, split, epoch, device, adaptive_threshold=None):
     dp_world_size = dist.get_world_size()
     dp_rank = dist.get_rank()
     loss_func = nn.CrossEntropyLoss()
@@ -362,22 +362,23 @@ def evaluate(args, tokenizer, model, dataset, split, epoch, device):
         else:
             res = {}
         avg_loss = all_loss / max(step, 1)
-        log_str = f"{split} | avg_loss: {avg_loss} | {res}"
+        if "adaptive" in args.type:
+            log_str = f"{split} | avg_loss: {avg_loss} | {res} | threshold: {adaptive_threshold}"
+        else:
+            log_str = f"{split} | avg_loss: {avg_loss} | {res}"
         print_rank(log_str)
         save_rank(log_str, os.path.join(args.save, "log.txt"))
     return all_loss / max(step, 1)
 
 
 def finetune(args, tokenizer: AutoTokenizer, model, optimizer, lr_scheduler, dataset, device, teacher_model=None):
-    print_rank("Start SpanRels-SQL SRKL fine-tuning")
+    print_rank("Start SpanRels-SQL SRKL fine-tuning with CypherKD-style relation grounding")
     if args.model_parallel:
         raise NotImplementedError
     if not 0.0 <= args.kd_ratio <= 1.0:
         raise ValueError(f"KD ratio must be in [0, 1], got {args.kd_ratio}.")
     if args.span_rels_sql_weight < 0:
         raise ValueError("span_rels_sql_weight must be non-negative.")
-    if args.student_gen:
-        raise ValueError("SpanRels-SQL uses offline SRKL only; do not pass --student-gen or replay flags.")
 
     dp_world_size = dist.get_world_size()
     dp_rank = dist.get_rank()
@@ -401,117 +402,169 @@ def finetune(args, tokenizer: AutoTokenizer, model, optimizer, lr_scheduler, dat
         )
         pt_train_iter = iter(pt_train_dataloader)
 
-    evaluate(args, tokenizer, model, dataset["dev"], "dev", 0, device)
+    student_generator = SampleGenerator(args, tokenizer) if args.student_gen else None
+    replay_buffer = ReplayBuffer(args) if args.student_gen else None
+    adaptive_threshold = args.init_threshold if "adaptive" in args.type else -1.0
+    prev_avg_loss = 0.0
+    student_captured_hidden = []
+    hook_handles = []
+
+    def capture_hook_fn(layer_module, _, output):
+        if layer_module.training:
+            student_captured_hidden.append(output[0] if isinstance(output, tuple) else output)
+
+    for layer in _iter_student_layers(model):
+        hook_handles.append(layer.register_forward_hook(capture_hook_fn))
+    use_hidden_hooks = len(hook_handles) > 0
+    if not use_hidden_hooks:
+        print_rank("SpanRels-SQL warning: no student layer stack found; using output_hidden_states fallback.")
+
+    evaluate(args, tokenizer, model, dataset["dev"], "dev", 0, device, adaptive_threshold)
     step, global_step = 1, 1
     total_loss = total_ce_loss = total_srkl_loss = total_rel_loss = total_weighted_rel_loss = total_time = 0.0
 
-    for epoch in range(args.epochs):
-        sampler.set_epoch(epoch)
-        model.train()
-        for _, (model_batch, no_model_batch, gen_data, _t_model_data, _t_no_model_data) in enumerate(train_dataloader):
-            dataset["train"].move_to_device(model_batch, no_model_batch, gen_data, device)
-            if args.lm_data_dir is not None:
-                try:
-                    pt_model_batch, pt_no_model_batch, pt_gen_data, _, _ = next(pt_train_iter)
-                except Exception:
-                    pt_train_iter = iter(pt_train_dataloader)
-                    pt_model_batch, pt_no_model_batch, pt_gen_data, _, _ = next(pt_train_iter)
-                dataset["pt_train"].move_to_device(pt_model_batch, pt_no_model_batch, pt_gen_data, device)
+    try:
+        for epoch in range(args.epochs):
+            sampler.set_epoch(epoch)
+            model.train()
+            for _, (model_batch, no_model_batch, gen_data, _t_model_data, _t_no_model_data) in enumerate(train_dataloader):
+                dataset["train"].move_to_device(model_batch, no_model_batch, gen_data, device)
+                student_captured_hidden.clear()
+                student_captured_hidden.append(None)
 
-            _sync_cuda()
-            st_time = time.time()
+                if args.lm_data_dir is not None:
+                    try:
+                        pt_model_batch, pt_no_model_batch, pt_gen_data, _, _ = next(pt_train_iter)
+                    except Exception:
+                        pt_train_iter = iter(pt_train_dataloader)
+                        pt_model_batch, pt_no_model_batch, pt_gen_data, _, _ = next(pt_train_iter)
+                    dataset["pt_train"].move_to_device(pt_model_batch, pt_no_model_batch, pt_gen_data, device)
 
-            outputs = model(**model_batch, use_cache=False, output_hidden_states=True)
-            logits = outputs.logits
-            lm_loss = loss_func(logits.float().reshape(-1, logits.shape[-1]), no_model_batch["label"].view(-1))
-            srkl_loss = logits.new_tensor(0.0)
-            rel_loss = logits.new_tensor(0.0)
-            weighted_rel_loss = logits.new_tensor(0.0)
-            if teacher_model is not None:
-                with torch.no_grad():
-                    teacher_model.eval()
-                    teacher_outputs = teacher_model(**model_batch, output_hidden_states=True, use_cache=False)
-                    teacher_logits = teacher_outputs.logits
-                srkl_loss = get_distil_loss(args, teacher_logits, no_model_batch, logits)
-                srkl_loss = torch.nan_to_num(srkl_loss, nan=0.0, posinf=100.0, neginf=0.0)
-                rel_loss = compute_span_rels_sql_loss(
-                    tokenizer,
-                    model_batch["input_ids"],
-                    model_batch["attention_mask"],
-                    no_model_batch["label"],
-                    outputs.hidden_states,
-                    teacher_outputs.hidden_states,
-                    no_model_batch.get("offset_mapping"),
-                    no_model_batch.get("span_offsets"),
-                    args,
-                    student_projector=getattr(model.module, "span_rels_sql_projector", None),
-                )
-                weighted_rel_loss = (args.span_rels_sql_weight * rel_loss).clamp(min=0.0, max=MAX_GROUNDING_LOSS)
-                distil_loss = srkl_loss + weighted_rel_loss
-                loss = (1 - args.kd_ratio) * lm_loss + args.kd_ratio * distil_loss
-            else:
-                loss = lm_loss
-            if args.lm_data_dir is not None:
-                loss = loss + args.lm_coef * pt_loss(args, model, pt_model_batch, pt_no_model_batch)
-            loss = torch.nan_to_num(loss, nan=0.0, posinf=100.0, neginf=0.0)
+                _sync_cuda()
+                st_time = time.time()
+                if args.student_gen:
+                    samp_threshold = _compute_sampling_threshold(args, adaptive_threshold, global_step)
+                    rand_value = np.random.uniform(0, 1)
+                    if "mixed" in args.type and rand_value < args.mixed_alpha:
+                        model_batch = student_generator.run_sample(model, gen_data)
+                        generated_labels = model_batch.pop("no_model_batch")
+                        no_model_batch = build_generated_no_model_batch(tokenizer, args, model_batch, generated_labels)
+                        replay_buffer.move_to_memory(model_batch, no_model_batch, gen_data)
+                        model_batch, no_model_batch, gen_data = replay_buffer.sample()
+                        model_batch, no_model_batch, gen_data = replay_buffer.move_to_device(model_batch, no_model_batch, gen_data, device)
+                    elif "adaptive" in args.type and (
+                        rand_value < samp_threshold or (rand_value < adaptive_threshold and len(replay_buffer) < args.capacity)
+                    ):
+                        model_batch = student_generator.run_sample(model, gen_data)
+                        generated_labels = model_batch.pop("no_model_batch")
+                        no_model_batch = build_generated_no_model_batch(tokenizer, args, model_batch, generated_labels)
+                        if args.model_type in ["opt"]:
+                            model_batch.pop("position_ids")
+                        replay_buffer.move_to_memory(model_batch, no_model_batch, gen_data)
+                    elif "adaptive" in args.type and rand_value < adaptive_threshold:
+                        model_batch, no_model_batch, gen_data = replay_buffer.sample()
+                        model_batch, no_model_batch, gen_data = replay_buffer.move_to_device(model_batch, no_model_batch, gen_data, device)
+                    model.train()
+                    student_captured_hidden.clear()
+                    student_captured_hidden.append(None)
 
-            model.backward(loss)
-            model.step()
+                outputs = model(**model_batch, use_cache=False, output_hidden_states=not use_hidden_hooks)
+                logits = outputs.logits
+                student_hidden_states = student_captured_hidden if use_hidden_hooks else outputs.hidden_states
+                lm_loss = loss_func(logits.float().reshape(-1, logits.shape[-1]), no_model_batch["label"].view(-1))
+                srkl_loss = logits.new_tensor(0.0)
+                rel_loss = logits.new_tensor(0.0)
+                weighted_rel_loss = logits.new_tensor(0.0)
+                if teacher_model is not None:
+                    with torch.no_grad():
+                        teacher_model.eval()
+                        teacher_outputs = teacher_model(**model_batch, output_hidden_states=True, use_cache=False)
+                        teacher_logits = teacher_outputs.logits
+                    srkl_loss = get_distil_loss(args, teacher_logits, no_model_batch, logits)
+                    srkl_loss = torch.nan_to_num(srkl_loss, nan=0.0, posinf=100.0, neginf=0.0)
+                    rel_loss = compute_span_rels_sql_loss(
+                        tokenizer,
+                        model_batch["input_ids"],
+                        model_batch["attention_mask"],
+                        no_model_batch["label"],
+                        student_hidden_states,
+                        teacher_outputs.hidden_states,
+                        no_model_batch.get("offset_mapping"),
+                        no_model_batch.get("span_offsets"),
+                        args,
+                    )
+                    weighted_rel_loss = (args.span_rels_sql_weight * rel_loss).clamp(min=0.0, max=MAX_GROUNDING_LOSS)
+                    distil_loss = srkl_loss + weighted_rel_loss
+                    loss = (1 - args.kd_ratio) * lm_loss + args.kd_ratio * distil_loss
+                else:
+                    loss = lm_loss
+                if args.lm_data_dir is not None:
+                    loss = loss + args.lm_coef * pt_loss(args, model, pt_model_batch, pt_no_model_batch)
+                loss = torch.nan_to_num(loss, nan=0.0, posinf=100.0, neginf=0.0)
 
-            global_loss = _reduce_metric(loss, dp_world_size)
-            global_ce_loss = _reduce_metric(lm_loss, dp_world_size)
-            global_srkl_loss = _reduce_metric(srkl_loss, dp_world_size) if teacher_model is not None else 0.0
-            global_rel_loss = _reduce_metric(rel_loss, dp_world_size) if teacher_model is not None else 0.0
-            global_weighted_rel_loss = _reduce_metric(weighted_rel_loss, dp_world_size) if teacher_model is not None else 0.0
+                model.backward(loss)
+                model.step()
 
-            _sync_cuda()
-            elapsed_time = time.time() - st_time
-            total_loss += global_loss
-            total_ce_loss += global_ce_loss
-            total_srkl_loss += global_srkl_loss
-            total_rel_loss += global_rel_loss
-            total_weighted_rel_loss += global_weighted_rel_loss
-            total_time += elapsed_time
+                global_loss = _reduce_metric(loss, dp_world_size)
+                global_ce_loss = _reduce_metric(lm_loss, dp_world_size)
+                global_srkl_loss = _reduce_metric(srkl_loss, dp_world_size) if teacher_model is not None else 0.0
+                global_rel_loss = _reduce_metric(rel_loss, dp_world_size) if teacher_model is not None else 0.0
+                global_weighted_rel_loss = _reduce_metric(weighted_rel_loss, dp_world_size) if teacher_model is not None else 0.0
 
-            if _should_run_interval(global_step, step, args.log_interval, args.gradient_accumulation_steps):
-                denom = args.log_interval * args.gradient_accumulation_steps
-                log_str = _format_train_log(
-                    epoch,
-                    step,
-                    global_step,
-                    args,
-                    total_loss / denom,
-                    total_ce_loss / denom,
-                    total_srkl_loss / denom,
-                    total_rel_loss / denom,
-                    total_weighted_rel_loss / denom,
-                    lr_scheduler,
-                    optimizer,
-                    elapsed_time,
-                    total_time / args.log_interval,
-                )
-                print_rank(log_str)
-                save_rank(log_str, os.path.join(args.save, "log.txt"))
-                total_loss = total_ce_loss = total_srkl_loss = total_rel_loss = total_weighted_rel_loss = total_time = 0.0
+                _sync_cuda()
+                elapsed_time = time.time() - st_time
+                total_loss += global_loss
+                total_ce_loss += global_ce_loss
+                total_srkl_loss += global_srkl_loss
+                total_rel_loss += global_rel_loss
+                total_weighted_rel_loss += global_weighted_rel_loss
+                total_time += elapsed_time
 
-            if args.save and _should_run_interval(global_step, step, args.save_interval, args.gradient_accumulation_steps):
-                save_dir_path = os.path.join(args.save, str(global_step))
-                if dist.get_rank() == 0:
-                    os.makedirs(save_dir_path, exist_ok=True)
-                    print_rank(f"Model save to {save_dir_path}")
-                    tokenizer.save_pretrained(save_dir_path)
-                    model.module.save_pretrained(save_dir_path, safe_serialization=False)
-                dist.barrier()
+                if _should_run_interval(global_step, step, args.log_interval, args.gradient_accumulation_steps):
+                    denom = args.log_interval * args.gradient_accumulation_steps
+                    log_str = _format_train_log(
+                        epoch,
+                        step,
+                        global_step,
+                        args,
+                        total_loss / denom,
+                        total_ce_loss / denom,
+                        total_srkl_loss / denom,
+                        total_rel_loss / denom,
+                        total_weighted_rel_loss / denom,
+                        lr_scheduler,
+                        optimizer,
+                        elapsed_time,
+                        total_time / args.log_interval,
+                    )
+                    print_rank(log_str)
+                    save_rank(log_str, os.path.join(args.save, "log.txt"))
+                    total_loss = total_ce_loss = total_srkl_loss = total_rel_loss = total_weighted_rel_loss = total_time = 0.0
 
-            if _should_run_interval(global_step, step, args.eval_interval, args.gradient_accumulation_steps):
-                evaluate(args, tokenizer, model, dataset["dev"], "dev", epoch, device)
-                model.train()
+                if args.save and _should_run_interval(global_step, step, args.save_interval, args.gradient_accumulation_steps):
+                    save_dir_path = os.path.join(args.save, str(global_step))
+                    if dist.get_rank() == 0:
+                        os.makedirs(save_dir_path, exist_ok=True)
+                        print_rank(f"Model save to {save_dir_path}")
+                        tokenizer.save_pretrained(save_dir_path)
+                        model.module.save_pretrained(save_dir_path, safe_serialization=False)
+                    dist.barrier()
 
-            step += 1
-            if step % args.gradient_accumulation_steps == 0:
-                global_step += 1
-            if global_step > args.total_iters:
-                break
+                if _should_run_interval(global_step, step, args.eval_interval, args.gradient_accumulation_steps):
+                    curr_avg_loss = evaluate(args, tokenizer, model, dataset["dev"], "dev", epoch, device, adaptive_threshold)
+                    if "adaptive" in args.type and curr_avg_loss >= prev_avg_loss + args.loss_eps:
+                        adaptive_threshold = min(adaptive_threshold + 0.1, 1.0)
+                        prev_avg_loss = curr_avg_loss
+                    model.train()
+
+                step += 1
+                if step % args.gradient_accumulation_steps == 0:
+                    global_step += 1
+                if global_step > args.total_iters:
+                    break
+    finally:
+        for handle in hook_handles:
+            handle.remove()
     return model
 
 
