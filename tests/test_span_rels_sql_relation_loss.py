@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import torch
 
-from src.span_rels_sql.span_rels_sql_relation_loss import compute_span_rels_sql_loss
+from src.span_rels_sql.span_rels_sql_relation_loss import build_question_schema_context_mask, compute_span_rels_sql_loss
 
 
 class _CharTokenizer:
@@ -35,6 +35,23 @@ def _inputs(response="SELECT name FROM singer WHERE age > 30"):
     labels[:, : len(prompt)] = -100
     offsets = torch.tensor([[[idx, idx + 1] for idx in range(len(full_text))]], dtype=torch.long)
     return full_text, prompt, input_ids, attention_mask, labels, offsets
+
+
+def test_context_mask_excludes_sql_generation_instruction_with_shifted_labels():
+    response = '{"sql": "SELECT name FROM singer WHERE age > 30"}'
+    full_text, prompt, _, _, _, _ = _inputs(response=response)
+    model_text = full_text[:-1]
+    input_ids = torch.tensor([[ord(character) for character in model_text]], dtype=torch.long)
+    attention_mask = torch.ones_like(input_ids)
+    labels = torch.tensor([[ord(character) for character in full_text[1:]]], dtype=torch.long)
+    labels[:, : len(prompt) - 1] = -100
+
+    mask = build_question_schema_context_mask(_CharTokenizer(), input_ids, attention_mask, labels)[0]
+    selected_text = "".join(chr(input_ids[0, idx]) for idx in torch.nonzero(mask, as_tuple=False).flatten().tolist())
+
+    assert "List singers older than 30." in selected_text
+    assert "singer(name, age)" in selected_text
+    assert "Generate a valid SQLite SQL query" not in selected_text
 
 
 def test_empty_spans_return_zero_loss():

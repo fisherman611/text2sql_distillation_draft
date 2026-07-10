@@ -261,44 +261,96 @@ def extract_span_rels_sql_items(sql: str) -> list[dict]:
 
 
 _FENCED_BLOCK_RE = re.compile(r"```(?:json|sql)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
+_JSON_SQL_VALUE_RE = re.compile(r'"sql"\s*:\s*"')
 
 
-def _extract_sql_from_response(response: str) -> tuple[str, int] | tuple[str, None]:
+def _json_sql_value_boundary_map(candidate: str, response_start: int, decoded_sql: str) -> list[int] | None:
+    for match in _JSON_SQL_VALUE_RE.finditer(candidate):
+        value_start = match.end()
+        boundaries = [response_start + value_start]
+        decoded_count = 0
+        i = value_start
+        while i < len(candidate):
+            ch = candidate[i]
+            if ch == '"':
+                return boundaries if decoded_count == len(decoded_sql) else None
+            if ch == "\\":
+                if i + 1 >= len(candidate):
+                    return None
+                if candidate[i + 1] == "u":
+                    if i + 5 >= len(candidate):
+                        return None
+                    next_i = i + 6
+                else:
+                    next_i = i + 2
+            else:
+                next_i = i + 1
+            decoded_count += 1
+            boundaries.append(response_start + next_i)
+            i = next_i
+    return None
+
+
+def _extract_sql_from_response(response: str) -> tuple[str, int | None, list[int] | None]:
     if not isinstance(response, str) or not response.strip():
-        return "", None
+        return "", None, None
 
-    candidates = [response.strip()]
-    candidates.extend(match.group(1).strip() for match in _FENCED_BLOCK_RE.finditer(response))
+    stripped_response = response.strip()
+    candidates = [(stripped_response, response.find(stripped_response))]
+    for match in _FENCED_BLOCK_RE.finditer(response):
+        fenced = match.group(1)
+        stripped_fenced = fenced.strip()
+        if stripped_fenced:
+            leading_ws = len(fenced) - len(fenced.lstrip())
+            candidates.append((stripped_fenced, match.start(1) + leading_ws))
     json_match = re.search(r"\{.*\}", response, flags=re.DOTALL)
     if json_match:
-        candidates.append(json_match.group(0))
+        candidates.append((json_match.group(0), json_match.start()))
 
-    for candidate in candidates:
+    for candidate, candidate_start in candidates:
         try:
             parsed = json.loads(candidate)
         except Exception:
             parsed = None
         if isinstance(parsed, dict) and isinstance(parsed.get("sql"), str) and parsed["sql"].strip():
-            sql = parsed["sql"].strip()
+            raw_sql = parsed["sql"]
+            sql = raw_sql.strip()
             pos = response.find(sql)
-            return sql, pos if pos >= 0 else None
+            if pos >= 0:
+                return sql, pos, None
+            boundary_map = _json_sql_value_boundary_map(candidate, candidate_start, raw_sql)
+            if boundary_map is not None:
+                trim_start = len(raw_sql) - len(raw_sql.lstrip())
+                trim_end = trim_start + len(sql)
+                boundary_map = boundary_map[trim_start : trim_end + 1]
+            return sql, None, boundary_map
 
     raw = response.strip()
     if re.match(r"(?is)^(with|select)\b", raw):
         pos = response.find(raw)
-        return raw, pos if pos >= 0 else 0
-    return "", None
+        return raw, pos if pos >= 0 else 0, None
+    return "", None, None
 
 
 def extract_span_rels_sql_items_from_response(response: str) -> list[dict]:
-    sql, sql_start = _extract_sql_from_response(response)
+    sql, sql_start, boundary_map = _extract_sql_from_response(response)
     if not sql:
         return []
+    items = extract_span_rels_sql_items(sql)
+    if boundary_map is not None:
+        mapped_items = []
+        for item in items:
+            if item["end"] >= len(boundary_map):
+                continue
+            item["start"] = boundary_map[item["start"]]
+            item["end"] = boundary_map[item["end"]]
+            mapped_items.append(item)
+        return mapped_items
+
     if sql_start is None:
         sql_start = response.find(sql)
     if sql_start < 0:
-        sql_start = 0
-    items = extract_span_rels_sql_items(sql)
+        return []
     for item in items:
         item["start"] += sql_start
         item["end"] += sql_start

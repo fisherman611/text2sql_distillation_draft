@@ -59,11 +59,17 @@ def _get_tokenized_markers(tokenizer):
     cache_key = id(tokenizer)
     markers = _TOKENIZED_MARKER_CACHE.get(cache_key)
     if markers is None:
+        schema_end_markers = []
+        for marker in SQL_SCHEMA_END_MARKER_TEXTS:
+            tokenized_marker = _tokenize_marker(tokenizer, marker)
+            schema_end_markers.append(tokenized_marker)
+            if len(tokenized_marker) > 1:
+                schema_end_markers.append(tokenized_marker[:-1])
         markers = {
             "question": _tokenize_marker(tokenizer, QUESTION_MARKER_TEXT),
             "evidence": _tokenize_marker(tokenizer, EVIDENCE_MARKER_TEXT),
             "schema": _tokenize_marker(tokenizer, SCHEMA_MARKER_TEXT),
-            "schema_end": [_tokenize_marker(tokenizer, marker) for marker in SQL_SCHEMA_END_MARKER_TEXTS],
+            "schema_end": schema_end_markers,
         }
         _TOKENIZED_MARKER_CACHE[cache_key] = markers
     return markers
@@ -216,12 +222,6 @@ def compute_layer_span_context_relation_loss(
     weights = (span_weights if use_span_weight else span_mask.float()) * span_mask.float()
     loss = (per_span * weights).sum() / weights.sum().clamp(min=EPS)
     return _sanitize_loss(loss, MAX_REL_LOSS)
-
-
-def _project_if_needed(hidden_state, projector):
-    if projector is None:
-        return hidden_state
-    return projector(hidden_state)
 
 
 def compute_grounding_losses_for_layer(

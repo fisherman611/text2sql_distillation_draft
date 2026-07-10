@@ -55,6 +55,19 @@ def test_extract_from_json_response_and_full_text_offsets():
     assert any(record["type"] == "join_unit" for record in records)
 
 
+def test_extract_from_json_response_with_escaped_sql_offsets():
+    sql = 'SELECT "name" FROM singer WHERE "age" > 30'
+    response = json.dumps({"sql": sql})
+    prompt = "QUESTION:\nList singers.\n\nSCHEMA:\n..."
+    full_text = prompt + response
+
+    records = extract_span_rels_sql_records(full_text, response)
+    expression = next(record for record in records if record["text"] == '"age" > 30')
+
+    assert records
+    assert full_text[expression["start"] : expression["end"]] == '\\"age\\" > 30'
+
+
 def test_extract_bare_sql_response():
     items = extract_span_rels_sql_items_from_response("SELECT name FROM singer WHERE age > 30")
     assert any(item["type"] == "clause" for item in items)
