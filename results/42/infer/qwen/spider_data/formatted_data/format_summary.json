@@ -1,0 +1,10 @@
+[
+  {
+    "input": "results/42/infer/qwen/spider_data/span_rels_sql_train_0.6b_4b__ckpt1090__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/42/infer/qwen/spider_data/formatted_data/span_rels_sql_train_0.6b_4b__ckpt1090__test.pred.sql",
+    "gold": "results/42/infer/qwen/spider_data/formatted_data/span_rels_sql_train_0.6b_4b__ckpt1090__test.gold.sql",
+    "meta": "results/42/infer/qwen/spider_data/formatted_data/span_rels_sql_train_0.6b_4b__ckpt1090__test.meta.jsonl"
+  }
+]
