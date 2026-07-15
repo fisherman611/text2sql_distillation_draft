@@ -219,7 +219,7 @@ def test_response_kd_matches_distillm_loss_implementation(kd_loss, reference_fn)
     assert torch.allclose(student_logits.grad, reference_student_logits.grad, atol=1e-6)
 
 
-def test_response_csd_matches_existing_distillm_ss_implementation():
+def test_response_csd_matches_csd_ss_implementation():
     student_logits = torch.randn(2, 5, 11, requires_grad=True)
     teacher_logits = torch.randn(2, 5, 11)
     labels = torch.tensor(
@@ -236,7 +236,7 @@ def test_response_csd_matches_existing_distillm_ss_implementation():
         kd_loss="csd",
     )
 
-    student_probs = torch.softmax(student_logits, dim=-1)
+    student_probs = torch.softmax(student_logits, dim=-1, dtype=torch.float32)
     logit_gap = student_logits - teacher_logits
     centered_gap = logit_gap - (student_probs * logit_gap).sum(dim=-1, keepdim=True)
     token_loss = (
@@ -246,6 +246,38 @@ def test_response_csd_matches_existing_distillm_ss_implementation():
     expected = token_loss.masked_select(mask).mean()
 
     assert synid_result.item() == pytest.approx(expected.item())
+
+
+def test_response_csd_temperature_matches_distillm_csd_ss():
+    student_logits = torch.randn(2, 5, 11, requires_grad=True)
+    teacher_logits = torch.randn(2, 5, 11)
+    reference_student_logits = student_logits.detach().clone().requires_grad_()
+    labels = torch.tensor(
+        [
+            [-100, -100, 1, 2, 3],
+            [-100, 1, 2, 3, 4],
+        ]
+    )
+    no_model_batch = {"label": labels}
+
+    synid_result = response_kd_loss(
+        student_logits,
+        teacher_logits,
+        labels,
+        kd_loss="csd",
+        temperature=1.7,
+    )
+    reference_result = distillm_losses.csd(
+        reference_student_logits,
+        teacher_logits,
+        no_model_batch,
+        temp=1.7,
+    )
+    synid_result.backward()
+    reference_result.backward()
+
+    assert synid_result.item() == pytest.approx(reference_result.item())
+    assert torch.allclose(student_logits.grad, reference_student_logits.grad, atol=1e-6)
 
 
 def test_schema_terms_do_not_promote_short_generic_fragments():

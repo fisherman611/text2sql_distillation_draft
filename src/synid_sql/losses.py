@@ -152,9 +152,13 @@ def _token_skewed_reverse_kl(student_logits: torch.Tensor, teacher_logits: torch
     return -torch.sum(prod_probs, dim=-1)
 
 
-def _token_csd(student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
+def _token_csd(
+    student_logits: torch.Tensor,
+    teacher_logits: torch.Tensor,
+    temperature: float = 1.0,
+) -> torch.Tensor:
     """CSD-SS surrogate loss, matching ``distillm.losses.csd`` token-wise."""
-    student_probs = F.softmax(student_logits, dim=-1)
+    student_probs = F.softmax(student_logits / temperature, dim=-1, dtype=torch.float32)
     logit_gap = student_logits - teacher_logits
     centered_gap = logit_gap - (student_probs * logit_gap).sum(dim=-1, keepdim=True)
     surrogate = centered_gap.detach() * student_probs.detach() * student_logits
@@ -210,21 +214,30 @@ def response_kd_loss(
             raise ValueError(f"SynID received an empty response at batch row {row}.")
         if not torch.equal(s_tokens, t_tokens):
             raise ValueError(f"Student and teacher response tokens differ at batch row {row}.")
-        s_logits = s_logits.float() / temperature
-        t_logits = t_logits.float() / temperature
         if kd_loss == "fkl":
+            s_logits = s_logits.float() / temperature
+            t_logits = t_logits.float() / temperature
             token_loss = _token_forward_kl(s_logits, t_logits)
         elif kd_loss == "rkl":
+            s_logits = s_logits.float() / temperature
+            t_logits = t_logits.float() / temperature
             token_loss = _token_reverse_kl(s_logits, t_logits)
         elif kd_loss == "sfkl":
+            s_logits = s_logits.float() / temperature
+            t_logits = t_logits.float() / temperature
             token_loss = _token_skewed_forward_kl(s_logits, t_logits, skew_alpha)
         elif kd_loss == "srkl":
+            s_logits = s_logits.float() / temperature
+            t_logits = t_logits.float() / temperature
             token_loss = _token_skewed_reverse_kl(s_logits, t_logits, skew_alpha)
         elif kd_loss == "csd":
-            token_loss = _token_csd(s_logits, t_logits)
+            token_loss = _token_csd(s_logits.float(), t_logits.float(), temperature)
         else:
             raise ValueError(f"Unsupported SynID KD loss: {kd_loss}")
-        loss_sum = loss_sum + token_loss.sum() * (temperature ** 2)
+        if kd_loss == "csd":
+            loss_sum = loss_sum + token_loss.sum()
+        else:
+            loss_sum = loss_sum + token_loss.sum() * (temperature ** 2)
         token_count += int(token_loss.numel())
 
     return loss_sum / token_count

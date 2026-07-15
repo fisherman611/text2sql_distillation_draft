@@ -229,17 +229,20 @@ def skewed_reverse_kl(logits, teacher_logits, no_model_batch, lam=0.1):
     return distil_loss
 
 
-def csd(logits, teacher_logits, no_model_batch, mode="SS"):
-    student_probs = F.softmax(logits, dim=-1)
-    teacher_probs = F.softmax(teacher_logits, dim=-1)
+def csd(logits, teacher_logits, no_model_batch, mode="SS", temp=1.0):
+    if temp <= 0:
+        raise ValueError(f"CSD temperature must be positive, got {temp}.")
+
+    student_probs = F.softmax(logits / temp, dim=-1, dtype=torch.float32)
     if mode == "SS":
         loss = (logits - teacher_logits - torch.sum(student_probs * (logits - teacher_logits),
             dim=-1, keepdim=True)).detach() * student_probs.detach() * logits
     elif mode == "TS":
+        teacher_probs = F.softmax(teacher_logits / temp, dim=-1, dtype=torch.float32)
         loss1 = (logits - teacher_logits - torch.sum(teacher_probs * (logits - teacher_logits),
             dim=-1, keepdim=True)).detach() * student_probs.detach() * logits
         loss2 = (logits - teacher_logits - torch.sum(student_probs * (logits - teacher_logits),
-            dim=-1, keepdim=True)).detach() * teacher_probs * logits
+            dim=-1, keepdim=True)).detach() * teacher_probs.detach() * logits
         loss = (loss1 + loss2) / 2
     else:
         raise ValueError(f"Unsupported CSD mode: {mode}")
