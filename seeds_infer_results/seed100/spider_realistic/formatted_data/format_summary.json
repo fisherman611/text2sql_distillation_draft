@@ -1,10 +1,10 @@
 [
   {
-    "input": "seeds_infer_results/seed100/spider_realistic/synid_ce3_csd_tau005_a03__ckpt1090__spider_realistic_test_full_sql_result.json",
+    "input": "seeds_infer_results/seed100/spider_realistic/synid_ce2_csd_tau01_a01__ckpt654__spider_realistic_test_full_sql_result.json",
     "rows": 508,
     "empty_pred": 0,
-    "pred": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce3_csd_tau005_a03__ckpt1090__spider_realistic_test_full.pred.sql",
-    "gold": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce3_csd_tau005_a03__ckpt1090__spider_realistic_test_full.gold.sql",
-    "meta": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce3_csd_tau005_a03__ckpt1090__spider_realistic_test_full.meta.jsonl"
+    "pred": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce2_csd_tau01_a01__ckpt654__spider_realistic_test_full.pred.sql",
+    "gold": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce2_csd_tau01_a01__ckpt654__spider_realistic_test_full.gold.sql",
+    "meta": "seeds_infer_results/seed100/spider_realistic/formatted_data/synid_ce2_csd_tau01_a01__ckpt654__spider_realistic_test_full.meta.jsonl"
   }
 ]
