@@ -52,7 +52,7 @@ from distillm import skewed_forward_kl, skewed_reverse_kl, csd
 from distillm import ab_div, bdkd, AKL, wsd, alphanet, amid
 from distillm import SampleGenerator, ReplayBuffer
 
-from src.synid_sql import LastHiddenStateCapture, combine_synid_with_ce, synid_loss
+from src.synid_sql import SelectedHiddenStateCapture, combine_synid_with_ce, parse_layer_ids, synid_loss
 from rouge_metric import compute_metrics
 
 from peft import PeftModel
@@ -374,8 +374,17 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
     student_hidden_capture = None
     teacher_hidden_capture = None
     if teacher_model is not None:
-        student_hidden_capture = LastHiddenStateCapture(model.module)
-        teacher_hidden_capture = LastHiddenStateCapture(teacher_model)
+        student_layer_ids = parse_layer_ids(args.synid_student_layers)
+        teacher_layer_ids = parse_layer_ids(args.synid_teacher_layers)
+        if len(student_layer_ids) != len(teacher_layer_ids):
+            raise ValueError(
+                "SynID student and teacher layer lists must have equal length, "
+                f"got {student_layer_ids} and {teacher_layer_ids}."
+            )
+        print_rank(f"SynID student layers: {student_layer_ids}")
+        print_rank(f"SynID teacher layers: {teacher_layer_ids}")
+        student_hidden_capture = SelectedHiddenStateCapture(model.module, student_layer_ids)
+        teacher_hidden_capture = SelectedHiddenStateCapture(teacher_model, teacher_layer_ids)
 
     step, global_step = 1, 1
     total_loss, total_ce_loss, total_distil_loss, total_con1_loss, total_con2_loss, total_time = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
@@ -465,8 +474,8 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                         use_cache=False,
                         output_hidden_states=False,
                     )
-                student_hidden_states = student_hidden_capture.pop()
-                teacher_hidden_states = teacher_hidden_capture.pop()
+                student_hidden_states = student_hidden_capture.pop_all()
+                teacher_hidden_states = teacher_hidden_capture.pop_all()
                 loss_parts = synid_loss(
                     args=args,
                     tokenizer=tokenizer,
@@ -502,6 +511,9 @@ def finetune(args, tokenizer: AutoTokenizer, model: deepspeed.DeepSpeedEngine, o
                 
             model.backward(loss)
             model.step()
+            if student_hidden_capture is not None:
+                student_hidden_capture.clear()
+                teacher_hidden_capture.clear()
              
             dist.all_reduce(loss, dist.ReduceOp.SUM, group=dp_group)
             global_loss = loss.item() / dp_world_size

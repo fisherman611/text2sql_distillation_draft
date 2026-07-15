@@ -364,6 +364,89 @@ def test_synid_loss_with_external_last_hidden_states_backpropagates_projector():
     assert torch.isfinite(projector.weight.grad).all()
 
 
+def test_synid_loss_averages_duplicate_hidden_layers_like_single_layer():
+    tokenizer = DummyTokenizer()
+    batch_size, seq_len, vocab_size = 2, 6, 13
+    hidden_size = 4
+    labels = torch.tensor(
+        [
+            [-100, -100, 1, 2, 3, -100],
+            [-100, -100, 1, 2, 3, -100],
+        ]
+    )
+    batch = {
+        "input_ids": torch.tensor(
+            [
+                [1, 2, 3, 4, 5, 0],
+                [1, 2, 3, 6, 5, 0],
+            ]
+        ),
+        "attention_mask": torch.tensor(
+            [
+                [1, 1, 1, 1, 1, 0],
+                [1, 1, 1, 1, 1, 0],
+            ]
+        ),
+    }
+    student_outputs = SimpleNamespace(
+        logits=torch.randn(batch_size, seq_len, vocab_size, requires_grad=True)
+    )
+    teacher_outputs = SimpleNamespace(
+        logits=torch.randn(batch_size, seq_len, vocab_size)
+    )
+    student_hidden = torch.randn(batch_size, seq_len, hidden_size, requires_grad=True)
+    teacher_hidden = torch.randn(batch_size, seq_len, hidden_size)
+
+    single = synid_loss(
+        args=make_args(),
+        tokenizer=tokenizer,
+        student_outputs=student_outputs,
+        teacher_outputs=teacher_outputs,
+        student_batch=batch,
+        student_no_model_batch={"label": labels},
+        student_hidden_states=student_hidden,
+        teacher_hidden_states=teacher_hidden,
+    )
+    multi = synid_loss(
+        args=make_args(),
+        tokenizer=tokenizer,
+        student_outputs=student_outputs,
+        teacher_outputs=teacher_outputs,
+        student_batch=batch,
+        student_no_model_batch={"label": labels},
+        student_hidden_states=[student_hidden, student_hidden],
+        teacher_hidden_states=[teacher_hidden, teacher_hidden],
+    )
+
+    assert multi.kd.item() == pytest.approx(single.kd.item())
+    assert multi.con1.item() == pytest.approx(single.con1.item())
+    assert multi.con2.item() == pytest.approx(single.con2.item())
+    assert multi.total.item() == pytest.approx(single.total.item())
+
+
+def test_synid_loss_rejects_mismatched_hidden_layer_lists():
+    tokenizer = DummyTokenizer()
+    labels = torch.tensor([[-100, 1, 2]])
+    batch = {
+        "input_ids": torch.tensor([[1, 3, 4]]),
+        "attention_mask": torch.ones(1, 3),
+    }
+    outputs = SimpleNamespace(logits=torch.randn(1, 3, 7))
+    hidden = torch.randn(1, 3, 4)
+
+    with pytest.raises(ValueError, match="equal length"):
+        synid_loss(
+            args=make_args(),
+            tokenizer=tokenizer,
+            student_outputs=outputs,
+            teacher_outputs=outputs,
+            student_batch=batch,
+            student_no_model_batch={"label": labels},
+            student_hidden_states=[hidden, hidden],
+            teacher_hidden_states=[hidden],
+        )
+
+
 @pytest.mark.parametrize(
     ("override", "message"),
     [

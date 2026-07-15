@@ -422,6 +422,16 @@ def _project_if_needed(embeddings: torch.Tensor, projector: Optional[nn.Module])
     return projector(embeddings)
 
 
+def _as_hidden_state_list(hidden_states) -> list[torch.Tensor]:
+    if isinstance(hidden_states, torch.Tensor):
+        return [hidden_states]
+    if isinstance(hidden_states, (list, tuple)) and all(isinstance(item, torch.Tensor) for item in hidden_states):
+        if len(hidden_states) == 0:
+            raise ValueError("SynID received an empty hidden-state layer list.")
+        return list(hidden_states)
+    raise TypeError("SynID hidden states must be a tensor or a non-empty list of tensors.")
+
+
 def synid_loss(
     *,
     args,
@@ -465,8 +475,13 @@ def synid_loss(
         student_hidden_states = student_outputs.hidden_states[-1]
     if teacher_hidden_states is None:
         teacher_hidden_states = teacher_outputs.hidden_states[-1]
-    student_hidden = student_hidden_states
-    teacher_hidden = teacher_hidden_states
+    student_hidden_layers = _as_hidden_state_list(student_hidden_states)
+    teacher_hidden_layers = _as_hidden_state_list(teacher_hidden_states)
+    if len(student_hidden_layers) != len(teacher_hidden_layers):
+        raise ValueError(
+            "Student and teacher hidden-state layer lists must have equal length, "
+            f"got {len(student_hidden_layers)} and {len(teacher_hidden_layers)}."
+        )
 
     student_attention_mask = student_batch["attention_mask"].bool()
     teacher_attention_mask = teacher_batch["attention_mask"].bool()
@@ -497,58 +512,64 @@ def synid_loss(
                 teacher_attention_mask,
             )
 
-    # Teacher response is the positive solution representation. In phase 1 it is
-    # from the same prompt as the student; later it can come from privileged input.
-    teacher_response_embedding = _pool_hidden(
-        teacher_hidden,
-        teacher_batch["input_ids"],
-        teacher_response_mask,
-        tokenizer,
-        args.synid_pooling,
-        args.synid_pool_tau,
-        args.synid_syntax_lambda,
-        args.synid_use_syntax_weights,
-        teacher_attention_mask,
-        teacher_syntax_weights,
-    )
-    student_prompt_embedding = _pool_hidden(
-        student_hidden,
-        student_batch["input_ids"],
-        student_prompt_mask,
-        tokenizer,
-        args.synid_pooling,
-        args.synid_pool_tau,
-        args.synid_syntax_lambda,
-        args.synid_use_syntax_weights,
-        student_attention_mask,
-        student_syntax_weights,
-    )
-    student_response_embedding = _pool_hidden(
-        student_hidden,
-        student_batch["input_ids"],
-        student_response_mask,
-        tokenizer,
-        args.synid_pooling,
-        args.synid_pool_tau,
-        args.synid_syntax_lambda,
-        args.synid_use_syntax_weights,
-        student_attention_mask,
-        student_syntax_weights,
-    )
+    con1_losses = []
+    con2_losses = []
+    for student_hidden, teacher_hidden in zip(student_hidden_layers, teacher_hidden_layers):
+        # Teacher response is the positive solution representation. In phase 1 it is
+        # from the same prompt as the student; later it can come from privileged input.
+        teacher_response_embedding = _pool_hidden(
+            teacher_hidden,
+            teacher_batch["input_ids"],
+            teacher_response_mask,
+            tokenizer,
+            args.synid_pooling,
+            args.synid_pool_tau,
+            args.synid_syntax_lambda,
+            args.synid_use_syntax_weights,
+            teacher_attention_mask,
+            teacher_syntax_weights,
+        )
+        student_prompt_embedding = _pool_hidden(
+            student_hidden,
+            student_batch["input_ids"],
+            student_prompt_mask,
+            tokenizer,
+            args.synid_pooling,
+            args.synid_pool_tau,
+            args.synid_syntax_lambda,
+            args.synid_use_syntax_weights,
+            student_attention_mask,
+            student_syntax_weights,
+        )
+        student_response_embedding = _pool_hidden(
+            student_hidden,
+            student_batch["input_ids"],
+            student_response_mask,
+            tokenizer,
+            args.synid_pooling,
+            args.synid_pool_tau,
+            args.synid_syntax_lambda,
+            args.synid_use_syntax_weights,
+            student_attention_mask,
+            student_syntax_weights,
+        )
 
-    student_prompt_embedding = _project_if_needed(student_prompt_embedding, student_projector)
-    student_response_embedding = _project_if_needed(student_response_embedding, student_projector)
+        student_prompt_embedding = _project_if_needed(student_prompt_embedding, student_projector)
+        student_response_embedding = _project_if_needed(student_response_embedding, student_projector)
 
-    con1_loss = (
-        _zero_like(kd_loss)
-        if not args.synid_use_con1
-        else _info_nce(student_prompt_embedding, teacher_response_embedding, args.synid_contrastive_tau)
-    )
-    con2_loss = (
-        _zero_like(kd_loss)
-        if not args.synid_use_con2
-        else _info_nce(student_response_embedding, teacher_response_embedding, args.synid_contrastive_tau)
-    )
+        con1_losses.append(
+            _zero_like(kd_loss)
+            if not args.synid_use_con1
+            else _info_nce(student_prompt_embedding, teacher_response_embedding, args.synid_contrastive_tau)
+        )
+        con2_losses.append(
+            _zero_like(kd_loss)
+            if not args.synid_use_con2
+            else _info_nce(student_response_embedding, teacher_response_embedding, args.synid_contrastive_tau)
+        )
+
+    con1_loss = torch.stack(con1_losses).mean()
+    con2_loss = torch.stack(con2_losses).mean()
 
     total = kd_loss + args.synid_alpha * con1_loss + args.synid_beta * con2_loss
     return SynIDLossParts(total=total, kd=kd_loss, con1=con1_loss, con2=con2_loss)
