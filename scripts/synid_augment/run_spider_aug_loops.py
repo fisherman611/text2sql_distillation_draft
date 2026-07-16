@@ -100,7 +100,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-loops", type=int, default=5)
     parser.add_argument("--gamma", type=float, default=0.6)
     parser.add_argument("--timeout", type=float, default=120.0)
+    parser.add_argument("--max-input-tokens", type=int, default=4096)
     parser.add_argument("--max-new-tokens", type=int, default=512)
+    parser.add_argument("--batch-size", type=int, default=25)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.95)
     parser.add_argument("--top-k", type=int, default=0)
@@ -179,17 +181,26 @@ def _build_messages(
     )
 
 
-def generate_one(
+def generate_batch(
     *,
     tokenizer,
     model,
     system_prompt: str,
-    user_prompt: str,
-    failed_row: dict[str, Any] | None,
+    user_prompts: list[str],
+    failed_rows: list[dict[str, Any] | None],
     args: argparse.Namespace,
-) -> tuple[str, str]:
-    prompt = _build_messages(tokenizer, system_prompt, user_prompt, failed_row, args)
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+) -> list[tuple[str, str]]:
+    prompts = [
+        _build_messages(tokenizer, system_prompt, user_prompt, failed_row, args)
+        for user_prompt, failed_row in zip(user_prompts, failed_rows)
+    ]
+    inputs = tokenizer(
+        prompts,
+        return_tensors="pt",
+        padding=True,
+        truncation=True,
+        max_length=args.max_input_tokens,
+    ).to(model.device)
     do_sample = args.temperature > 0
     with torch.inference_mode():
         output_ids = model.generate(
@@ -201,9 +212,9 @@ def generate_one(
             top_k=args.top_k if do_sample else None,
             pad_token_id=tokenizer.eos_token_id,
         )
-    generated_ids = output_ids[0, inputs["input_ids"].shape[1]:]
-    raw_response = tokenizer.decode(generated_ids, skip_special_tokens=True)
-    return raw_response, extract_sql(raw_response)
+    generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+    raw_responses = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+    return [(raw_response, extract_sql(raw_response)) for raw_response in raw_responses]
 
 
 def _load_existing_loop(loop_dir: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]] | None:
@@ -318,6 +329,9 @@ def main() -> None:
         "num_loops": args.num_loops,
         "gamma": args.gamma,
         "timeout": args.timeout,
+        "max_input_tokens": args.max_input_tokens,
+        "max_new_tokens": args.max_new_tokens,
+        "batch_size": args.batch_size,
         "source_total_records": source_total_records,
         "run_total_records": run_total_records,
         "limit": args.limit,
@@ -347,36 +361,41 @@ def main() -> None:
             candidates = []
             accepted = []
             rejected = []
-            for item in tqdm(remaining, desc=f"loop {loop_index} generate"):
-                base_record = records_by_id[int(item["id"])]
-                user_prompt = user_prompt_builder(user_template, base_record)
-                failed_row = item if "reason" in item else None
-                raw_response, candidate_sql = generate_one(
+            for start in tqdm(range(0, len(remaining), args.batch_size), desc=f"loop {loop_index} generate"):
+                batch_items = remaining[start : start + args.batch_size]
+                base_records = [records_by_id[int(item["id"])] for item in batch_items]
+                user_prompts = [
+                    user_prompt_builder(user_template, base_record)
+                    for base_record in base_records
+                ]
+                failed_rows = [item if "reason" in item else None for item in batch_items]
+                generated = generate_batch(
                     tokenizer=tokenizer,
                     model=model,
                     system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    failed_row=failed_row,
+                    user_prompts=user_prompts,
+                    failed_rows=failed_rows,
                     args=args,
                 )
-                candidate = {
-                    **base_record,
-                    "loop": loop_index,
-                    "raw_response": raw_response,
-                    "candidate_sql": candidate_sql,
-                }
-                ok, validation_row = validate_candidate(
-                    candidate,
-                    benchmark=args.benchmark,
-                    db_root=args.db_root,
-                    gamma=args.gamma,
-                    timeout_s=args.timeout,
-                )
-                candidates.append(candidate)
-                if ok:
-                    accepted.append(validation_row)
-                else:
-                    rejected.append(validation_row)
+                for base_record, (raw_response, candidate_sql) in zip(base_records, generated):
+                    candidate = {
+                        **base_record,
+                        "loop": loop_index,
+                        "raw_response": raw_response,
+                        "candidate_sql": candidate_sql,
+                    }
+                    ok, validation_row = validate_candidate(
+                        candidate,
+                        benchmark=args.benchmark,
+                        db_root=args.db_root,
+                        gamma=args.gamma,
+                        timeout_s=args.timeout,
+                    )
+                    candidates.append(candidate)
+                    if ok:
+                        accepted.append(validation_row)
+                    else:
+                        rejected.append(validation_row)
 
             accepted_ids = {int(row["id"]) for row in accepted}
             for row in rejected:
