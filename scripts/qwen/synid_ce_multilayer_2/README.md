@@ -39,12 +39,22 @@ format, evaluate, then upload eval logs:
 bash scripts/qwen/synid_ce_multilayer_2/run_full_pipeline.sh
 ```
 
+By default inference selects the checkpoint with the best dev `exact_match`
+from each training `log.txt`. The selection record is written to:
+
+```text
+run_logs/<timestamp>/checkpoint_selection.jsonl
+```
+
+Use `INFER_CHECKPOINT_METRIC=latest` to force the old latest-checkpoint behavior.
+
 The wrapper expands to:
 
 ```bash
 INFER_SEEDS=10,42,50,100,1234 \
 FORMAT_AFTER_INFER=true \
 SKIP_EXISTING=true \
+INFER_CHECKPOINT_METRIC=exact_match \
 bash running.sh \
   --mode sequential \
   --gpus 0,1 \

@@ -23,6 +23,7 @@ INFER_MAX_LENGTH="auto"
 INFER_LIMIT=""
 INFER_EXTRA_ARGS=""
 INFER_OUTPUT_ROOT=""
+INFER_CHECKPOINT_METRIC="${INFER_CHECKPOINT_METRIC:-exact_match}"
 
 usage() {
   cat <<'EOF'
@@ -41,7 +42,7 @@ Options:
   --log-dir <path>               Directory for runner logs. Default: ./run_logs/<timestamp>
   --continue-on-error            Keep scheduling after a script exhausts retries.
   --dry-run                      Print what would run without launching jobs.
-  --infer-after-train            Run infer.py on the latest checkpoint after each successful train script.
+  --infer-after-train            Run infer.py on the selected checkpoint after each successful train script.
   --infer-script <path>          Inference script. Default: ./infer.py
   --infer-benchmark <name>       Single benchmark passed to infer.py.
   --infer-benchmarks <list>      Comma-separated benchmarks. Default: spider_data
@@ -52,6 +53,8 @@ Options:
   --infer-limit <n>              Optional sample limit passed to infer.py.
   --infer-extra-args <string>    Extra raw arguments appended to infer.py.
   --infer-output-root <path>     Output root for inference JSON files. Default: ./results/infer
+  --infer-checkpoint-metric <m>  Checkpoint selection metric from train log. Default: exact_match.
+                                 Use latest to keep the newest numeric checkpoint.
   -h, --help                     Show this message.
 
 Auto infer max length:
@@ -149,6 +152,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --infer-output-root)
       INFER_OUTPUT_ROOT="$2"
+      shift 2
+      ;;
+    --infer-checkpoint-metric)
+      INFER_CHECKPOINT_METRIC="$2"
       shift 2
       ;;
     -h|--help)
@@ -466,6 +473,140 @@ if candidates:
 PY
 }
 
+select_checkpoint_dir() {
+  local save_path="$1"
+  local metric="$2"
+  local selection_log="$3"
+
+  "${PYTHON_BIN}" - "$save_path" "$metric" "$selection_log" <<'PY'
+import ast
+import json
+import re
+import sys
+from pathlib import Path
+
+save_path = Path(sys.argv[1])
+metric = sys.argv[2]
+selection_log = Path(sys.argv[3])
+files = {
+    "adapter_config.json",
+    "config.json",
+    "model.safetensors",
+    "pytorch_model.bin",
+    "adapter_model.bin",
+    "adapter_model.safetensors",
+}
+
+
+def checkpoint_dirs(root: Path):
+    candidates = []
+    if root.is_dir():
+        for child in (root, *root.rglob("*")):
+            if not child.is_dir():
+                continue
+            if any((child / name).exists() for name in files):
+                step = int(child.name) if child.name.isdigit() else -1
+                candidates.append((step, child.stat().st_mtime, child))
+    return candidates
+
+
+def latest(candidates):
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: (item[0], item[1]))
+
+
+def parse_metric_rows(log_path: Path, wanted_metric: str):
+    rows = []
+    if not log_path.is_file():
+        return rows
+
+    eval_index = 0
+    metric_pattern = re.compile(r"\{[^{}]*['\"]" + re.escape(wanted_metric) + r"['\"][^{}]*\}")
+    with log_path.open("r", encoding="utf-8", errors="replace") as fin:
+        for line_no, line in enumerate(fin, start=1):
+            if "dev |" not in line or wanted_metric not in line:
+                continue
+            match = metric_pattern.search(line)
+            if not match:
+                continue
+            try:
+                metrics = ast.literal_eval(match.group(0))
+            except Exception:
+                continue
+            if wanted_metric not in metrics:
+                continue
+            eval_index += 1
+            rows.append(
+                {
+                    "line_no": line_no,
+                    "eval_index": eval_index,
+                    "metric": wanted_metric,
+                    "metric_value": float(metrics[wanted_metric]),
+                    "metrics": metrics,
+                    "line": line.strip(),
+                }
+            )
+    return rows
+
+
+selection_log.parent.mkdir(parents=True, exist_ok=True)
+candidates = checkpoint_dirs(save_path)
+selected = None
+mode = metric
+reason = ""
+rows = []
+
+if metric.lower() == "latest":
+    selected = latest(candidates)
+    reason = "selected_latest_requested"
+else:
+    rows = parse_metric_rows(save_path / "log.txt", metric)
+    numeric_ckpts = sorted([item for item in candidates if item[0] >= 0], key=lambda item: item[0])
+    if rows and numeric_ckpts:
+        # Eval is run once before training at epoch 0 and then once at each epoch boundary.
+        # Checkpoints are saved at epoch boundaries, so eval row 2 maps to checkpoint 1, etc.
+        mapped = []
+        for row in rows:
+            ckpt_index = row["eval_index"] - 2
+            if 0 <= ckpt_index < len(numeric_ckpts):
+                step, _, path = numeric_ckpts[ckpt_index]
+                mapped.append((row["metric_value"], step, path, row))
+        if mapped:
+            value, step, path, row = max(mapped, key=lambda item: (item[0], item[1]))
+            selected = (step, path.stat().st_mtime, path)
+            reason = "selected_best_metric"
+            row["selected"] = True
+        else:
+            reason = "metric_rows_without_checkpoint_mapping"
+    else:
+        reason = "missing_metric_rows_or_numeric_checkpoints"
+
+    if selected is None:
+        selected = latest(candidates)
+        if selected is not None:
+            reason = f"{reason};fallback_latest"
+
+record = {
+    "save_path": str(save_path),
+    "metric": metric,
+    "reason": reason,
+    "selected_checkpoint": str(selected[2]) if selected else "",
+    "selected_step": selected[0] if selected else None,
+    "metric_rows": rows,
+    "candidate_checkpoints": [
+        {"step": step, "path": str(path)}
+        for step, _, path in sorted(candidates, key=lambda item: (item[0], item[1]))
+    ],
+}
+with selection_log.open("a", encoding="utf-8") as fout:
+    fout.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+if selected:
+    print(str(selected[2]))
+PY
+}
+
 run_infer_after_train() {
   local script="$1"
   local gpu_chunk="$2"
@@ -482,6 +623,7 @@ run_infer_after_train() {
   local model_family
   local ckpt_path
   local ckpt_step
+  local ckpt_selection_log
   local script_root
   local output_path
   local output_dir
@@ -534,7 +676,8 @@ run_infer_after_train() {
     model_family="$(normalize_model_family "${model_path}")"
   fi
 
-  ckpt_path="$(latest_checkpoint_dir "${save_path}")"
+  ckpt_selection_log="${LOG_DIR}/checkpoint_selection.jsonl"
+  ckpt_path="$(select_checkpoint_dir "${save_path}" "${INFER_CHECKPOINT_METRIC}" "${ckpt_selection_log}")"
   if [[ -z "${ckpt_path}" ]]; then
     echo "[infer-skip] No numeric checkpoint directory found under ${save_path}" | tee -a "${job_log}" >&2
     append_log "${INFER_FAIL_LOG}" "missing_ckpt script=${rel_script} save=${save_path} train_log=${job_log}"
@@ -542,6 +685,8 @@ run_infer_after_train() {
   fi
 
   ckpt_step="$(basename "${ckpt_path}")"
+  echo "[checkpoint-select] metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} log=${ckpt_selection_log}" | tee -a "${job_log}"
+  append_log "${RUN_LOG}" "CHECKPOINT_SELECT metric=${INFER_CHECKPOINT_METRIC} script=${rel_script} save=${save_path} ckpt=${ckpt_path} selection_log=${ckpt_selection_log}"
   db_name="$(safe_name "${INFER_DB}")"
   script_root="$(safe_name "$(script_root_name "${script}")")"
   overall_status=0
@@ -560,8 +705,9 @@ run_infer_after_train() {
     echo "        model    : ${model_family}"
     echo "        max len  : ${infer_max_length}"
     echo "        ckpt     : ${ckpt_path}"
+    echo "        select   : metric=${INFER_CHECKPOINT_METRIC} log=${ckpt_selection_log}"
     echo "        out      : ${output_path}"
-    append_log "${RUN_LOG}" "INFER_START attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} ckpt=${ckpt_path} output=${output_path} log=${infer_log}"
+    append_log "${RUN_LOG}" "INFER_START attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} checkpoint_metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} selection_log=${ckpt_selection_log} output=${output_path} log=${infer_log}"
 
     cmd=(
       "${PYTHON_BIN}" "${INFER_SCRIPT}"
@@ -586,6 +732,8 @@ run_infer_after_train() {
 
     if {
       echo "${cmd[*]}"
+      echo "checkpoint_metric=${INFER_CHECKPOINT_METRIC}"
+      echo "checkpoint_selection_log=${ckpt_selection_log}"
       CUDA_VISIBLE_DEVICES="${gpu_chunk}" PYTHONPATH="${ROOT_DIR}" "${cmd[@]}"
     } > "${infer_log}" 2>&1; then
       infer_status=0
@@ -595,12 +743,12 @@ run_infer_after_train() {
 
     if [[ "${infer_status}" -eq 0 ]]; then
       echo "[infer-done] ${rel_script} ${infer_benchmark} -> ${output_path}"
-      append_log "${RUN_LOG}" "INFER_DONE attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} ckpt=${ckpt_path} output=${output_path} log=${infer_log}"
-      append_log "${INFER_SUCCESS_LOG}" "attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} ckpt=${ckpt_path} output=${output_path} log=${infer_log}"
+      append_log "${RUN_LOG}" "INFER_DONE attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} checkpoint_metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} selection_log=${ckpt_selection_log} output=${output_path} log=${infer_log}"
+      append_log "${INFER_SUCCESS_LOG}" "attempt=${attempt} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} checkpoint_metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} selection_log=${ckpt_selection_log} output=${output_path} log=${infer_log}"
     else
       echo "[infer-fail] ${rel_script} ${infer_benchmark} exited with ${infer_status}" >&2
-      append_log "${RUN_LOG}" "INFER_FAIL attempt=${attempt} exit_code=${infer_status} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} ckpt=${ckpt_path} output=${output_path} log=${infer_log}"
-      append_log "${INFER_FAIL_LOG}" "attempt=${attempt} exit_code=${infer_status} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} ckpt=${ckpt_path} output=${output_path} log=${infer_log}"
+      append_log "${RUN_LOG}" "INFER_FAIL attempt=${attempt} exit_code=${infer_status} gpus=${gpu_chunk} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} checkpoint_metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} selection_log=${ckpt_selection_log} output=${output_path} log=${infer_log}"
+      append_log "${INFER_FAIL_LOG}" "attempt=${attempt} exit_code=${infer_status} script=${rel_script} benchmark=${infer_benchmark} split=${INFER_SPLIT} model_family=${model_family} max_length=${infer_max_length} checkpoint_metric=${INFER_CHECKPOINT_METRIC} ckpt=${ckpt_path} selection_log=${ckpt_selection_log} output=${output_path} log=${infer_log}"
       overall_status="${infer_status}"
     fi
   done

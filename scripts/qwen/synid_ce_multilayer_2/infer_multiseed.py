@@ -77,6 +77,7 @@ def format_after_infer(output_path: Path | None) -> None:
         return
     if os.environ.get("FORMAT_AFTER_INFER", "false").lower() not in {"1", "true", "yes", "y"}:
         return
+    print(f"[format-start] output={output_path}", flush=True)
     subprocess.run(
         [
             sys.executable,
@@ -88,6 +89,7 @@ def format_after_infer(output_path: Path | None) -> None:
         ],
         check=True,
     )
+    print(f"[format-done] output={output_path}", flush=True)
 
 
 def should_skip(output_path: Path | None) -> bool:
@@ -109,11 +111,13 @@ def main() -> None:
         if should_skip(output_path):
             print(f"[infer-seed-skip] seed={seed} output={output_path}", flush=True)
             continue
+        print(f"[infer-seed-start] seed={seed} output={output_path}", flush=True)
         old_argv = sys.argv
         try:
             sys.argv = ["infer.py", *seeded_args]
             infer.main()
             format_after_infer(output_path)
+            print(f"[infer-seed-done] seed={seed} output={output_path}", flush=True)
         finally:
             sys.argv = old_argv
             gc.collect()

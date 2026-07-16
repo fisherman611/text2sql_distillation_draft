@@ -21,6 +21,7 @@ INFER_BENCHMARKS="${INFER_BENCHMARKS:-spider_data,spider_syn,spider_realistic,sp
 INFER_BATCH_SIZE="${INFER_BATCH_SIZE:-100}"
 INFER_OUTPUT_ROOT="${INFER_OUTPUT_ROOT:-results/infer/synid_ce_multilayer_2}"
 INFER_FLUSH_EVERY="${INFER_FLUSH_EVERY:-100}"
+INFER_CHECKPOINT_METRIC="${INFER_CHECKPOINT_METRIC:-exact_match}"
 
 export INFER_SEEDS
 export FORMAT_AFTER_INFER
@@ -38,5 +39,6 @@ bash running.sh \
   --infer-db full \
   --infer-batch-size "${INFER_BATCH_SIZE}" \
   --infer-output-root "${INFER_OUTPUT_ROOT}" \
+  --infer-checkpoint-metric "${INFER_CHECKPOINT_METRIC}" \
   --infer-extra-args "--flush-every ${INFER_FLUSH_EVERY}" \
   "$@"
