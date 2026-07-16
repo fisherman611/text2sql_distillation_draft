@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,11 @@ from src.synid_sql.augmentation.sql_extract import extract_sql
 from src.synid_sql.augmentation.validator import validate_candidate
 
 
+DEFAULT_TEACHER_PEFT_PATHS = {
+    "spider": "hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090",
+    "bird": "hf://distillation-sql/bird_baselines/qwen3/sft_sft_qwen3_4b_bird_lora/e5-bs2-lr0.0001-G8-N2-NN1-lora-32-64-0.1/1470",
+}
+
 REPAIR_INSTRUCTION = """Previous attempt:
 {previous_candidate_sql}
 
@@ -52,9 +58,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--db-root", type=Path, default=None)
     parser.add_argument("--teacher-prompt-dir", type=Path, default=Path("prompts/single_turn/synid_teacher"))
     parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
-    parser.add_argument("--teacher-peft-path", default=None)
+    parser.add_argument(
+        "--teacher-peft-path",
+        default=None,
+        help="Teacher LoRA adapter. Defaults to the benchmark-specific Qwen3-4B teacher LoRA.",
+    )
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda", "auto"])
-    parser.add_argument("--num-loops", type=int, default=3)
+    parser.add_argument("--num-loops", type=int, default=5)
     parser.add_argument("--gamma", type=float, default=0.6)
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--max-new-tokens", type=int, default=512)
@@ -74,6 +84,8 @@ def parse_args() -> argparse.Namespace:
             if args.benchmark == "bird"
             else Path("benchmarks/spider_data/database")
         )
+    if args.teacher_peft_path is None:
+        args.teacher_peft_path = DEFAULT_TEACHER_PEFT_PATHS[args.benchmark]
     return args
 
 
@@ -158,6 +170,22 @@ def _summarize(loop_index: int, candidates: list[dict[str, Any]], accepted: list
     }
 
 
+def _timestamp() -> str:
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def _append_log(log_path: Path, message: str) -> None:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as fout:
+        fout.write(f"[{_timestamp()}] {message}\n")
+
+
+def _append_jsonl(path: Path, row: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fout:
+        fout.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def main() -> None:
     args = parse_args()
     if args.num_loops <= 0:
@@ -172,9 +200,32 @@ def main() -> None:
         system_prompt, user_template = load_synid_teacher_templates(args.teacher_prompt_dir)
         user_prompt_builder = build_teacher_user_prompt
 
+    source_total_records = len(records)
     if args.limit is not None:
         records = records[: args.limit]
+    run_total_records = len(records)
     records_by_id = {int(row["id"]): row for row in records}
+    log_path = args.output_root / "aug_loops.log"
+    progress_path = args.output_root / "loop_progress.jsonl"
+
+    start_summary = {
+        "event": "start",
+        "benchmark": args.benchmark,
+        "root": str(args.root),
+        "output_root": str(args.output_root),
+        "db_root": str(args.db_root),
+        "model": args.model,
+        "teacher_peft_path": args.teacher_peft_path,
+        "num_loops": args.num_loops,
+        "gamma": args.gamma,
+        "timeout": args.timeout,
+        "source_total_records": source_total_records,
+        "run_total_records": run_total_records,
+        "limit": args.limit,
+        "resume": args.resume,
+    }
+    _append_log(log_path, "START " + json.dumps(start_summary, ensure_ascii=False))
+    _append_jsonl(progress_path, {"timestamp": _timestamp(), **start_summary})
 
     tokenizer, model = init_model(args.model, args.teacher_peft_path, device=args.device)
     model.eval()
@@ -250,9 +301,28 @@ def main() -> None:
 
         remaining = [row for row in repair_queue if int(row["id"]) not in accepted_by_id]
         summary = _summarize(loop_index, candidates, accepted, rejected)
+        kept_total = len(accepted_by_id)
+        summary["kept_total"] = kept_total
+        summary["source_total_records"] = source_total_records
+        summary["run_total_records"] = run_total_records
+        summary["kept_over_source"] = f"{kept_total}/{source_total_records}"
+        summary["kept_over_run"] = f"{kept_total}/{run_total_records}"
+        summary["kept_source_ratio"] = kept_total / source_total_records if source_total_records else 0.0
+        summary["kept_run_ratio"] = kept_total / run_total_records if run_total_records else 0.0
         summary["remaining_after_loop"] = len(remaining)
         loop_summaries.append(summary)
         write_json(loop_dir / "summary.json", summary)
+        _append_jsonl(progress_path, {"timestamp": _timestamp(), "event": "loop_done", **summary})
+        progress_line = (
+            f"LOOP {loop_index} DONE "
+            f"accepted_this_loop={len(accepted)} rejected_this_loop={len(rejected)} "
+            f"kept={kept_total}/{source_total_records} source_records "
+            f"({summary['kept_source_ratio']:.4f}); "
+            f"run_subset={kept_total}/{run_total_records}; "
+            f"remaining={len(remaining)}"
+        )
+        print(progress_line)
+        _append_log(log_path, progress_line)
 
         if not remaining:
             break
@@ -264,11 +334,19 @@ def main() -> None:
     write_json(
         args.output_root / "summary.json",
         {
-            "total_records": len(records),
+            "source_total_records": source_total_records,
+            "run_total_records": run_total_records,
             "accepted": len(accepted_all),
             "rejected_final": len(rejected_final),
+            "kept_over_source": f"{len(accepted_all)}/{source_total_records}",
+            "kept_over_run": f"{len(accepted_all)}/{run_total_records}",
             "loops": loop_summaries,
         },
+    )
+    _append_log(
+        log_path,
+        f"DONE kept={len(accepted_all)}/{source_total_records} source_records; "
+        f"run_subset={len(accepted_all)}/{run_total_records}; rejected_final={len(rejected_final)}",
     )
     print(json.dumps({"accepted": len(accepted_all), "rejected_final": len(rejected_final)}, indent=2))
 
