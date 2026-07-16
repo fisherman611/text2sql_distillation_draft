@@ -46,8 +46,41 @@ Validation result:
 - reason: {failure_reason}
 - detail: {failure_detail}
 
-Please generate a corrected SQL query. It must be execution-equivalent to the reference solution, but should use a different syntactic form when possible.
+Repair guidance:
+{repair_guidance}
+
 Return only the requested JSON object."""
+
+REPAIR_GUIDANCE_BY_REASON = {
+    "empty_sql": (
+        'Your previous response did not contain a usable SQL query. Return exactly one JSON object like {"sql": "..."} '
+        "where the SQL is a complete SQLite SELECT query."
+    ),
+    "candidate_execution_error": (
+        "The previous SQL could not be executed. Fix the syntax/runtime issue, use only schema-valid tables and columns, "
+        "and keep the query execution-equivalent to the reference solution."
+    ),
+    "execution_mismatch": (
+        "The previous SQL executed but returned a different result from the reference solution. Correct the joins, filters, "
+        "aggregation, grouping, ordering, or selected columns so the result matches the reference solution."
+    ),
+    "jaccard_too_high": (
+        "The previous SQL was execution-equivalent but too syntactically similar to the reference solution. Keep the same "
+        "execution result, but rewrite the query using a meaningfully different valid SQL form."
+    ),
+    "evaluator_error": (
+        "The benchmark evaluator failed while checking the previous SQL. Produce a conservative, simple, schema-valid SQLite "
+        "query that is execution-equivalent to the reference solution."
+    ),
+    "db_not_found": (
+        "The database could not be found during validation. Still return a schema-valid SQLite query based only on the provided "
+        "schema and reference solution."
+    ),
+    "gold_execution_error": (
+        "The reference solution failed during validation, so avoid copying brittle syntax from it. Generate a simple schema-valid "
+        "SQLite query that answers the question according to the schema and reference solution intent."
+    ),
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -66,7 +99,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda", "auto"])
     parser.add_argument("--num-loops", type=int, default=5)
     parser.add_argument("--gamma", type=float, default=0.6)
-    parser.add_argument("--timeout", type=float, default=30.0)
+    parser.add_argument("--timeout", type=float, default=120.0)
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.95)
@@ -91,10 +124,30 @@ def parse_args() -> argparse.Namespace:
 
 def _failure_detail(row: dict[str, Any]) -> str:
     fields = []
-    for key in ("error", "gold_row_count", "candidate_row_count", "jaccard"):
+    for key in (
+        "failure_stage",
+        "repairable",
+        "error",
+        "evaluator",
+        "gold_row_count",
+        "candidate_row_count",
+        "jaccard",
+        "gamma",
+    ):
         if key in row:
             fields.append(f"{key}={row[key]}")
     return "; ".join(fields) if fields else "No additional detail."
+
+
+def _repair_guidance(row: dict[str, Any], *, gamma: float) -> str:
+    reason = row.get("reason") or row.get("failure_reason") or "unknown"
+    guidance = REPAIR_GUIDANCE_BY_REASON.get(
+        str(reason),
+        "Generate a corrected SQL query that is execution-equivalent to the reference solution and follows the output format.",
+    )
+    if reason == "jaccard_too_high":
+        guidance = f"{guidance} The token Jaccard similarity must be below gamma={gamma}."
+    return guidance
 
 
 def _build_messages(
@@ -102,6 +155,7 @@ def _build_messages(
     system_prompt: str,
     user_prompt: str,
     failed_row: dict[str, Any] | None,
+    args: argparse.Namespace,
 ) -> str:
     if failed_row is not None:
         user_prompt = (
@@ -111,6 +165,7 @@ def _build_messages(
                 previous_candidate_sql=failed_row.get("candidate_sql") or failed_row.get("previous_candidate_sql") or "",
                 failure_reason=failed_row.get("reason") or failed_row.get("failure_reason") or "unknown",
                 failure_detail=_failure_detail(failed_row),
+                repair_guidance=_repair_guidance(failed_row, gamma=args.gamma),
             )
         )
     return tokenizer.apply_chat_template(
@@ -133,7 +188,7 @@ def generate_one(
     failed_row: dict[str, Any] | None,
     args: argparse.Namespace,
 ) -> tuple[str, str]:
-    prompt = _build_messages(tokenizer, system_prompt, user_prompt, failed_row)
+    prompt = _build_messages(tokenizer, system_prompt, user_prompt, failed_row, args)
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     do_sample = args.temperature > 0
     with torch.inference_mode():
@@ -168,6 +223,49 @@ def _summarize(loop_index: int, candidates: list[dict[str, Any]], accepted: list
         "rejected": len(rejected),
         "rejection_reasons": dict(Counter(row.get("reason", "unknown") for row in rejected)),
     }
+
+
+def _count_by(rows: list[dict[str, Any]], key: str, default: str = "unknown") -> dict[str, int]:
+    return dict(Counter(str(row.get(key, default)) for row in rows))
+
+
+def _write_error_stats(
+    path: Path,
+    *,
+    benchmark: str,
+    source_total_records: int,
+    run_total_records: int,
+    loop_summaries: list[dict[str, Any]],
+    all_rejections: list[dict[str, Any]],
+    terminal_rejected: list[dict[str, Any]],
+    final_rejected: list[dict[str, Any]] | None = None,
+) -> None:
+    payload: dict[str, Any] = {
+        "updated_at": _timestamp(),
+        "benchmark": benchmark,
+        "source_total_records": source_total_records,
+        "run_total_records": run_total_records,
+        "loops": loop_summaries,
+        "cumulative_rejections": {
+            "total": len(all_rejections),
+            "by_reason": _count_by(all_rejections, "reason"),
+            "by_failure_stage": _count_by(all_rejections, "failure_stage"),
+            "by_repairable": _count_by(all_rejections, "repairable"),
+        },
+        "terminal_rejections": {
+            "total": len(terminal_rejected),
+            "by_reason": _count_by(terminal_rejected, "reason"),
+            "by_failure_stage": _count_by(terminal_rejected, "failure_stage"),
+        },
+    }
+    if final_rejected is not None:
+        payload["final_rejections"] = {
+            "total": len(final_rejected),
+            "by_reason": _count_by(final_rejected, "reason"),
+            "by_failure_stage": _count_by(final_rejected, "failure_stage"),
+            "by_repairable": _count_by(final_rejected, "repairable"),
+        }
+    write_json(path, payload)
 
 
 def _timestamp() -> str:
@@ -207,6 +305,7 @@ def main() -> None:
     records_by_id = {int(row["id"]): row for row in records}
     log_path = args.output_root / "aug_loops.log"
     progress_path = args.output_root / "loop_progress.jsonl"
+    error_stats_path = args.output_root / "error_stats.json"
 
     start_summary = {
         "event": "start",
@@ -231,6 +330,8 @@ def main() -> None:
     model.eval()
 
     accepted_by_id: dict[int, dict[str, Any]] = {}
+    terminal_rejected_by_id: dict[int, dict[str, Any]] = {}
+    all_rejections: list[dict[str, Any]] = []
     remaining: list[dict[str, Any]] = records
     loop_summaries = []
 
@@ -278,6 +379,9 @@ def main() -> None:
                     rejected.append(validation_row)
 
             accepted_ids = {int(row["id"]) for row in accepted}
+            for row in rejected:
+                if not row.get("repairable", True) and int(row["id"]) not in accepted_ids:
+                    terminal_rejected_by_id.setdefault(int(row["id"]), row)
             repair_queue = [
                 {
                     **row,
@@ -286,7 +390,7 @@ def main() -> None:
                     "failure_detail": _failure_detail(row),
                 }
                 for row in rejected
-                if int(row["id"]) not in accepted_ids
+                if int(row["id"]) not in accepted_ids and row.get("repairable", True)
             ]
 
             write_jsonl(loop_dir / "candidates.jsonl", candidates)
@@ -309,9 +413,22 @@ def main() -> None:
         summary["kept_over_run"] = f"{kept_total}/{run_total_records}"
         summary["kept_source_ratio"] = kept_total / source_total_records if source_total_records else 0.0
         summary["kept_run_ratio"] = kept_total / run_total_records if run_total_records else 0.0
+        summary["terminal_rejected_total"] = len(terminal_rejected_by_id)
         summary["remaining_after_loop"] = len(remaining)
+        summary["rejection_stages"] = _count_by(rejected, "failure_stage")
+        summary["rejection_repairable"] = _count_by(rejected, "repairable")
         loop_summaries.append(summary)
+        all_rejections.extend(rejected)
         write_json(loop_dir / "summary.json", summary)
+        _write_error_stats(
+            error_stats_path,
+            benchmark=args.benchmark,
+            source_total_records=source_total_records,
+            run_total_records=run_total_records,
+            loop_summaries=loop_summaries,
+            all_rejections=all_rejections,
+            terminal_rejected=list(terminal_rejected_by_id.values()),
+        )
         _append_jsonl(progress_path, {"timestamp": _timestamp(), "event": "loop_done", **summary})
         progress_line = (
             f"LOOP {loop_index} DONE "
@@ -319,6 +436,7 @@ def main() -> None:
             f"kept={kept_total}/{source_total_records} source_records "
             f"({summary['kept_source_ratio']:.4f}); "
             f"run_subset={kept_total}/{run_total_records}; "
+            f"terminal={len(terminal_rejected_by_id)}; "
             f"remaining={len(remaining)}"
         )
         print(progress_line)
@@ -328,7 +446,20 @@ def main() -> None:
             break
 
     accepted_all = [accepted_by_id[row_id] for row_id in sorted(accepted_by_id)]
-    rejected_final = remaining
+    final_rejected_by_id = dict(terminal_rejected_by_id)
+    for row in remaining:
+        final_rejected_by_id.setdefault(int(row["id"]), row)
+    rejected_final = [final_rejected_by_id[row_id] for row_id in sorted(final_rejected_by_id)]
+    _write_error_stats(
+        error_stats_path,
+        benchmark=args.benchmark,
+        source_total_records=source_total_records,
+        run_total_records=run_total_records,
+        loop_summaries=loop_summaries,
+        all_rejections=all_rejections,
+        terminal_rejected=list(terminal_rejected_by_id.values()),
+        final_rejected=rejected_final,
+    )
     write_jsonl(args.output_root / "accepted_all.jsonl", accepted_all)
     write_jsonl(args.output_root / "rejected_final.jsonl", rejected_final)
     write_json(
@@ -338,6 +469,7 @@ def main() -> None:
             "run_total_records": run_total_records,
             "accepted": len(accepted_all),
             "rejected_final": len(rejected_final),
+            "terminal_rejected": len(terminal_rejected_by_id),
             "kept_over_source": f"{len(accepted_all)}/{source_total_records}",
             "kept_over_run": f"{len(accepted_all)}/{run_total_records}",
             "loops": loop_summaries,
@@ -346,7 +478,8 @@ def main() -> None:
     _append_log(
         log_path,
         f"DONE kept={len(accepted_all)}/{source_total_records} source_records; "
-        f"run_subset={len(accepted_all)}/{run_total_records}; rejected_final={len(rejected_final)}",
+        f"run_subset={len(accepted_all)}/{run_total_records}; "
+        f"terminal={len(terminal_rejected_by_id)}; rejected_final={len(rejected_final)}",
     )
     print(json.dumps({"accepted": len(accepted_all), "rejected_final": len(rejected_final)}, indent=2))
 
