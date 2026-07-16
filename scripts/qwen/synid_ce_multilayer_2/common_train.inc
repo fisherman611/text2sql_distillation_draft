@@ -1,0 +1,113 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+ENTRY_SCRIPT="${BASH_SOURCE[1]}"
+SCRIPT_DIR="$(cd "$(dirname "${ENTRY_SCRIPT}")" && pwd)"
+SCRIPT_GROUP="$(basename "${SCRIPT_DIR}")"
+SCRIPT_NAME="$(basename "${ENTRY_SCRIPT}" .sh)"
+BASE_TRAIN_SCRIPT="${SCRIPT_DIR}/../synid_ce_multilayer/train_0.6b_4b_csd_kd0.7_tau0.05_a0.3_b0.1_s11_16_22_t14_21_28.sh"
+
+GRID_ID="${GRID_ID:-${SCRIPT_NAME#train_}}"
+GRID_ID="${GRID_ID^^}"
+
+case "${GRID_ID}" in
+  G01)
+    SYNID_STUDENT_LAYERS="16,22"
+    SYNID_TEACHER_LAYERS="21,28"
+    SYNID_ALPHA="0.15"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g01_s16_22_t21_28"
+    ;;
+  G02)
+    SYNID_STUDENT_LAYERS="16,22"
+    SYNID_TEACHER_LAYERS="21,28"
+    SYNID_ALPHA="0.20"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g02_s16_22_t21_28"
+    ;;
+  G03)
+    SYNID_STUDENT_LAYERS="16,22"
+    SYNID_TEACHER_LAYERS="21,28"
+    SYNID_ALPHA="0.30"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g03_s16_22_t21_28"
+    ;;
+  G04)
+    SYNID_STUDENT_LAYERS="22,-1"
+    SYNID_TEACHER_LAYERS="28,-1"
+    SYNID_ALPHA="0.15"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g04_s22_final_t28_final"
+    ;;
+  G05)
+    SYNID_STUDENT_LAYERS="22,-1"
+    SYNID_TEACHER_LAYERS="28,-1"
+    SYNID_ALPHA="0.20"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g05_s22_final_t28_final"
+    ;;
+  G06)
+    SYNID_STUDENT_LAYERS="22,-1"
+    SYNID_TEACHER_LAYERS="28,-1"
+    SYNID_ALPHA="0.30"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g06_s22_final_t28_final"
+    ;;
+  G07)
+    SYNID_STUDENT_LAYERS="16,22,-1"
+    SYNID_TEACHER_LAYERS="21,28,-1"
+    SYNID_ALPHA="0.15"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g07_s16_22_final_t21_28_final"
+    ;;
+  G08)
+    SYNID_STUDENT_LAYERS="16,22,-1"
+    SYNID_TEACHER_LAYERS="21,28,-1"
+    SYNID_ALPHA="0.20"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g08_s16_22_final_t21_28_final"
+    ;;
+  G09)
+    SYNID_STUDENT_LAYERS="16,22,-1"
+    SYNID_TEACHER_LAYERS="21,28,-1"
+    SYNID_ALPHA="0.30"
+    SYNID_BETA="0.1"
+    SYNID_CONTRASTIVE_TAU="0.05"
+    SYNID_LAYER_CONFIG="g09_s16_22_final_t21_28_final"
+    ;;
+  *)
+    echo "Unknown GRID_ID=${GRID_ID}. Expected G01..G09." >&2
+    exit 2
+    ;;
+esac
+
+export SYNID_STUDENT_LAYERS
+export SYNID_TEACHER_LAYERS
+export SYNID_ALPHA
+export SYNID_BETA
+export SYNID_CONTRASTIVE_TAU
+export SYNID_LAYER_CONFIG
+export SYNID_KD_LOSS="csd"
+export KD_RATIO="0.7"
+
+RUN_TAG="e${EPOCHS:-5}-bs${BATCH_SIZE:-2}-lr${LR:-0.0001}-G${GRAD_ACC:-8}-grid${GRID_ID}-kd${KD_RATIO}-${SYNID_KD_LOSS}-tau${SYNID_CONTRASTIVE_TAU}-a${SYNID_ALPHA}-b${SYNID_BETA}-${SYNID_LAYER_CONFIG}-pool${SYNID_POOLING:-sc}-lora-${PEFT_LORA_R:-16}-${PEFT_LORA_ALPHA:-64}-${PEFT_LORA_DROPOUT:-0.1}"
+export SAVE_TAG="${SAVE_TAG:-${SCRIPT_GROUP}_${SCRIPT_NAME}_spider_${KD_TYPE:-synid}_${RUN_TAG}}"
+
+echo "SynID multilayer grid: ${GRID_ID}"
+echo "  student layers: ${SYNID_STUDENT_LAYERS}"
+echo "  teacher layers: ${SYNID_TEACHER_LAYERS}"
+echo "  alpha: ${SYNID_ALPHA}"
+echo "  beta: ${SYNID_BETA}"
+echo "  contrastive tau: ${SYNID_CONTRASTIVE_TAU}"
+echo "  save tag: ${SAVE_TAG}"
+
+bash "${BASE_TRAIN_SCRIPT}" "$@"
