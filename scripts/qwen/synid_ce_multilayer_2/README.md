@@ -106,6 +106,9 @@ Format and evaluate all generated multi-seed outputs:
 bash scripts/qwen/synid_ce_multilayer_2/format_eval_multiseed.sh
 ```
 
+Evaluation defaults to `--etype all`, so the Spider evaluator reports both
+exact-match and execution metrics.
+
 Evaluate one benchmark only:
 
 ```bash

@@ -16,7 +16,7 @@ FORMAT_SCRIPT="${FORMAT_SCRIPT:-scripts/format_spider_infer_results.py}"
 EVAL_SCRIPT="${EVAL_SCRIPT:-src/evaluator/run_benchmark.py}"
 INFER_OUTPUT_ROOT="${INFER_OUTPUT_ROOT:-results/infer/synid_ce_multilayer_2/qwen}"
 EVAL_OUTPUT_ROOT="${EVAL_OUTPUT_ROOT:-results/eval/synid_ce_multilayer_2/qwen}"
-ETYPE="${ETYPE:-exec}"
+ETYPE="${ETYPE:-all}"
 EXEC_TIMEOUT="${EXEC_TIMEOUT:-60}"
 PROGRESS_BAR="${PROGRESS_BAR:-1}"
 SKIP_EXISTING_EVAL="${SKIP_EXISTING_EVAL:-false}"
@@ -43,7 +43,7 @@ Benchmark args, if provided, must be one or more of:
 Environment overrides:
   INFER_OUTPUT_ROOT     Default: results/infer/synid_ce_multilayer_2/qwen
   EVAL_OUTPUT_ROOT      Default: results/eval/synid_ce_multilayer_2/qwen
-  ETYPE                 Default: exec
+  ETYPE                 Default: all
   EXEC_TIMEOUT          Default: 60
   PROGRESS_BAR=0        Disable per-datapoint progress bar
   SKIP_EXISTING_EVAL=1  Skip eval logs that already exist and are non-empty
