@@ -1,4 +1,0 @@
-dataset,train_samples,dev_samples,train_dialogs,dev_dialogs,total_sql,sample_db_count,schema_db_count,table_per_db_mean,table_per_db_median,table_per_db_min,table_per_db_max,order_by_count,group_by_count,having_count,nested_count,sql_token_min,sql_token_mean,sql_token_median,sql_token_p90,sql_token_max,sql_char_min,sql_char_mean,sql_char_median,sql_char_p90,sql_char_max,order_by_pct,group_by_pct,having_pct,nested_pct
-spider,7000,1034,,,8034,160,166,5.28,4.0,2,26,1865,2052,506,1178,4,21.87,16.0,42,128,18,109.26,92.0,189,577,23.21,25.54,6.3,14.66
-sparc,9025,1203,3030,422,10228,160,166,5.28,4.0,2,26,1584,2055,459,926,4,18.16,13.0,38,128,18,91.29,75.0,170,577,15.49,20.09,4.49,9.05
-cosql,7343,1007,2159,293,8350,160,178,5.39,4.0,2,26,1558,1341,400,878,4,18.6,12.0,38,128,18,98.78,78.0,180,597,18.66,16.06,4.79,10.51

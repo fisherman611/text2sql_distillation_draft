@@ -12,6 +12,7 @@ FILTER=""
 MAX_RETRIES=0
 CONTINUE_ON_ERROR=0
 DRY_RUN=0
+SKIP_FINALIZE=0
 LOG_DIR=""
 INFER_AFTER_TRAIN=0
 INFER_SCRIPT=""
@@ -42,6 +43,7 @@ Options:
   --log-dir <path>               Directory for runner logs. Default: ./run_logs/<timestamp>
   --continue-on-error            Keep scheduling after a script exhausts retries.
   --dry-run                      Print what would run without launching jobs.
+  --skip-finalize                Skip the runner finalization hook after successful jobs.
   --infer-after-train            Run infer.py on the selected checkpoint after each successful train script.
   --infer-script <path>          Inference script. Default: ./infer.py
   --infer-benchmark <name>       Single benchmark passed to infer.py.
@@ -108,6 +110,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --skip-finalize)
+      SKIP_FINALIZE=1
       shift
       ;;
     --infer-after-train)
@@ -734,7 +740,14 @@ run_infer_after_train() {
       echo "${cmd[*]}"
       echo "checkpoint_metric=${INFER_CHECKPOINT_METRIC}"
       echo "checkpoint_selection_log=${ckpt_selection_log}"
-      CUDA_VISIBLE_DEVICES="${gpu_chunk}" PYTHONPATH="${ROOT_DIR}" "${cmd[@]}"
+      INFER_TRAIN_SCRIPT="${rel_script}" \
+        INFER_CKPT_PATH="${ckpt_path}" \
+        INFER_CKPT_STEP="${ckpt_step}" \
+        INFER_CHECKPOINT_METRIC="${INFER_CHECKPOINT_METRIC}" \
+        INFER_CHECKPOINT_SELECTION_LOG="${ckpt_selection_log}" \
+        CUDA_VISIBLE_DEVICES="${gpu_chunk}" \
+        PYTHONPATH="${ROOT_DIR}" \
+        "${cmd[@]}"
     } > "${infer_log}" 2>&1; then
       infer_status=0
     else
@@ -1048,19 +1061,32 @@ if [[ "${failures}" -gt 0 ]]; then
 fi
 
 UPLOAD_SCRIPT="${ROOT_DIR}/upload_to_hf.py"
-if [[ "${DRY_RUN}" -eq 1 ]]; then
-  echo "[dry-run] would upload results with ${UPLOAD_SCRIPT}"
-  append_log "${RUN_LOG}" "DRY_RUN_UPLOAD script=${UPLOAD_SCRIPT}"
-elif [[ -f "${UPLOAD_SCRIPT}" ]]; then
-  echo "[upload] Uploading results to Hugging Face..."
-  append_log "${RUN_LOG}" "UPLOAD_START script=${UPLOAD_SCRIPT}"
-  "${PYTHON_BIN}" "${UPLOAD_SCRIPT}"
-  append_log "${RUN_LOG}" "UPLOAD_DONE script=${UPLOAD_SCRIPT}"
-  echo "[upload-done] Results uploaded to Hugging Face."
+if [[ "${SKIP_FINALIZE}" -eq 1 ]]; then
+  echo "[finalize-skip] Runner finalization hook skipped."
+  append_log "${RUN_LOG}" "FINALIZE_SKIP"
 else
-  echo "Upload script does not exist: ${UPLOAD_SCRIPT}" >&2
-  append_log "${RUN_LOG}" "UPLOAD_FAIL missing_script=${UPLOAD_SCRIPT}"
-  exit 1
+  case "${SKIP_HF_UPLOAD:-0}" in
+    1|true|TRUE|yes|YES)
+      echo "[upload-skip] SKIP_HF_UPLOAD=${SKIP_HF_UPLOAD}; not uploading results to Hugging Face."
+      append_log "${RUN_LOG}" "UPLOAD_SKIP skip_hf_upload=${SKIP_HF_UPLOAD}"
+      ;;
+    *)
+      if [[ "${DRY_RUN}" -eq 1 ]]; then
+        echo "[dry-run] would upload results with ${UPLOAD_SCRIPT}"
+        append_log "${RUN_LOG}" "DRY_RUN_UPLOAD script=${UPLOAD_SCRIPT}"
+      elif [[ -f "${UPLOAD_SCRIPT}" ]]; then
+        echo "[upload] Uploading results to Hugging Face..."
+        append_log "${RUN_LOG}" "UPLOAD_START script=${UPLOAD_SCRIPT}"
+        "${PYTHON_BIN}" "${UPLOAD_SCRIPT}"
+        append_log "${RUN_LOG}" "UPLOAD_DONE script=${UPLOAD_SCRIPT}"
+        echo "[upload-done] Results uploaded to Hugging Face."
+      else
+        echo "Upload script does not exist: ${UPLOAD_SCRIPT}" >&2
+        append_log "${RUN_LOG}" "UPLOAD_FAIL missing_script=${UPLOAD_SCRIPT}"
+        exit 1
+      fi
+      ;;
+  esac
 fi
 
 append_log "${RUN_LOG}" "All requested scripts finished successfully."

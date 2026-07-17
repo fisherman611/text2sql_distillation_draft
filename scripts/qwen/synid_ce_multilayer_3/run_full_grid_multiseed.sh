@@ -31,6 +31,7 @@ bash running.sh \
   --mode "${RUN_MODE}" \
   --gpus "${RUNNER_GPU_LIST}" \
   --gpus-per-job "${GPUS_PER_JOB}" \
+  --skip-finalize \
   --filter scripts/qwen/synid_ce_multilayer_3/train_g \
   --infer-after-train \
   --infer-script scripts/qwen/synid_ce_multilayer_3/infer_multiseed.py \

@@ -14,6 +14,7 @@ cd "${REPO_ROOT}"
 PYTHON_BIN="${PYTHON:-python}"
 FORMAT_SCRIPT="${FORMAT_SCRIPT:-scripts/format_spider_infer_results.py}"
 EVAL_SCRIPT="${EVAL_SCRIPT:-src/evaluator/run_benchmark.py}"
+COLLECT_SCRIPT="${COLLECT_SCRIPT:-scripts/qwen/synid_ce_multilayer_3/collect_eval_results.py}"
 INFER_OUTPUT_ROOT="${INFER_OUTPUT_ROOT:-results/infer/synid_ce_multilayer_3/qwen}"
 EVAL_OUTPUT_ROOT="${EVAL_OUTPUT_ROOT:-results/eval/synid_ce_multilayer_3/qwen}"
 ETYPE="${ETYPE:-all}"
@@ -187,3 +188,8 @@ fi
 for item in "${BENCHMARKS[@]}"; do
   run_eval_for_benchmark "${item%%:*}" "${item##*:}"
 done
+
+echo "[collect] writing per-seed eval JSON summaries"
+"${PYTHON_BIN}" "${COLLECT_SCRIPT}" \
+  --infer-output-root "${INFER_OUTPUT_ROOT}" \
+  --eval-output-root "${EVAL_OUTPUT_ROOT}"

@@ -10,6 +10,7 @@ seed-specific child directory next to that output path.
 from __future__ import annotations
 
 import gc
+import json
 import os
 import random
 import subprocess
@@ -92,6 +93,34 @@ def format_after_infer(output_path: Path | None) -> None:
     print(f"[format-done] output={output_path}", flush=True)
 
 
+def value_after_flag(args: list[str], flag: str) -> str:
+    for idx, arg in enumerate(args):
+        if arg == flag and idx + 1 < len(args):
+            return args[idx + 1]
+        if arg.startswith(f"{flag}="):
+            return arg.split("=", 1)[1]
+    return ""
+
+
+def write_eval_meta(seed: int, args: list[str], output_path: Path | None) -> None:
+    if output_path is None:
+        return
+    meta_path = output_path.with_suffix(".eval_meta.json")
+    meta = {
+        "seed": seed,
+        "benchmark": value_after_flag(args, "--benchmark"),
+        "split": value_after_flag(args, "--split"),
+        "db": value_after_flag(args, "--db"),
+        "output_path": str(output_path),
+        "train_script": os.environ.get("INFER_TRAIN_SCRIPT", ""),
+        "ckpt_path": os.environ.get("INFER_CKPT_PATH", ""),
+        "ckpt_step": os.environ.get("INFER_CKPT_STEP", ""),
+        "checkpoint_metric": os.environ.get("INFER_CHECKPOINT_METRIC", ""),
+        "checkpoint_selection_log": os.environ.get("INFER_CHECKPOINT_SELECTION_LOG", ""),
+    }
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def should_skip(output_path: Path | None) -> bool:
     if output_path is None:
         return False
@@ -109,6 +138,7 @@ def main() -> None:
         set_all_seeds(seed)
         seeded_args, output_path = replace_output_path(base_args, seed)
         if should_skip(output_path):
+            write_eval_meta(seed, seeded_args, output_path)
             print(f"[infer-seed-skip] seed={seed} output={output_path}", flush=True)
             continue
         print(f"[infer-seed-start] seed={seed} output={output_path}", flush=True)
@@ -116,6 +146,7 @@ def main() -> None:
         try:
             sys.argv = ["infer.py", *seeded_args]
             infer.main()
+            write_eval_meta(seed, seeded_args, output_path)
             format_after_infer(output_path)
             print(f"[infer-seed-done] seed={seed} output={output_path}", flush=True)
         finally:
