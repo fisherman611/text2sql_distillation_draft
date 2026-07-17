@@ -13,7 +13,7 @@ Process Llama-tokenized data first:
 bash scripts/llama/sft/process_llama3_1b_data.sh
 ```
 
-This writes to `processed_data/benchmarks/spider_data/synid_privileged/llama`.
+This writes to `processed_data/spider_data/llama`.
 
 If you want to regenerate with the 8B tokenizer explicitly:
 
@@ -32,6 +32,22 @@ Run 1B full SFT:
 ```bash
 RUN_GPUS=0 bash scripts/llama/sft/sft_llama3_1b.sh
 ```
+
+Run train -> multi-seed inference -> eval:
+
+```bash
+bash scripts/llama/sft/run_train_infer_eval.sh
+```
+
+Run only one model:
+
+```bash
+TARGET=8b bash scripts/llama/sft/run_train_infer_eval.sh
+TARGET=1b bash scripts/llama/sft/run_train_infer_eval.sh
+```
+
+Inference outputs go under `results/infer/llama_sft/llama`.
+Eval logs and per-seed JSON summaries go under `results/eval/llama_sft/llama`.
 
 Useful overrides:
 

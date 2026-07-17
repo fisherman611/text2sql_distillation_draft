@@ -5,7 +5,7 @@ set -euo pipefail
 BASE_PATH="${BASE_PATH:-.}"
 MODEL_PATH="${MODEL_PATH:-meta-llama/Llama-3.2-1B-Instruct}"
 RAW_DATA_DIR="${RAW_DATA_DIR:-benchmarks_2/spider_data/format_data}"
-PROCESSED_DATA_ROOT="${PROCESSED_DATA_ROOT:-processed_data/benchmarks/spider_data/synid_privileged}"
+PROCESSED_DATA_ROOT="${PROCESSED_DATA_ROOT:-processed_data/spider_data}"
 DATA_PROCESS_WORKERS="${DATA_PROCESS_WORKERS:-8}"
 
 # Llama 1B tokenizer stats on benchmarks_2/spider_data/format_data/train.jsonl:
@@ -17,7 +17,7 @@ T_MAX_PROMPT_LENGTH="${T_MAX_PROMPT_LENGTH:-1800}"
 
 export PYTHONPATH="${BASE_PATH}"
 
-for SPLIT in train valid; do
+for SPLIT in train valid test; do
   python "${BASE_PATH}/process_data.py" \
     --model-path "${MODEL_PATH}" \
     --model-type llama \

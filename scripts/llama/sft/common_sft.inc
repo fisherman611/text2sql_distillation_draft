@@ -27,7 +27,7 @@ ENTRY_SCRIPT="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
 SCRIPT_NAME="$(basename "${ENTRY_SCRIPT}" .sh)"
 SCRIPT_GROUP="$(basename "$(dirname "${ENTRY_SCRIPT}")")"
 
-DATA_DIR="${DATA_DIR:-processed_data/benchmarks/spider_data/synid_privileged/llama}"
+DATA_DIR="${DATA_DIR:-processed_data/spider_data/llama}"
 
 CKPT="${CKPT:?CKPT must be set by the entry script}"
 CKPT_NAME="${CKPT_NAME:?CKPT_NAME must be set by the entry script}"
