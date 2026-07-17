@@ -32,10 +32,21 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def response_sql(row: dict[str, Any]) -> str:
-    sql = row.get("aug_sql") or row.get("candidate_sql")
+def response_sql(row: dict[str, Any], source: str) -> str:
+    if source == "aug":
+        sql = row.get("aug_sql") or row.get("candidate_sql")
+        missing = "aug_sql/candidate_sql"
+    elif source == "candidate":
+        sql = row.get("candidate_sql")
+        missing = "candidate_sql"
+    elif source == "gold":
+        sql = row.get("gold_sql")
+        missing = "gold_sql"
+    else:
+        raise ValueError(f"Unsupported response source: {source}")
+
     if not sql:
-        raise ValueError(f"Missing aug_sql/candidate_sql for row id={row.get('id')}")
+        raise ValueError(f"Missing {missing} for row id={row.get('id')}")
     return str(sql).strip()
 
 
@@ -44,6 +55,7 @@ def build_row(
     *,
     system_prompt: str,
     user_prompt_template: str,
+    response_source: str,
 ) -> dict[str, str]:
     for key in ("question", "schema", "gold_sql"):
         if not row.get(key):
@@ -56,7 +68,7 @@ def build_row(
             question=str(row["question"]).strip(),
             gold_sql=str(row["gold_sql"]).strip(),
         ),
-        "response": json.dumps({"sql": response_sql(row)}, ensure_ascii=False),
+        "response": json.dumps({"sql": response_sql(row, response_source)}, ensure_ascii=False),
     }
 
 
@@ -67,22 +79,30 @@ def write_jsonl(path: Path, rows: list[dict[str, str]]) -> None:
             file.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def update_student_train_responses(train_path: Path, teacher_rows: list[dict[str, str]]) -> None:
+def update_student_train_responses(
+    train_path: Path,
+    source_rows: list[dict[str, Any]],
+    *,
+    response_source: str,
+) -> None:
     if not train_path.exists():
         raise FileNotFoundError(f"Student train file does not exist: {train_path}")
 
     student_rows = read_jsonl(train_path)
-    if len(student_rows) != len(teacher_rows):
+    if len(student_rows) != len(source_rows):
         raise ValueError(
             "Student train and teacher train row counts differ: "
-            f"{len(student_rows)} != {len(teacher_rows)}. "
+            f"{len(student_rows)} != {len(source_rows)}. "
             f"Student file: {train_path}"
         )
 
     updated_rows = []
-    for student, teacher in zip(student_rows, teacher_rows):
+    for student, source_row in zip(student_rows, source_rows):
         next_student = dict(student)
-        next_student["response"] = teacher["response"]
+        next_student["response"] = json.dumps(
+            {"sql": response_sql(source_row, response_source)},
+            ensure_ascii=False,
+        )
         updated_rows.append(next_student)
 
     train_path.parent.mkdir(parents=True, exist_ok=True)
@@ -97,6 +117,18 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--train-output", type=Path, default=DEFAULT_TRAIN_OUTPUT)
     parser.add_argument("--prompt-dir", type=Path, default=DEFAULT_PROMPT_DIR)
+    parser.add_argument(
+        "--teacher-response-source",
+        choices=["aug", "candidate", "gold"],
+        default="aug",
+        help="SQL source used for teacher_train.jsonl response.",
+    )
+    parser.add_argument(
+        "--train-response-source",
+        choices=["aug", "candidate", "gold"],
+        default="aug",
+        help="SQL source used for train.jsonl response.",
+    )
     args = parser.parse_args()
 
     rows = read_jsonl(args.input)
@@ -107,12 +139,17 @@ def main() -> int:
             row,
             system_prompt=system_prompt,
             user_prompt_template=user_prompt_template,
+            response_source=args.teacher_response_source,
         )
         for row in rows
     ]
     write_jsonl(args.output, teacher_rows)
     print(f"Wrote {len(teacher_rows)} rows to {args.output}")
-    update_student_train_responses(args.train_output, teacher_rows)
+    update_student_train_responses(
+        args.train_output,
+        rows,
+        response_source=args.train_response_source,
+    )
     print(f"Updated {len(teacher_rows)} student train responses in {args.train_output}")
     return 0
 
