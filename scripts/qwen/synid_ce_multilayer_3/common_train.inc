@@ -6,7 +6,7 @@ ENTRY_SCRIPT="${BASH_SOURCE[1]}"
 SCRIPT_DIR="$(cd "$(dirname "${ENTRY_SCRIPT}")" && pwd)"
 SCRIPT_GROUP="$(basename "${SCRIPT_DIR}")"
 SCRIPT_NAME="$(basename "${ENTRY_SCRIPT}" .sh)"
-BASE_TRAIN_SCRIPT="${SCRIPT_DIR}/../synid_ce_multilayer/train_0.6b_4b_csd_kd0.7_tau0.05_a0.3_b0.1_s11_16_22_t14_21_28.sh"
+BASE_TRAIN_SCRIPT="${SCRIPT_DIR}/train_0.6b_4b_csd_multilayer.sh"
 
 GRID_ID="${GRID_ID:-${SCRIPT_NAME#train_}}"
 GRID_ID="${GRID_ID^^}"
