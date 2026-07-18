@@ -7,6 +7,7 @@ import re
 from weakref import WeakKeyDictionary
 
 import torch
+import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -399,6 +400,40 @@ def _response_hidden_mask(labels: torch.Tensor, attention_mask: torch.Tensor) ->
     return hidden_mask & attention_mask.bool()
 
 
+def _all_gather_variable_batch_no_grad(values: torch.Tensor) -> tuple[torch.Tensor, int]:
+    if not dist.is_available() or not dist.is_initialized():
+        return values, 0
+
+    world_size = dist.get_world_size()
+    if world_size <= 1:
+        return values, 0
+
+    rank = dist.get_rank()
+    local_size = torch.tensor([values.size(0)], device=values.device, dtype=torch.long)
+    gathered_sizes = [torch.zeros_like(local_size) for _ in range(world_size)]
+    dist.all_gather(gathered_sizes, local_size)
+    sizes = [int(size.item()) for size in gathered_sizes]
+    max_size = max(sizes)
+    if max_size == 0:
+        return values[:0], 0
+
+    if values.size(0) < max_size:
+        pad_shape = (max_size - values.size(0), *values.shape[1:])
+        padding = values.new_zeros(pad_shape)
+        padded = torch.cat([values, padding], dim=0)
+    else:
+        padded = values
+
+    gathered = [torch.zeros_like(padded) for _ in range(world_size)]
+    dist.all_gather(gathered, padded.contiguous())
+    global_values = torch.cat(
+        [rank_values[:size] for rank_values, size in zip(gathered, sizes)],
+        dim=0,
+    )
+    label_offset = sum(sizes[:rank])
+    return global_values, label_offset
+
+
 def _info_nce(anchor: torch.Tensor, positive: torch.Tensor, temperature: float) -> torch.Tensor:
     if temperature <= 0:
         raise ValueError(f"SynID contrastive temperature must be positive, got {temperature}.")
@@ -406,13 +441,15 @@ def _info_nce(anchor: torch.Tensor, positive: torch.Tensor, temperature: float) 
         raise ValueError(
             f"SynID contrastive embeddings must have equal shapes, got {anchor.shape} and {positive.shape}."
         )
-    if anchor.size(0) <= 1:
-        return _zero_like(anchor)
     anchor = F.normalize(anchor.float(), dim=-1)
     positive = F.normalize(positive.float(), dim=-1)
-    logits = anchor @ positive.t()
+    with torch.no_grad():
+        global_positive, label_offset = _all_gather_variable_batch_no_grad(positive.detach())
+    if global_positive.size(0) <= 1:
+        return _zero_like(anchor)
+    logits = anchor @ global_positive.t()
     logits = logits / temperature
-    labels = torch.arange(anchor.size(0), device=anchor.device)
+    labels = torch.arange(anchor.size(0), device=anchor.device) + label_offset
     return F.cross_entropy(logits, labels)
 
 
