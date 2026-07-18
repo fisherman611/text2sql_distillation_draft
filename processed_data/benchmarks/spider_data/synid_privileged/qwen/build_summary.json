@@ -1,0 +1,9 @@
+{
+  "accepted": 7000,
+  "student_output": "processed_data/benchmarks/spider_data/synid_privileged/qwen/train.jsonl",
+  "teacher_output": "processed_data/benchmarks/spider_data/synid_privileged/qwen/teacher_train.jsonl",
+  "copied": {
+    "dev.jsonl": true,
+    "test.jsonl": true
+  }
+}
