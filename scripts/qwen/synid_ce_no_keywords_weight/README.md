@@ -45,8 +45,8 @@ Memory-light version:
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 RUNNER_GPU_LIST=0,1 \
 GPUS_PER_JOB=2 \
-BATCH_SIZE=1 \
-GRAD_ACC=16 \
+BATCH_SIZE=8 \
+GRAD_ACC=1 \
 EVAL_BATCH_SIZE=1 \
 INFER_BATCH_SIZE=16 \
 bash scripts/qwen/synid_ce_no_keywords_weight/run_full_pipeline.sh
