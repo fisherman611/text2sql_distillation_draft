@@ -68,6 +68,10 @@ case "${TARGET}" in
 esac
 
 echo "[pipeline] format + eval"
+IFS=',' read -r -a EVAL_BENCHMARK_ARGS <<< "${INFER_BENCHMARKS}"
+for i in "${!EVAL_BENCHMARK_ARGS[@]}"; do
+  EVAL_BENCHMARK_ARGS[$i]="${EVAL_BENCHMARK_ARGS[$i]//[[:space:]]/}"
+done
 INFER_OUTPUT_ROOT="${INFER_OUTPUT_ROOT_BASE}/llama" \
 EVAL_OUTPUT_ROOT="${EVAL_OUTPUT_ROOT}" \
-  bash scripts/llama/sft/format_eval_multiseed.sh
+  bash scripts/llama/sft/format_eval_multiseed.sh "${EVAL_BENCHMARK_ARGS[@]}"
