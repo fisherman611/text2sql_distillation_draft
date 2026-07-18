@@ -716,6 +716,10 @@ def evaluate(args, tokenizer, model, dataset: LMTrainDataset, split, epoch, devi
 
     print_rank("dp size", dp_world_size)
 
+    eos_token_id = tokenizer.eos_token_id
+    if args.model_type == "qwen":
+        eos_token_id = [tokenizer.eos_token_id, 151643]
+
     generation_config = GenerationConfig(
         do_sample=args.do_sample,
         top_p=args.top_p,
@@ -724,7 +728,7 @@ def evaluate(args, tokenizer, model, dataset: LMTrainDataset, split, epoch, devi
         repetition_penalty=args.repetition_penalty,
         max_length=args.max_length,
         min_length=None,
-        eos_token_id=[tokenizer.eos_token_id, 151643],
+        eos_token_id=eos_token_id,
         pad_token_id=tokenizer.eos_token_id,
         return_dict_in_generate=True,
         output_scores=False

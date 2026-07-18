@@ -19,6 +19,22 @@ class Encoder(object):
             padding_side="right"
         )
 
+    @staticmethod
+    def _apply_chat_template(messages, add_generation_prompt):
+        try:
+            return Encoder.tokenizer.apply_chat_template(
+                messages,
+                add_generation_prompt=add_generation_prompt,
+                tokenize=False,
+                enable_thinking=False,
+            )
+        except TypeError:
+            return Encoder.tokenizer.apply_chat_template(
+                messages,
+                add_generation_prompt=add_generation_prompt,
+                tokenize=False,
+            )
+
     def encode(self, line):
         line = json.loads(line)
 
@@ -29,18 +45,17 @@ class Encoder(object):
         t_system_prompt = line.get("t_system_prompt")
         t_user_prompt = line.get("t_user_prompt")
 
-        prompt = Encoder.tokenizer.apply_chat_template(
+        prompt = self._apply_chat_template(
             [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
             add_generation_prompt=True,
-            tokenize=False,
-            enable_thinking=False,
         )
 
-        prompt_tokens = Encoder.tokenizer.encode(prompt, add_special_tokens=False)
-        prompt_token_count = len(prompt_tokens)
+        full_prompt_tokens = Encoder.tokenizer.encode(prompt, add_special_tokens=False)
+        prompt_tokens = full_prompt_tokens
+        prompt_token_count = len(full_prompt_tokens)
 
         if prompt_token_count > self.args.max_prompt_length:
             prompt_tokens = prompt_tokens[:self.args.max_prompt_length]
@@ -51,19 +66,19 @@ class Encoder(object):
                 prompt + response,
                 add_special_tokens=False,
             ) + [Encoder.tokenizer.eos_token_id]
-            response_tokens = full_tokens[prompt_token_count:]
+            response_tokens = full_tokens[len(full_prompt_tokens):]
+            if not response_tokens or response_tokens[-1] != Encoder.tokenizer.eos_token_id:
+                response_tokens = (response_tokens or []) + [Encoder.tokenizer.eos_token_id]
 
         t_prompt_tokens = None
         t_prompt_token_count = None
         if self.args.split == "train" and t_system_prompt is not None and t_user_prompt is not None:
-            t_prompt = Encoder.tokenizer.apply_chat_template(
+            t_prompt = self._apply_chat_template(
                 [
                     {"role": "system", "content": t_system_prompt},
                     {"role": "user", "content": t_user_prompt},
                 ],
                 add_generation_prompt=True,
-                tokenize=False,
-                enable_thinking=False,
             )
 
             t_prompt_tokens = Encoder.tokenizer.encode(t_prompt, add_special_tokens=False)
@@ -152,8 +167,11 @@ def merge_teacher_train_data(student_lines, teacher_file_path):
     return merged_lines
 
 
-def get_builder_dtype(args):
-    return np.uint32 if args.model_type == "qwen" else np.uint16
+def get_builder_dtype(tokenizer):
+    vocab_size = getattr(tokenizer, "vocab_size", None)
+    if vocab_size is not None and vocab_size < 65500:
+        return np.uint16
+    return np.int32
 
 
 def main():
@@ -186,7 +204,11 @@ def main():
     bin_file = os.path.join(args.processed_data_dir, f"{args.split}_0.bin")
     idx_file = os.path.join(args.processed_data_dir, f"{args.split}_0.idx")
 
-    dtype = get_builder_dtype(args)
+    tokenizer_for_dtype = AutoTokenizer.from_pretrained(
+        args.model_path,
+        padding_side="right",
+    )
+    dtype = get_builder_dtype(tokenizer_for_dtype)
     binary_builder = make_builder(bin_file, impl="mmap", dtype=dtype)
 
     t_binary_builder = None

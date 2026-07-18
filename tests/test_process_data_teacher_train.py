@@ -3,8 +3,9 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import numpy as np
 
-from process_data import Encoder, merge_teacher_train_data
+from process_data import Encoder, get_builder_dtype, merge_teacher_train_data
 
 
 def _json_line(record):
@@ -132,3 +133,45 @@ def test_encoder_keeps_only_response_tokens_after_prompt_truncation():
 
     assert len(prompt_tokens) == args.max_prompt_length
     assert response_tokens == FakeTokenizer.encode(response) + [FakeTokenizer.eos_token_id]
+
+
+def test_encoder_falls_back_when_tokenizer_rejects_enable_thinking():
+    class LlamaLikeTokenizer:
+        eos_token_id = 2
+
+        @staticmethod
+        def apply_chat_template(messages, **kwargs):
+            if "enable_thinking" in kwargs:
+                raise TypeError("unexpected keyword argument 'enable_thinking'")
+            return "|".join(message["content"] for message in messages)
+
+        @staticmethod
+        def encode(text, add_special_tokens=False):
+            assert not add_special_tokens
+            return [ord(character) for character in text]
+
+    args = SimpleNamespace(
+        split="train",
+        max_prompt_length=100,
+        t_max_prompt_length=100,
+    )
+    encoder = Encoder(args)
+    Encoder.tokenizer = LlamaLikeTokenizer()
+
+    _, prompt, _, response_tokens, _, _, _ = encoder.encode(
+        json.dumps(
+            {
+                "system_prompt": "system",
+                "user_prompt": "user",
+                "response": "SQL",
+            }
+        )
+    )
+
+    assert prompt == "system|user"
+    assert response_tokens == LlamaLikeTokenizer.encode("SQL") + [LlamaLikeTokenizer.eos_token_id]
+
+
+def test_builder_dtype_uses_int32_for_large_vocab_tokenizers():
+    assert get_builder_dtype(SimpleNamespace(vocab_size=64000)) == np.uint16
+    assert get_builder_dtype(SimpleNamespace(vocab_size=128000)) == np.int32
