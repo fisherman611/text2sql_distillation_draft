@@ -7,7 +7,7 @@ cd "${REPO_ROOT}"
 
 PYTHON_BIN="${PYTHON:-python}"
 RUN_ID="${RUN_ID:-distillm2_ref_llama}"
-BASE_MODEL="${BASE_MODEL:-meta-llama/Llama-3.2-1B-Instruct}"
+BASE_MODEL="${LLAMA_BASE_MODEL:-meta-llama/Llama-3.2-1B-Instruct}"
 CKPT_PATH="${CKPT_PATH:-distillm2/outputs/llama3.2-1b-8b-spider-distillm2}"
 CKPT_TAG="${CKPT_TAG:-distillm2ref}"
 INFER_SCRIPT="${INFER_SCRIPT:-scripts/llama/baselines/infer_multiseed.py}"
