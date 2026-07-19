@@ -8,7 +8,11 @@ from typing import Dict, Iterable, List, Optional
 from datasets import Dataset, DatasetDict
 
 
-ROLE_RE = re.compile(r"<\|im_start\|>(system|user)\n(.*?)<\|im_end\|>", re.DOTALL)
+CHATML_ROLE_RE = re.compile(r"<\|im_start\|>(system|user)\n(.*?)<\|im_end\|>", re.DOTALL)
+LLAMA_ROLE_RE = re.compile(
+    r"<\|start_header_id\|>(system|user)<\|end_header_id\|>\n\n(.*?)<\|eot_id\|>",
+    re.DOTALL,
+)
 
 
 def read_jsonl(path: Path) -> List[Dict]:
@@ -36,7 +40,10 @@ def read_json_or_jsonl(path: Optional[Path]) -> List[Dict]:
 
 
 def messages_from_prompt(prompt: str) -> List[Dict[str, str]]:
-    messages = [{"role": role, "content": content.strip()} for role, content in ROLE_RE.findall(prompt)]
+    matches = CHATML_ROLE_RE.findall(prompt)
+    if not matches:
+        matches = LLAMA_ROLE_RE.findall(prompt)
+    messages = [{"role": role, "content": content.strip()} for role, content in matches]
     if len(messages) < 2:
         raise ValueError("Could not recover system/user messages from processed Spider prompt.")
     return messages

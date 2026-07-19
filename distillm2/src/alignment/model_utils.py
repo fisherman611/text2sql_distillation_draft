@@ -68,7 +68,18 @@ def get_tokenizer(
 ) -> PreTrainedTokenizer:
     """Get the tokenizer for the model."""
     token = get_hf_token()
-    if model_args.ref_model_name_or_path is not None:
+    if model_args.tokenizer_name_or_path is not None:
+        tokenizer_name_or_path, tokenizer_revision = resolve_hf_source(
+            model_args.tokenizer_name_or_path,
+            model_args.model_revision,
+        )
+        tokenizer = AutoTokenizer.from_pretrained(
+            tokenizer_name_or_path,
+            revision=tokenizer_revision,
+            trust_remote_code=model_args.trust_remote_code,
+            token=token,
+        )
+    elif model_args.ref_model_name_or_path is not None:
         tokenizer = AutoTokenizer.from_pretrained(
             model_args.ref_model_name_or_path,
             revision=model_args.model_revision,
