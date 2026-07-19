@@ -1,0 +1,6 @@
+{
+  "accepted": 7000,
+  "student_output": "benchmarks_2/spider_data/format_data/synid_aug_v2_lora/train.jsonl",
+  "teacher_output": "benchmarks_2/spider_data/format_data/synid_aug_v2_lora/teacher_train.jsonl",
+  "copied": {}
+}
