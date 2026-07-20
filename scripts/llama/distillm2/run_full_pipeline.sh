@@ -12,7 +12,7 @@ EVAL_OUTPUT_ROOT="${EVAL_OUTPUT_ROOT:-results/eval/llama_distillm2_ref/llama}"
 SKIP_HF_UPLOAD="${SKIP_HF_UPLOAD:-0}"
 
 echo "[pipeline] train DistiLLM-2 reference Llama"
-OUTPUT_DIR="${DISTILLM2_OUTPUT_DIR}" \
+LLAMA_OUTPUT_DIR="${DISTILLM2_OUTPUT_DIR}" \
   bash distillm2/scripts/run_spider_distillm2_llama.sh
 
 echo "[pipeline] multi-seed infer + eval"

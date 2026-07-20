@@ -1,0 +1,4 @@
+benchmark,split,raw_rows,format_rows,row_count_ok,format_regen_mismatch_count,prompt_max,prompt_p95,prompt_p99,response_max_with_eos,response_p95_with_eos,response_p99_with_eos,full_max,full_p95,full_p99,infer_max_new_tokens,response_over_infer_limit_count
+spider_syn,test,1034,1034,True,0,669,647.0,656.0,136,81.0,104.0,757,667.7,734.35,756,0
+spider_realistic,test,508,508,True,0,667,517.0,654.86,136,92.65,117.0,756,572.65,733.81,755,0
+spider_dk,test,535,535,True,0,643,515.3,522.98,130,83.0,120.66,664,563.3,597.96,663,0

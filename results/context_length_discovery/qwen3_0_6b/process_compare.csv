@@ -1,0 +1,13 @@
+run,process_split,input_file,input_exists,input_rows_after_teacher_merge,expected_processed_rows,actual_processed_rows,row_count_ok,student_prompt_truncated,teacher_prompt_truncated,response_truncated,dropped,max_prompt_raw_len,max_prompt_written_len,max_sequence_written_len,max_teacher_prompt_raw_len,merge_issues
+qwen_base,train,benchmarks_2\spider_data\format_data\train.jsonl,True,7000,7000,7000,True,0.0,0.0,0.0,0.0,1479.0,1479.0,1614.0,,
+qwen_base,valid,benchmarks_2\spider_data\format_data\dev.jsonl,True,1034,1034,1034,True,0.0,0.0,0.0,0.0,669.0,669.0,757.0,,
+qwen_base,test,benchmarks_2\spider_data\format_data\test.jsonl,True,2147,2147,2147,True,0.0,0.0,0.0,0.0,709.0,709.0,709.0,,
+qwen_synid_privileged,train,benchmarks_2\spider_data\format_data\synid_aug_v2\train.jsonl,True,7000,7000,7000,True,0.0,0.0,0.0,0.0,1479.0,1479.0,1649.0,1795.0,
+qwen_synid_privileged,valid,benchmarks_2\spider_data\format_data\synid_aug_v2\dev.jsonl,False,0,0,1034,False,0.0,0.0,0.0,0.0,,,,,
+qwen_synid_privileged,test,benchmarks_2\spider_data\format_data\synid_aug_v2\test.jsonl,False,0,0,2147,False,0.0,0.0,0.0,0.0,,,,,
+qwen_synid_privileged_lora,train,benchmarks_2\spider_data\format_data\synid_aug_v2_lora\train.jsonl,True,7000,7000,7000,True,0.0,0.0,0.0,0.0,1479.0,1479.0,1613.0,1795.0,
+qwen_synid_privileged_lora,valid,benchmarks_2\spider_data\format_data\synid_aug_v2_lora\dev.jsonl,False,0,0,1034,False,0.0,0.0,0.0,0.0,,,,,
+qwen_synid_privileged_lora,test,benchmarks_2\spider_data\format_data\synid_aug_v2_lora\test.jsonl,False,0,0,2147,False,0.0,0.0,0.0,0.0,,,,,
+llama_base_existing_rows_only,train,benchmarks_2\spider_data\format_data\train.jsonl,True,7000,7000,7000,True,,,,,,,,,
+llama_base_existing_rows_only,valid,benchmarks_2\spider_data\format_data\dev.jsonl,True,1034,1034,1034,True,,,,,,,,,
+llama_base_existing_rows_only,test,benchmarks_2\spider_data\format_data\test.jsonl,True,2147,2147,2147,True,,,,,,,,,

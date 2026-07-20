@@ -19,7 +19,9 @@ by [Jongwoo Ko](https://sites.google.com/view/jongwooko)<sup>1,2</sup>, Tianyi C
 ## 🔧 Environment Setup
 
 Our codebase builds upon the [alignment-handbook repository](https://github.com/huggingface/alignment-handbook).
-This copy keeps the upstream DistiLLM-2 code layout and adds a small Spider/Qwen3 adapter layer.
+This copy keeps the upstream DistiLLM-2 code layout and adds a Spider SQL adapter layer.
+`../distillm-2-ref` is the clean upstream/reference checkout; this `distillm2` directory is the working adapted
+copy used for Spider, Qwen3, and Llama experiments.
 
 Use a dedicated Linux or WSL2 environment for this directory. The Qwen3 stack is pinned in `setup.py` to
 `torch==2.9.1`, `transformers==4.57.3`, `trl==0.21.0`, `peft==0.18.1`, `accelerate==1.13.0`, and
@@ -44,6 +46,12 @@ The Spider SQL workflow is documented in [`SQL_SPIDER.md`](SQL_SPIDER.md). The d
 
 ```bash
 RUN_GPUS=0,1 bash scripts/run_spider_distillm2.sh
+```
+
+The Llama 8B teacher to Llama 1B student runner is:
+
+```bash
+RUN_GPUS=0,1 bash scripts/run_spider_distillm2_llama.sh
 ```
 
 ## 🚀 Generation

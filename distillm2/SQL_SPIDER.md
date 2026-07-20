@@ -1,6 +1,11 @@
 # Spider SQL workflow
 
-This folder is adapted from `distillm-2-ref` for Qwen3 and the processed Spider SQL data in:
+This folder is adapted from `distillm-2-ref` for Spider SQL. Treat:
+
+- `../distillm-2-ref` as the clean upstream/reference DistiLLM-2 code.
+- `../distillm2` as the working adapted copy for Qwen3 and Llama Spider runs.
+
+The Qwen3 processed data lives in:
 
 `../processed_data/benchmarks/spider_data/qwen`
 
@@ -176,6 +181,47 @@ Reuse existing inference results and pair data by default. Force regeneration wi
 REBUILD_INFERENCE=1 REBUILD_PAIRS=1 bash scripts/run_spider_distillm2.sh
 ```
 
+## Llama 8B -> 1B
+
+The Llama adapter uses the same DistiLLM-2 objective and Spider pair-building
+flow as Qwen, but reads Llama-tokenized processed data from:
+
+```text
+../processed_data/spider_data/llama
+```
+
+If the Llama JSONL files do not exist yet, build them from the repo root:
+
+```bash
+bash scripts/llama/sft/process_llama3_1b_data.sh
+```
+
+Run the Llama DistiLLM-2 workflow from inside `distillm2`:
+
+```bash
+RUN_GPUS=0,1 bash scripts/run_spider_distillm2_llama.sh
+```
+
+Useful overrides:
+
+```bash
+LLAMA_STUDENT_CKPT_PATH=../results/llama/<llama-1b-sft-run>/1090 \
+REBUILD_INFERENCE=1 \
+REBUILD_PAIRS=1 \
+RUN_GPUS=0,1 \
+bash scripts/run_spider_distillm2_llama.sh
+```
+
+Defaults:
+
+- student base: `meta-llama/Llama-3.2-1B-Instruct`
+- teacher base: `meta-llama/Llama-3.1-8B-Instruct`
+- teacher LoRA: `hf://distillation-sql/llama_spider/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/1090`
+- output: `outputs/llama3.2-1b-8b-spider-distillm2`
+
+The Llama runner uses `LLAMA_*` variables for Llama-specific settings so a
+Qwen `.env.hf` does not accidentally redirect the output or checkpoints.
+
 To push the trained adapter/model to Hugging Face:
 
 ```bash
@@ -209,5 +255,6 @@ bash scripts/run_spider_infer.sh
 ## Notes
 
 - `setup.py` now requires `transformers>=4.51.0` for Qwen3 model support.
-- Qwen3 thinking is disabled in config via `enable_thinking: false`; the processed data already contains an empty thinking stub before the JSON SQL answer.
-- Student and teacher should use compatible tokenizers/vocabularies for token-level KL distillation. The default 0.6B student and 4B teacher are both Qwen3.
+- Qwen3 thinking is disabled in config via `enable_thinking: false`; the processed Qwen data already contains an empty thinking stub before the JSON SQL answer.
+- Llama pair preparation uses `--no-thinking-stub`, because Llama chat data should not receive the Qwen-style `<think>` stub.
+- Student and teacher should use compatible tokenizers/vocabularies for token-level KL distillation. The default Qwen pair is Qwen3 0.6B/4B; the default Llama pair is Llama 3.2 1B / Llama 3.1 8B.
