@@ -1,0 +1,12 @@
+{
+  "seed": 10,
+  "benchmark": "spider_data",
+  "split": "test",
+  "db": "full",
+  "output_path": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/llama_baselines/llama/spider_data/seed10/baselines__train_amid__ckpt872__test__full_sql_result.json",
+  "train_script": "scripts/llama/baselines/train_amid.sh",
+  "ckpt_path": "/mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_amid_spider_amid_adaptive-amid_ab_pr_0.5_0.5_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/872",
+  "ckpt_step": "872",
+  "checkpoint_metric": "exact_match",
+  "checkpoint_selection_log": "/mnt/hungpv/projects/text2sql_distillation_draft/run_logs/20260719_024951/checkpoint_selection.jsonl"
+}

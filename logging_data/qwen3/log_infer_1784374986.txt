@@ -1,0 +1,15 @@
+2026-07-18 11:43:06 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-18 11:43:07 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-18 11:43:09 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g02_spider_synid_e5-bs4-lr0.0001-G1-gridG02-k3-kd0.6-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/3500
+2026-07-18 11:44:44 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-18 11:44:46 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-18 11:44:47 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g02_spider_synid_e5-bs4-lr0.0001-G1-gridG02-k3-kd0.6-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/3500
+2026-07-18 11:46:25 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-18 11:46:27 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-18 11:46:28 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g02_spider_synid_e5-bs4-lr0.0001-G1-gridG02-k3-kd0.6-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/3500
+2026-07-18 11:49:06 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-18 11:49:07 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-18 11:49:09 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g02_spider_synid_e5-bs4-lr0.0001-G1-gridG02-k3-kd0.6-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/3500
+2026-07-18 11:50:46 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-18 11:50:47 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-18 11:50:49 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g02_spider_synid_e5-bs4-lr0.0001-G1-gridG02-k3-kd0.6-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/3500

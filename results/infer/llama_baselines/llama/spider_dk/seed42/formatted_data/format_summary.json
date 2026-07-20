@@ -1,0 +1,10 @@
+[
+  {
+    "input": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/llama_baselines/llama/spider_dk/seed42/baselines__train_distillm__ckpt654__test__full_sql_result.json",
+    "rows": 535,
+    "empty_pred": 0,
+    "pred": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/llama_baselines/llama/spider_dk/seed42/formatted_data/baselines__train_distillm__ckpt654__test.pred.sql",
+    "gold": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/llama_baselines/llama/spider_dk/seed42/formatted_data/baselines__train_distillm__ckpt654__test.gold.sql",
+    "meta": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/llama_baselines/llama/spider_dk/seed42/formatted_data/baselines__train_distillm__ckpt654__test.meta.jsonl"
+  }
+]

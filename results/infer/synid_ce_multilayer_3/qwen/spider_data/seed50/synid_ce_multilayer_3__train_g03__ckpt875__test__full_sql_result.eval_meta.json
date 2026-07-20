@@ -1,0 +1,12 @@
+{
+  "seed": 50,
+  "benchmark": "spider_data",
+  "split": "test",
+  "db": "full",
+  "output_path": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/synid_ce_multilayer_3/qwen/spider_data/seed50/synid_ce_multilayer_3__train_g03__ckpt875__test__full_sql_result.json",
+  "train_script": "scripts/qwen/synid_ce_multilayer_3/train_g03.sh",
+  "ckpt_path": "/mnt/hungpv/projects/text2sql_distillation_draft/results/qwen3/synid_ce_multilayer_3_train_g03_spider_synid_e5-bs4-lr0.0001-G1-gridG03-k3-kd0.5-csd-tau0.05-a0.3-b0.1-k3_last_s25_26_27_t33_34_35-poolsc-lora-16-64-0.1/875",
+  "ckpt_step": "875",
+  "checkpoint_metric": "exact_match",
+  "checkpoint_selection_log": "/mnt/hungpv/projects/text2sql_distillation_draft/run_logs/20260718_034846/checkpoint_selection.jsonl"
+}

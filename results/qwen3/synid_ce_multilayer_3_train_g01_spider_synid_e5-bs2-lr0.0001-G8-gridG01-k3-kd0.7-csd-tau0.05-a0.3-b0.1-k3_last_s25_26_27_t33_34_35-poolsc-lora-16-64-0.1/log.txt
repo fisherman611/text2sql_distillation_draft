@@ -1,0 +1,19 @@
+
+
+============================== EXP at 2026-07-18 02:40:57 ==============================
+
+
+============================== EXP at 2026-07-18 02:49:22 ==============================
+
+
+============================== EXP at 2026-07-18 02:53:05 ==============================
+dev | avg_loss: 1.8639423076923076 | {'exact_match': 9.5745, 'rougeL': 57.2555}
+train | epoch   0 | Iter:    304/ 17440 | global iter:     20/  1090 | loss: 0.1694 | ce_loss: 1.3978 | kd_loss: -0.3570 | con1_loss: 0.0000 | con2_loss: 0.0000 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.518 | step time: 7.654
+train | epoch   0 | Iter:    624/ 17440 | global iter:     40/  1090 | loss: 0.0332 | ce_loss: 0.9183 | kd_loss: -0.3461 | con1_loss: 0.0000 | con2_loss: 0.0000 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.523 | step time: 8.000
+
+
+============================== EXP at 2026-07-18 03:16:04 ==============================
+dev | avg_loss: 1.8639423076923076 | {'exact_match': 9.5745, 'rougeL': 57.2555}
+train | epoch   0 | Iter:    152/  8720 | global iter:     20/  1090 | loss: 0.3273 | ce_loss: 1.3551 | kd_loss: -0.3718 | con1_loss: 0.6504 | con2_loss: 0.6353 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.937 | step time: 7.168
+train | epoch   0 | Iter:    312/  8720 | global iter:     40/  1090 | loss: 0.1727 | ce_loss: 0.9093 | kd_loss: -0.3543 | con1_loss: 0.5485 | con2_loss: 0.4676 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.962 | step time: 7.540
+train | epoch   0 | Iter:    472/  8720 | global iter:     60/  1090 | loss: 0.1324 | ce_loss: 0.7095 | kd_loss: -0.2572 | con1_loss: 0.3754 | con2_loss: 0.2963 | lr: 5.4128e-05 | scale:     1.0000 | micro time: 0.943 | step time: 7.486

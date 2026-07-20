@@ -1,0 +1,63 @@
+
+
+============================== EXP at 2026-07-19 11:39:56 ==============================
+dev | avg_loss: 1.0466382575757576 | {'exact_match': 0.0, 'rougeL': 38.7671}
+train | epoch   0 | Iter:    152/  8720 | global iter:     20/  1090 | loss: 2.6847 | ds_loss: 3.4634 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.763 | step time: 5.758
+train | epoch   0 | Iter:    312/  8720 | global iter:     40/  1090 | loss: 1.0818 | ds_loss: 1.3700 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.758 | step time: 6.036
+train | epoch   0 | Iter:    472/  8720 | global iter:     60/  1090 | loss: 0.7057 | ds_loss: 0.8751 | lr: 5.4128e-05 | scale:     1.0000 | micro time: 0.756 | step time: 6.024
+train | epoch   0 | Iter:    632/  8720 | global iter:     80/  1090 | loss: 0.6005 | ds_loss: 0.7378 | lr: 7.2477e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.022
+train | epoch   0 | Iter:    792/  8720 | global iter:    100/  1090 | loss: 0.5783 | ds_loss: 0.7122 | lr: 9.0826e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.026
+train | epoch   0 | Iter:    952/  8720 | global iter:    120/  1090 | loss: 0.5326 | ds_loss: 0.6495 | lr: 9.9974e-05 | scale:     1.0000 | micro time: 0.754 | step time: 6.038
+train | epoch   0 | Iter:   1112/  8720 | global iter:    140/  1090 | loss: 0.5150 | ds_loss: 0.6265 | lr: 9.9769e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.024
+train | epoch   0 | Iter:   1272/  8720 | global iter:    160/  1090 | loss: 0.4464 | ds_loss: 0.5416 | lr: 9.9360e-05 | scale:     1.0000 | micro time: 0.760 | step time: 6.021
+train | epoch   0 | Iter:   1432/  8720 | global iter:    180/  1090 | loss: 0.4427 | ds_loss: 0.5354 | lr: 9.8749e-05 | scale:     1.0000 | micro time: 0.756 | step time: 6.019
+train | epoch   0 | Iter:   1592/  8720 | global iter:    200/  1090 | loss: 0.4219 | ds_loss: 0.5120 | lr: 9.7938e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.022
+dev | avg_loss: 0.34724195075757575 | {'exact_match': 44.294, 'rougeL': 83.4257}
+train | epoch   1 | Iter:   1752/  8720 | global iter:    220/  1090 | loss: 0.4155 | ds_loss: 0.4970 | lr: 9.6930e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.024
+train | epoch   1 | Iter:   1912/  8720 | global iter:    240/  1090 | loss: 0.3568 | ds_loss: 0.4231 | lr: 9.5729e-05 | scale:     1.0000 | micro time: 0.763 | step time: 6.059
+train | epoch   1 | Iter:   2072/  8720 | global iter:    260/  1090 | loss: 0.3229 | ds_loss: 0.3839 | lr: 9.4341e-05 | scale:     1.0000 | micro time: 0.761 | step time: 6.057
+train | epoch   1 | Iter:   2232/  8720 | global iter:    280/  1090 | loss: 0.3267 | ds_loss: 0.3883 | lr: 9.2772e-05 | scale:     1.0000 | micro time: 0.758 | step time: 6.031
+train | epoch   1 | Iter:   2392/  8720 | global iter:    300/  1090 | loss: 0.2975 | ds_loss: 0.3500 | lr: 9.1026e-05 | scale:     1.0000 | micro time: 0.761 | step time: 6.027
+train | epoch   1 | Iter:   2552/  8720 | global iter:    320/  1090 | loss: 0.2895 | ds_loss: 0.3400 | lr: 8.9113e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.024
+train | epoch   1 | Iter:   2712/  8720 | global iter:    340/  1090 | loss: 0.3023 | ds_loss: 0.3511 | lr: 8.7039e-05 | scale:     1.0000 | micro time: 0.754 | step time: 6.027
+train | epoch   1 | Iter:   2872/  8720 | global iter:    360/  1090 | loss: 0.2873 | ds_loss: 0.3361 | lr: 8.4813e-05 | scale:     1.0000 | micro time: 0.766 | step time: 6.027
+train | epoch   1 | Iter:   3032/  8720 | global iter:    380/  1090 | loss: 0.2783 | ds_loss: 0.3259 | lr: 8.2445e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.025
+train | epoch   1 | Iter:   3192/  8720 | global iter:    400/  1090 | loss: 0.2781 | ds_loss: 0.3249 | lr: 7.9943e-05 | scale:     1.0000 | micro time: 0.760 | step time: 6.025
+train | epoch   1 | Iter:   3352/  8720 | global iter:    420/  1090 | loss: 0.2693 | ds_loss: 0.3147 | lr: 7.7319e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.027
+dev | avg_loss: 0.33586351799242425 | {'exact_match': 49.0329, 'rougeL': 85.0658}
+train | epoch   2 | Iter:   3512/  8720 | global iter:    440/  1090 | loss: 0.2602 | ds_loss: 0.3058 | lr: 7.4583e-05 | scale:     1.0000 | micro time: 0.762 | step time: 6.028
+train | epoch   2 | Iter:   3672/  8720 | global iter:    460/  1090 | loss: 0.2080 | ds_loss: 0.2408 | lr: 7.1746e-05 | scale:     1.0000 | micro time: 0.765 | step time: 6.059
+train | epoch   2 | Iter:   3832/  8720 | global iter:    480/  1090 | loss: 0.1828 | ds_loss: 0.2125 | lr: 6.8819e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.033
+train | epoch   2 | Iter:   3992/  8720 | global iter:    500/  1090 | loss: 0.2032 | ds_loss: 0.2328 | lr: 6.5816e-05 | scale:     1.0000 | micro time: 0.758 | step time: 6.023
+train | epoch   2 | Iter:   4152/  8720 | global iter:    520/  1090 | loss: 0.2047 | ds_loss: 0.2343 | lr: 6.2748e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.027
+train | epoch   2 | Iter:   4312/  8720 | global iter:    540/  1090 | loss: 0.1904 | ds_loss: 0.2184 | lr: 5.9627e-05 | scale:     1.0000 | micro time: 0.762 | step time: 6.026
+train | epoch   2 | Iter:   4472/  8720 | global iter:    560/  1090 | loss: 0.1884 | ds_loss: 0.2170 | lr: 5.6467e-05 | scale:     1.0000 | micro time: 0.761 | step time: 6.030
+train | epoch   2 | Iter:   4632/  8720 | global iter:    580/  1090 | loss: 0.1764 | ds_loss: 0.2012 | lr: 5.3280e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.026
+train | epoch   2 | Iter:   4792/  8720 | global iter:    600/  1090 | loss: 0.1893 | ds_loss: 0.2162 | lr: 5.0080e-05 | scale:     1.0000 | micro time: 0.753 | step time: 6.027
+train | epoch   2 | Iter:   4952/  8720 | global iter:    620/  1090 | loss: 0.1700 | ds_loss: 0.1940 | lr: 4.6880e-05 | scale:     1.0000 | micro time: 0.756 | step time: 6.027
+train | epoch   2 | Iter:   5112/  8720 | global iter:    640/  1090 | loss: 0.1659 | ds_loss: 0.1877 | lr: 4.3692e-05 | scale:     1.0000 | micro time: 0.763 | step time: 6.027
+dev | avg_loss: 0.35400390625 | {'exact_match': 47.9691, 'rougeL': 85.4141}
+train | epoch   3 | Iter:   5272/  8720 | global iter:    660/  1090 | loss: 0.1462 | ds_loss: 0.1631 | lr: 4.0530e-05 | scale:     1.0000 | micro time: 0.758 | step time: 6.039
+train | epoch   3 | Iter:   5432/  8720 | global iter:    680/  1090 | loss: 0.1342 | ds_loss: 0.1495 | lr: 3.7407e-05 | scale:     1.0000 | micro time: 0.762 | step time: 6.052
+train | epoch   3 | Iter:   5592/  8720 | global iter:    700/  1090 | loss: 0.1200 | ds_loss: 0.1337 | lr: 3.4336e-05 | scale:     1.0000 | micro time: 0.761 | step time: 6.034
+train | epoch   3 | Iter:   5752/  8720 | global iter:    720/  1090 | loss: 0.1239 | ds_loss: 0.1391 | lr: 3.1329e-05 | scale:     1.0000 | micro time: 0.756 | step time: 6.027
+train | epoch   3 | Iter:   5912/  8720 | global iter:    740/  1090 | loss: 0.1112 | ds_loss: 0.1250 | lr: 2.8399e-05 | scale:     1.0000 | micro time: 0.755 | step time: 6.023
+train | epoch   3 | Iter:   6072/  8720 | global iter:    760/  1090 | loss: 0.1171 | ds_loss: 0.1319 | lr: 2.5557e-05 | scale:     1.0000 | micro time: 0.755 | step time: 6.024
+train | epoch   3 | Iter:   6232/  8720 | global iter:    780/  1090 | loss: 0.1144 | ds_loss: 0.1263 | lr: 2.2815e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.033
+train | epoch   3 | Iter:   6392/  8720 | global iter:    800/  1090 | loss: 0.1314 | ds_loss: 0.1447 | lr: 2.0185e-05 | scale:     1.0000 | micro time: 0.765 | step time: 6.028
+train | epoch   3 | Iter:   6552/  8720 | global iter:    820/  1090 | loss: 0.1088 | ds_loss: 0.1225 | lr: 1.7677e-05 | scale:     1.0000 | micro time: 0.757 | step time: 6.030
+train | epoch   3 | Iter:   6712/  8720 | global iter:    840/  1090 | loss: 0.1055 | ds_loss: 0.1145 | lr: 1.5302e-05 | scale:     1.0000 | micro time: 0.755 | step time: 6.023
+train | epoch   3 | Iter:   6872/  8720 | global iter:    860/  1090 | loss: 0.1055 | ds_loss: 0.1174 | lr: 1.3069e-05 | scale:     1.0000 | micro time: 0.759 | step time: 6.026
+dev | avg_loss: 0.3731060606060606 | {'exact_match': 49.2263, 'rougeL': 86.5211}
+train | epoch   4 | Iter:   7032/  8720 | global iter:    880/  1090 | loss: 0.1002 | ds_loss: 0.1086 | lr: 1.0987e-05 | scale:     1.0000 | micro time: 0.762 | step time: 6.036
+train | epoch   4 | Iter:   7192/  8720 | global iter:    900/  1090 | loss: 0.0893 | ds_loss: 0.0967 | lr: 9.0654e-06 | scale:     1.0000 | micro time: 0.762 | step time: 6.057
+train | epoch   4 | Iter:   7352/  8720 | global iter:    920/  1090 | loss: 0.0784 | ds_loss: 0.0857 | lr: 7.3116e-06 | scale:     1.0000 | micro time: 0.760 | step time: 6.034
+train | epoch   4 | Iter:   7512/  8720 | global iter:    940/  1090 | loss: 0.0918 | ds_loss: 0.0989 | lr: 5.7329e-06 | scale:     1.0000 | micro time: 0.759 | step time: 6.028
+train | epoch   4 | Iter:   7672/  8720 | global iter:    960/  1090 | loss: 0.0791 | ds_loss: 0.0856 | lr: 4.3358e-06 | scale:     1.0000 | micro time: 0.758 | step time: 6.040
+train | epoch   4 | Iter:   7832/  8720 | global iter:    980/  1090 | loss: 0.0816 | ds_loss: 0.0897 | lr: 3.1259e-06 | scale:     1.0000 | micro time: 0.760 | step time: 6.023
+train | epoch   4 | Iter:   7992/  8720 | global iter:   1000/  1090 | loss: 0.0845 | ds_loss: 0.0928 | lr: 2.1082e-06 | scale:     1.0000 | micro time: 0.754 | step time: 6.023
+train | epoch   4 | Iter:   8152/  8720 | global iter:   1020/  1090 | loss: 0.0841 | ds_loss: 0.0914 | lr: 1.2869e-06 | scale:     1.0000 | micro time: 0.755 | step time: 6.021
+train | epoch   4 | Iter:   8312/  8720 | global iter:   1040/  1090 | loss: 0.0800 | ds_loss: 0.0853 | lr: 6.6539e-07 | scale:     1.0000 | micro time: 0.760 | step time: 6.025
+train | epoch   4 | Iter:   8472/  8720 | global iter:   1060/  1090 | loss: 0.0890 | ds_loss: 0.0948 | lr: 2.4619e-07 | scale:     1.0000 | micro time: 0.756 | step time: 6.024
+train | epoch   4 | Iter:   8632/  8720 | global iter:   1080/  1090 | loss: 0.0802 | ds_loss: 0.0863 | lr: 3.1020e-08 | scale:     1.0000 | micro time: 0.763 | step time: 6.024
+dev | avg_loss: 0.3816879734848485 | {'exact_match': 47.9691, 'rougeL': 86.0521}
