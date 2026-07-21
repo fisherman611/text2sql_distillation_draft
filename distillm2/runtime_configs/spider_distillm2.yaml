@@ -3,7 +3,7 @@ ref_model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
 ref_adapter_name_or_path: hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090
 torch_dtype: bfloat16
 trust_remote_code: true
-attn_implementation: flash_attention_2
+attn_implementation: sdpa
 use_peft: true
 lora_r: 16
 lora_alpha: 64

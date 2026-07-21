@@ -27,6 +27,7 @@ STUDENT_VALID_RESULTS="${STUDENT_VALID_RESULTS:-infer_results/qwen3_sft_valid.js
 OUTPUT_DIR="${OUTPUT_DIR:-outputs/qwen3-0.6b-4b-spider-distillm2}"
 PUSH_TO_HUB="${PUSH_TO_HUB:-false}"
 HUB_MODEL_ID="${HUB_MODEL_ID:-null}"
+ATTN_IMPLEMENTATION="${ATTN_IMPLEMENTATION:-sdpa}"
 REBUILD_INFERENCE="${REBUILD_INFERENCE:-0}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -94,6 +95,7 @@ python scripts/make_hf_config.py \
   --set "run_name=$(basename "${OUTPUT_DIR}")" \
   --set "push_to_hub=${PUSH_TO_HUB}" \
   --set "hub_model_id=${HUB_MODEL_ID}" \
+  --set "attn_implementation=${ATTN_IMPLEMENTATION}" \
   --set "kd_loss_weight=${KD_LOSS_WEIGHT}" \
   --set "auto_resume_from_checkpoint=${AUTO_RESUME_FROM_CHECKPOINT}" \
   --set "dataset_mixer={'${PAIR_DATA_DIR}': 1.0}"
@@ -102,6 +104,7 @@ echo "Student train source: ${TRAIN_STUDENT}"
 echo "Teacher base: ${TEACHER_BASE}"
 echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Runtime config: ${CONFIG}"
+echo "Attention implementation: ${ATTN_IMPLEMENTATION}"
 echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
 echo "Loss: (1 - ${KD_LOSS_WEIGHT}) * gold SFT CE + ${KD_LOSS_WEIGHT} * DistiLLM-2"
 echo "Auto resume: ${AUTO_RESUME_FROM_CHECKPOINT}"

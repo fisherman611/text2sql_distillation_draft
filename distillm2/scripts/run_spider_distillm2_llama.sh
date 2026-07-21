@@ -28,6 +28,7 @@ STUDENT_VALID_RESULTS="${LLAMA_STUDENT_VALID_RESULTS:-infer_results/llama_studen
 OUTPUT_DIR="${LLAMA_OUTPUT_DIR:-${DISTILLM2_OUTPUT_DIR:-outputs/llama3.2-1b-8b-spider-distillm2}}"
 PUSH_TO_HUB="${PUSH_TO_HUB:-false}"
 HUB_MODEL_ID="${LLAMA_HUB_MODEL_ID:-null}"
+ATTN_IMPLEMENTATION="${ATTN_IMPLEMENTATION:-sdpa}"
 REBUILD_INFERENCE="${REBUILD_INFERENCE:-0}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -97,6 +98,7 @@ python scripts/make_hf_config.py \
   --set "run_name=$(basename "${OUTPUT_DIR}")" \
   --set "push_to_hub=${PUSH_TO_HUB}" \
   --set "hub_model_id=${HUB_MODEL_ID}" \
+  --set "attn_implementation=${ATTN_IMPLEMENTATION}" \
   --set "kd_loss_weight=${KD_LOSS_WEIGHT}" \
   --set "auto_resume_from_checkpoint=${AUTO_RESUME_FROM_CHECKPOINT}" \
   --set "dataset_mixer={'${PAIR_DATA_DIR}': 1.0}"
@@ -106,6 +108,7 @@ echo "Teacher base: ${TEACHER_BASE}"
 echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Processed root: ${PROCESSED_ROOT}"
 echo "Runtime config: ${CONFIG}"
+echo "Attention implementation: ${ATTN_IMPLEMENTATION}"
 echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
 echo "Loss: (1 - ${KD_LOSS_WEIGHT}) * gold SFT CE + ${KD_LOSS_WEIGHT} * DistiLLM-2"
 echo "Auto resume: ${AUTO_RESUME_FROM_CHECKPOINT}"

@@ -4,7 +4,7 @@ ref_adapter_name_or_path: hf://distillation-sql/llama_spider/llama/sft_sft_llama
 tokenizer_name_or_path: meta-llama/Llama-3.2-1B-Instruct
 torch_dtype: bfloat16
 trust_remote_code: true
-attn_implementation: flash_attention_2
+attn_implementation: sdpa
 
 use_peft: true
 lora_r: 16
