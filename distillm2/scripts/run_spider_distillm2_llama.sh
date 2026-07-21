@@ -11,6 +11,8 @@ if [[ -f "${HF_ENV_FILE}" ]]; then
   set +a
 fi
 
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+
 NUM_PROCESSES="${NUM_PROCESSES:-2}"
 BASE_CONFIG="${BASE_CONFIG:-training_configs/llama3.2-1b-8b-spider-distillm2.yaml}"
 CONFIG="${CONFIG:-runtime_configs/spider_distillm2_llama.yaml}"
@@ -29,6 +31,12 @@ OUTPUT_DIR="${LLAMA_OUTPUT_DIR:-${DISTILLM2_OUTPUT_DIR:-outputs/llama3.2-1b-8b-s
 PUSH_TO_HUB="${PUSH_TO_HUB:-false}"
 HUB_MODEL_ID="${LLAMA_HUB_MODEL_ID:-null}"
 ATTN_IMPLEMENTATION="${ATTN_IMPLEMENTATION:-sdpa}"
+TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-1}"
+EVAL_BATCH_SIZE="${EVAL_BATCH_SIZE:-1}"
+GRADIENT_ACCUMULATION_STEPS="${GRADIENT_ACCUMULATION_STEPS:-16}"
+GRADIENT_CHECKPOINTING="${GRADIENT_CHECKPOINTING:-false}"
+MAX_LENGTH="${MAX_LENGTH:-1664}"
+MAX_PROMPT_LENGTH="${MAX_PROMPT_LENGTH:-1536}"
 REBUILD_INFERENCE="${REBUILD_INFERENCE:-0}"
 REBUILD_PAIRS="${REBUILD_PAIRS:-0}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -99,6 +107,12 @@ python scripts/make_hf_config.py \
   --set "push_to_hub=${PUSH_TO_HUB}" \
   --set "hub_model_id=${HUB_MODEL_ID}" \
   --set "attn_implementation=${ATTN_IMPLEMENTATION}" \
+  --set "per_device_train_batch_size=${TRAIN_BATCH_SIZE}" \
+  --set "per_device_eval_batch_size=${EVAL_BATCH_SIZE}" \
+  --set "gradient_accumulation_steps=${GRADIENT_ACCUMULATION_STEPS}" \
+  --set "gradient_checkpointing=${GRADIENT_CHECKPOINTING}" \
+  --set "max_length=${MAX_LENGTH}" \
+  --set "max_prompt_length=${MAX_PROMPT_LENGTH}" \
   --set "kd_loss_weight=${KD_LOSS_WEIGHT}" \
   --set "auto_resume_from_checkpoint=${AUTO_RESUME_FROM_CHECKPOINT}" \
   --set "dataset_mixer={'${PAIR_DATA_DIR}': 1.0}"
@@ -109,6 +123,12 @@ echo "Teacher adapter: ${TEACHER_LORA}"
 echo "Processed root: ${PROCESSED_ROOT}"
 echo "Runtime config: ${CONFIG}"
 echo "Attention implementation: ${ATTN_IMPLEMENTATION}"
+echo "Train batch size: ${TRAIN_BATCH_SIZE}"
+echo "Eval batch size: ${EVAL_BATCH_SIZE}"
+echo "Gradient accumulation steps: ${GRADIENT_ACCUMULATION_STEPS}"
+echo "Gradient checkpointing: ${GRADIENT_CHECKPOINTING}"
+echo "Max length: ${MAX_LENGTH}"
+echo "Max prompt length: ${MAX_PROMPT_LENGTH}"
 echo "Generation batch size: ${GENERATION_BATCH_SIZE}"
 echo "Loss: (1 - ${KD_LOSS_WEIGHT}) * gold SFT CE + ${KD_LOSS_WEIGHT} * DistiLLM-2"
 echo "Auto resume: ${AUTO_RESUME_FROM_CHECKPOINT}"
