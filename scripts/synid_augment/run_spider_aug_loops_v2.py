@@ -38,7 +38,10 @@ from src.synid_sql.augmentation.validator import validate_candidate
 
 DEFAULT_TEACHER_PEFT_PATHS = {
     # "spider": "hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/1090",
-    "spider": "hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/436",
+    # "spider": "hf://distillation-sql/baselines/qwen3/sft_sft_qwen3_4b_spider_lora/e5-bs4-lr0.0001-G4-N2-NN1-lora-32-64-0.1/218",
+    # "spider": "hf://distillation-sql/llama_spider/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/1090",
+    # "spider": "hf://distillation-sql/llama_spider/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/218",
+    "spider": "hf://distillation-sql/llama_spider/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/436",
     "bird": "hf://distillation-sql/bird_baselines/qwen3/sft_sft_qwen3_4b_bird_lora/e5-bs2-lr0.0001-G8-N2-NN1-lora-32-64-0.1/1470",
 }
 
@@ -50,7 +53,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", type=Path, default=None)
     parser.add_argument("--db-root", type=Path, default=None)
     parser.add_argument("--teacher-prompt-dir", type=Path, default=Path("prompts/single_turn/synid_teacher"))
-    parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
+    # parser.add_argument("--model", default="Qwen/Qwen3-4B-Instruct-2507")
+    parser.add_argument("--model", default="meta-llama/Llama-3.1-8B-Instruct")
     parser.add_argument(
         "--teacher-peft-path",
         default=None,
@@ -71,7 +75,7 @@ def parse_args() -> argparse.Namespace:
     if args.root is None:
         args.root = Path("benchmarks_2/bird") if args.benchmark == "bird" else Path("benchmarks_2/spider_data")
     if args.output_root is None:
-        args.output_root = args.root / "synid_aug_v2_lora_436"
+        args.output_root = args.root / "llama_synid_aug_v2_lora_436"
     if args.db_root is None:
         args.db_root = (
             Path("benchmarks/bird/train/train_databases")

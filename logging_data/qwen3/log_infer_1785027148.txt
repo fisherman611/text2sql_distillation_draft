@@ -1,0 +1,15 @@
+2026-07-26 00:52:29 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-26 00:52:30 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda:1
+2026-07-26 00:52:32 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090
+2026-07-26 00:53:52 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-26 00:53:53 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda:1
+2026-07-26 00:53:54 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090
+2026-07-26 00:55:15 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-26 00:55:16 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda:1
+2026-07-26 00:55:18 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090
+2026-07-26 00:56:25 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-26 00:56:26 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda:1
+2026-07-26 00:56:28 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090
+2026-07-26 00:57:46 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-26 00:57:48 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda:1
+2026-07-26 00:57:49 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090

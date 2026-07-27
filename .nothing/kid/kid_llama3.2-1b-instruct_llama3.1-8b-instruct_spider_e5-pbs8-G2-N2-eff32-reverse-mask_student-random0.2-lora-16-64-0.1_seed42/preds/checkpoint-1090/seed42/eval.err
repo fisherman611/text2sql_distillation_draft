@@ -1,0 +1,10 @@
+Exception ignored in: <function BaseEventLoop.__del__ at 0x76037d5b9120>
+Traceback (most recent call last):
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/base_events.py", line 690, in __del__
+    self.close()
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/unix_events.py", line 70, in close
+    for sig in list(self._signal_handlers):
+AttributeError: '_UnixSelectorEventLoop' object has no attribute '_signal_handlers'
+/workspace/nothing/text2sql_distillation_draft/.venv/lib/python3.10/site-packages/func_timeout/dafunc.py:71: RuntimeWarning: coroutine 'exec_on_db' was never awaited
+  pass
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

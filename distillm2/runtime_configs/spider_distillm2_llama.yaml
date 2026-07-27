@@ -1,0 +1,56 @@
+model_name_or_path: meta-llama/Llama-3.2-1B-Instruct
+ref_model_name_or_path: meta-llama/Llama-3.1-8B-Instruct
+ref_adapter_name_or_path: hf://distillation-sql/llama_spider/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/1090
+tokenizer_name_or_path: meta-llama/Llama-3.2-1B-Instruct
+torch_dtype: bfloat16
+trust_remote_code: true
+attn_implementation: sdpa
+use_peft: true
+lora_r: 16
+lora_alpha: 64
+lora_dropout: 0.1
+lora_target_modules:
+- q_proj
+- k_proj
+- v_proj
+- o_proj
+- gate_proj
+- up_proj
+- down_proj
+enable_thinking: false
+auto_insert_empty_system_msg: false
+dataset_mixer:
+  data/spider_sql_distillm2_llama: 1.0
+dataset_splits:
+- train
+- test
+preprocessing_num_workers: 4
+bf16: true
+do_eval: true
+eval_steps: 500
+gradient_accumulation_steps: 16
+gradient_checkpointing: false
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+learning_rate: 0.0001
+log_level: info
+logging_steps: 50
+lr_scheduler_type: cosine
+max_length: 1664
+max_prompt_length: 1536
+num_train_epochs: 5
+optim: adamw_torch
+output_dir: outputs/llama3.2-1b-8b-spider-distillm2
+run_name: llama3.2-1b-8b-spider-distillm2
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+push_to_hub: false
+save_strategy: steps
+save_steps: 500
+save_total_limit: 3
+seed: 42
+warmup_ratio: 0.05
+loss_type: distillm_v2
+kd_loss_weight: 1.0
+auto_resume_from_checkpoint: true
+hub_model_id: distillation-sql/llama_spider

@@ -1,0 +1,15 @@
+2026-07-25 02:56:06 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 02:56:08 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 02:56:09 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-25 02:58:01 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 02:58:03 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 02:58:04 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-25 02:59:25 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 02:59:27 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 02:59:28 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-25 03:01:20 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 03:01:21 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 03:01:23 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-25 03:02:27 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 03:02:28 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 03:02:30 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090

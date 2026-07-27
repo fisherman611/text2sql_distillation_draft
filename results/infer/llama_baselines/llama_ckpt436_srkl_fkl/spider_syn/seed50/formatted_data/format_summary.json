@@ -1,0 +1,18 @@
+[
+  {
+    "input": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/baselines_train_fkl_spider_fkl_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test__full_sql_result.json",
+    "rows": 1034,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_fkl_spider_fkl_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_fkl_spider_fkl_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_fkl_spider_fkl_fkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/baselines_train_srkl_spider_srkl_srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test__full_sql_result.json",
+    "rows": 1034,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_srkl_spider_srkl_srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_srkl_spider_srkl_srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama_ckpt436_srkl_fkl/spider_syn/seed50/formatted_data/baselines_train_srkl_spider_srkl_srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test.meta.jsonl"
+  }
+]

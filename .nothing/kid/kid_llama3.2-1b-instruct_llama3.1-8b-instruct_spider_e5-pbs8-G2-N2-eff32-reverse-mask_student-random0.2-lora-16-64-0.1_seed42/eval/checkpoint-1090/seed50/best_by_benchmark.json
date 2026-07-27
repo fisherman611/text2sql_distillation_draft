@@ -1,0 +1,72 @@
+{
+  "seed": 50,
+  "generated_at": "2026-07-26T02:44:16.362456+00:00",
+  "primary_metric": "Execution Accuracy",
+  "tie_breaker": "Exact Match",
+  "best_by_benchmark": {
+    "spider_data": {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "scores": {
+        "Exact Match": 0.492,
+        "Execution Accuracy": 0.563
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_data/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_data/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_data/seed50/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    "spider_dk": {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "scores": {
+        "Exact Match": 0.353,
+        "Execution Accuracy": 0.43
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_dk/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_dk/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_dk/seed50/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    "spider_realistic": {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "scores": {
+        "Exact Match": 0.392,
+        "Execution Accuracy": 0.459
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_realistic/seed50/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    "spider_syn": {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "scores": {
+        "Exact Match": 0.377,
+        "Execution Accuracy": 0.443
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_syn/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_syn/seed50/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_syn/seed50/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    }
+  }
+}

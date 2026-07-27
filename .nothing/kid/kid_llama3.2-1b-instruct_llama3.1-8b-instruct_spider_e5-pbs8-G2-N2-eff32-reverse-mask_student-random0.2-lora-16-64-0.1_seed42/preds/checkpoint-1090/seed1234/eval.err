@@ -1,0 +1,11 @@
+Exception ignored in: <function BaseEventLoop.__del__ at 0x7a4bf3f61480>
+Traceback (most recent call last):
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/base_events.py", line 690, in __del__
+    self.close()
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/unix_events.py", line 68, in close
+    super().close()
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/selector_events.py", line 87, in close
+    self._close_self_pipe()
+  File "/.uv/python_install/cpython-3.10-linux-x86_64-gnu/lib/python3.10/asyncio/selector_events.py", line 94, in _close_self_pipe
+    self._remove_reader(self._ssock.fileno())
+AttributeError: 'NoneType' object has no attribute 'fileno'

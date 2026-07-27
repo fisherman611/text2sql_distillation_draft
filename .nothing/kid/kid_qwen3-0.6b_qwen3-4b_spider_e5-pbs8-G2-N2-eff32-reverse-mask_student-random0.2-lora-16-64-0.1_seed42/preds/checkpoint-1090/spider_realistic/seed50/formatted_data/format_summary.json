@@ -1,0 +1,10 @@
+[
+  {
+    "input": ".nothing/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/kid_qwen3_0.6b__ckpt1090__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": ".nothing/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/formatted_data/kid_qwen3_0.6b__ckpt1090__test.pred.sql",
+    "gold": ".nothing/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/formatted_data/kid_qwen3_0.6b__ckpt1090__test.gold.sql",
+    "meta": ".nothing/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed50/formatted_data/kid_qwen3_0.6b__ckpt1090__test.meta.jsonl"
+  }
+]

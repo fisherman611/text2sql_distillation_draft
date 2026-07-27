@@ -1,0 +1,15 @@
+2026-07-25 08:27:59 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 08:28:01 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 08:28:02 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_sfkl_spider_sfkl_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-25 08:29:02 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 08:29:04 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 08:29:05 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_sfkl_spider_sfkl_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-25 08:30:52 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 08:30:53 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 08:30:55 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_sfkl_spider_sfkl_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-25 08:33:34 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 08:33:36 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 08:33:37 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_sfkl_spider_sfkl_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-25 08:34:38 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 08:34:39 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 08:34:41 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_sfkl_spider_sfkl_sfkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/436

@@ -1,0 +1,15 @@
+2026-07-24 22:24:25 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 22:24:27 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 22:24:29 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-24 22:29:07 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 22:29:09 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 22:29:10 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-24 22:32:33 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 22:32:34 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 22:32:36 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-24 22:36:08 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 22:36:09 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 22:36:11 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
+2026-07-24 22:38:36 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 22:38:38 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 22:38:39 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/1090
