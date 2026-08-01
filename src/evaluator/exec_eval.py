@@ -9,6 +9,7 @@ from collections import defaultdict
 import tqdm
 import random
 from parse import get_all_preds_for_execution, remove_distinct
+from sqlparse.exceptions import SQLParseError
 import time
 from itertools import chain
 
@@ -181,6 +182,10 @@ def postprocess(query: str) -> str:
     return query
 
 
+def is_sqlparse_failure(exc: Exception) -> bool:
+    return isinstance(exc, (SQLParseError, RecursionError, IndexError))
+
+
 # approximate whether p_str and g_str are semantically equivalent
 # db is the database path
 # we are going to evaluate whether they are equivalent in all the databases
@@ -201,8 +206,18 @@ def eval_exec_match(
     # e.g. removing spaces between ">" and "="
     p_str, g_str = postprocess(p_str), postprocess(g_str)
     if not keep_distinct:
-        p_str = remove_distinct(p_str)
-        g_str = remove_distinct(g_str)
+        try:
+            p_str = remove_distinct(p_str)
+        except Exception as exc:
+            if is_sqlparse_failure(exc):
+                return 0
+            raise
+        try:
+            g_str = remove_distinct(g_str)
+        except Exception as exc:
+            if is_sqlparse_failure(exc):
+                raise ValueError(f"gold query cannot be parsed by sqlparse: {g_str}") from exc
+            raise
 
     # we decide whether two denotations are equivalent based on "bag semantics"
     # https://courses.cs.washington.edu/courses/cse444/10sp/lectures/lecture16.pdf
@@ -220,7 +235,12 @@ def eval_exec_match(
     # enumerate all ways to plug in values in the gold query to the model predictions
     # otherwise, we only evaluate the predicted query with its own value prediction
     if plug_value:
-        _, preds = get_all_preds_for_execution(g_str, p_str)
+        try:
+            _, preds = get_all_preds_for_execution(g_str, p_str)
+        except Exception as exc:
+            if is_sqlparse_failure(exc):
+                return 0
+            raise
         # we did not add this line in our EMNLP work
         # this reduces "false negatives" when value is substituted
         preds = chain([p_str], preds)
