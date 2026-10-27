@@ -25,6 +25,7 @@ from exec_eval import eval_exec_match  # noqa: E402
 
 # benchmark -> directory with the single original databases
 SINGLE_DB = {
+    "spider_data": "benchmarks/spider_data/test_database",  # Spider test (needs a generated suite, none is released)
     "spider_syn": "benchmarks/spider_data/database",
     "spider_realistic": "benchmarks/spider_data/database",
     "spider_dk": "benchmarks/spider_dk/database",
