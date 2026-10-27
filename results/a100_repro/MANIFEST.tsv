@@ -1,0 +1,61 @@
+method	bench	seed	pred_rows	expected_rows	pred_sha256_16	source
+synid_sql_row3	spider_data	42	2147	2147	6df24d611ffef224	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed42
+synid_sql_row3	spider_data	10	2147	2147	6b38ad329fa615ae	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed10
+synid_sql_row3	spider_data	1234	2147	2147	c0ee12677e85bfb7	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed1234
+synid_sql_row3	spider_data	50	2147	2147	b784f59daee1ac9e	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed50
+synid_sql_row3	spider_data	100	2147	2147	a44e23d0f3635be6	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed100
+synid_sql_row3	spider_syn	42	1034	1034	6e025395f4af04f9	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_syn/seed42
+synid_sql_row3	spider_syn	10	1034	1034	b4dc8a56bd5c327d	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_syn/seed10
+synid_sql_row3	spider_syn	1234	1034	1034	ca680322f0245500	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_syn/seed1234
+synid_sql_row3	spider_syn	50	1034	1034	41399a4438456f44	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_syn/seed50
+synid_sql_row3	spider_syn	100	1034	1034	b385e88938e8862a	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_syn/seed100
+synid_sql_row3	spider_realistic	42	508	508	07c2a1bdcb096ded	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_realistic/seed42
+synid_sql_row3	spider_realistic	10	508	508	dd4e26c8363c17fb	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_realistic/seed10
+synid_sql_row3	spider_realistic	1234	508	508	d4ed0fe0fba399a7	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_realistic/seed1234
+synid_sql_row3	spider_realistic	50	508	508	321ee27d2754252d	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_realistic/seed50
+synid_sql_row3	spider_realistic	100	508	508	6c71ded1eaed7ae6	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_realistic/seed100
+synid_sql_row3	spider_dk	42	535	535	c22f3e3d3058be31	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_dk/seed42
+synid_sql_row3	spider_dk	10	535	535	fec1cb5e1326a671	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_dk/seed10
+synid_sql_row3	spider_dk	1234	535	535	653de65913027661	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_dk/seed1234
+synid_sql_row3	spider_dk	50	535	535	fd140b9aa3e3f477	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_dk/seed50
+synid_sql_row3	spider_dk	100	535	535	001b1b531f5c3ad9	HF Dream-AI-HUST/synid_ckpt results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_dk/seed100
+csd_kd0.6_ckpt654	spider_data	42	2147	2147	32bb0baef2fa10ec	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_data/seed42
+csd_kd0.6_ckpt654	spider_data	10	2147	2147	f206c3cf08a325fc	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_data/seed10
+csd_kd0.6_ckpt654	spider_data	1234	2147	2147	3c14d5e93c92cd81	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_data/seed1234
+csd_kd0.6_ckpt654	spider_data	50	2147	2147	d1a6fd5c1bc00475	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_data/seed50
+csd_kd0.6_ckpt654	spider_data	100	2147	2147	723e80aee38b4e5f	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_data/seed100
+csd_kd0.6_ckpt654	spider_syn	42	1034	1034	c2a9bc88b551e542	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_syn/seed42
+csd_kd0.6_ckpt654	spider_syn	10	1034	1034	60f8f2fa7b8c8527	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_syn/seed10
+csd_kd0.6_ckpt654	spider_syn	1234	1034	1034	d24fd65ade3f7004	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_syn/seed1234
+csd_kd0.6_ckpt654	spider_syn	50	1034	1034	93b5341f925728af	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_syn/seed50
+csd_kd0.6_ckpt654	spider_syn	100	1034	1034	403ed291f4bd6a87	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_syn/seed100
+csd_kd0.6_ckpt654	spider_realistic	42	508	508	1309178c024b4ac5	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_realistic/seed42
+csd_kd0.6_ckpt654	spider_realistic	10	508	508	e06bc0f44e33ac47	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_realistic/seed10
+csd_kd0.6_ckpt654	spider_realistic	1234	508	508	8da567ba1152f041	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_realistic/seed1234
+csd_kd0.6_ckpt654	spider_realistic	50	508	508	c7cd32d054fa655d	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_realistic/seed50
+csd_kd0.6_ckpt654	spider_realistic	100	508	508	dbdad2d80551ea48	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_realistic/seed100
+csd_kd0.6_ckpt654	spider_dk	42	535	535	8946e793237f8f0a	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_dk/seed42
+csd_kd0.6_ckpt654	spider_dk	10	535	535	5d4cdb2fbccaca46	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_dk/seed10
+csd_kd0.6_ckpt654	spider_dk	1234	535	535	b2b0c2dffe683865	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_dk/seed1234
+csd_kd0.6_ckpt654	spider_dk	50	535	535	7f652f8e8811111e	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_dk/seed50
+csd_kd0.6_ckpt654	spider_dk	100	535	535	8ed64d7973a9f02f	/mnt/hungpv/baseline_ckpt_infer/out/csd_train_0.6b_4b_kd0.6_spider_e5-bs2-lr0.0001-G8-N2-NN1-kd0.6-lora-16-64-0.1/ckpt654/spider_dk/seed100
+distillm_ckpt872	spider_data	42	2147	2147	3dc8642a78e396c9	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_data/seed42
+distillm_ckpt872	spider_data	10	2147	2147	b1e45de366d6d3b4	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_data/seed10
+distillm_ckpt872	spider_data	1234	2147	2147	8e4a341805f3560a	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_data/seed1234
+distillm_ckpt872	spider_data	50	2147	2147	2614aade7b7402f3	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_data/seed50
+distillm_ckpt872	spider_data	100	2147	2147	4edb1d4931bb49d1	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_data/seed100
+distillm_ckpt872	spider_syn	42	1034	1034	96eb44410fe7a9eb	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_syn/seed42
+distillm_ckpt872	spider_syn	10	1034	1034	ada76c973d9405ff	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_syn/seed10
+distillm_ckpt872	spider_syn	1234	1034	1034	e70aed1b1d69f54c	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_syn/seed1234
+distillm_ckpt872	spider_syn	50	1034	1034	058989e5b1b67053	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_syn/seed50
+distillm_ckpt872	spider_syn	100	1034	1034	5da400f73f6a013a	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_syn/seed100
+distillm_ckpt872	spider_realistic	42	508	508	453b29848a1d50ad	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_realistic/seed42
+distillm_ckpt872	spider_realistic	10	508	508	70dec369cdb48290	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_realistic/seed10
+distillm_ckpt872	spider_realistic	1234	508	508	d23e579508e25a9f	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_realistic/seed1234
+distillm_ckpt872	spider_realistic	50	508	508	ca0a34c285b09b1c	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_realistic/seed50
+distillm_ckpt872	spider_realistic	100	508	508	19ba5ee4ccfb8ea0	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_realistic/seed100
+distillm_ckpt872	spider_dk	42	535	535	8bfe16de0c275a2f	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_dk/seed42
+distillm_ckpt872	spider_dk	10	535	535	71293b4928ca4ff1	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_dk/seed10
+distillm_ckpt872	spider_dk	1234	535	535	c7f4a3729d07d29b	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_dk/seed1234
+distillm_ckpt872	spider_dk	50	535	535	0d9fddc34c69ec23	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_dk/seed50
+distillm_ckpt872	spider_dk	100	535	535	a5a9aaeb967e6f19	/mnt/hungpv/baseline_ckpt_infer/out/distillm_train_0.6b_4b_spider_adaptive-srkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/ckpt872/spider_dk/seed100
