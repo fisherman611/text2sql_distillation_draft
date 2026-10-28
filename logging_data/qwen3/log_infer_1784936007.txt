@@ -1,0 +1,15 @@
+2026-07-24 23:33:27 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 23:33:29 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 23:33:30 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-24 23:34:31 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 23:34:32 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 23:34:34 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-24 23:35:34 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 23:35:35 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 23:35:37 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-24 23:37:30 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 23:37:32 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 23:37:33 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/436
+2026-07-24 23:38:35 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-24 23:38:36 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-24 23:38:38 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/436

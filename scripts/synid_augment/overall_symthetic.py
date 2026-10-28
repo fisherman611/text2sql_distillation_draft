@@ -3,7 +3,7 @@ from pathlib import Path
 
 def main():
     # 1. Khai báo các đường dẫn
-    base_dir = Path("benchmarks_2/spider_data/synid_aug_v2_lora")
+    base_dir = Path("benchmarks_2/spider_data/llama_synid_aug_v2_lora_436")
     final_rejected_path = base_dir / "rejected_final.jsonl"
     loops_dir = base_dir / "loops"
     recovered_path = base_dir / "recovered_final.jsonl" # File xuất ra cho các sample được cứu

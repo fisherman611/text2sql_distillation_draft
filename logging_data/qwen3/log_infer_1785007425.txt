@@ -1,0 +1,3 @@
+2026-07-25 19:23:46 - infer - INFO - [init_model] - Loading tokenizer from Qwen/Qwen3-0.6B
+2026-07-25 19:23:48 - infer - INFO - [init_model] - Loading model from Qwen/Qwen3-0.6B on cuda
+2026-07-25 19:23:49 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--nothing/snapshots/f8b986d1d65621e41e03841df8ed5bc56efc91e1/kid/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/checkpoint-1090

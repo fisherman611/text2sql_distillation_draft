@@ -87,6 +87,16 @@ def validate_candidate(
             candidate_sql=candidate_sql,
             error=str(exc),
         )
+    except Exception as e:
+        print("SQLite error:", candidate_sql)
+        return _reject(
+                    candidate,
+                    reason="candidate_execution_error",
+                    failure_stage="execute_candidate_sql",
+                    repairable=True,
+                    candidate_sql=candidate_sql,
+                    error=str(e),
+                )
 
     try:
         if benchmark == "spider":

@@ -1,0 +1,1034 @@
+{"text": "{\"sql\": \"SELECT count(*) FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT name,  country,  age FROM singer ORDER BY age DESC\"}"}
+{"text": "{\"sql\": \"SELECT name,  country,  age FROM singer ORDER BY age DESC\"}"}
+{"text": "{\"sql\": \"SELECT avg(age),  min(age),  max(age) FROM singer WHERE country  =  'France'\"}"}
+{"text": "{\"sql\": \"SELECT avg(Age),  min(Age),  max(Age) FROM singer WHERE country  =  'France'\"}"}
+{"text": "{\"sql\": \"SELECT T1.song_name,  T1.song_release_year FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID ORDER BY T1.age\"}"}
+{"text": "{\"sql\": \"SELECT Song_Name,  Song_release_year FROM singer ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Country FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID WHERE T1.age  >  20\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Country FROM singer WHERE Age  >  20\"}"}
+{"text": "{\"sql\": \"SELECT Country,  COUNT(*) FROM singer GROUP BY Country\"}"}
+{"text": "{\"sql\": \"SELECT Country,  COUNT(*) FROM singer GROUP BY Country\"}"}
+{"text": "{\"sql\": \"SELECT Song_Name FROM singer WHERE Age  >  (SELECT avg(Age) FROM singer)\"}"}
+{"text": "{\"sql\": \"SELECT Song_Name FROM singer WHERE Age  >  (SELECT avg(Age) FROM singer)\"}"}
+{"text": "{\"sql\": \"SELECT LOCATION,  Name FROM stadium WHERE Capacity BETWEEN 5000 AND 10000\"}"}
+{"text": "{\"sql\": \"SELECT LOCATION,  Name FROM stadium WHERE capacity BETWEEN 5000 AND 10000\"}"}
+{"text": "{\"sql\": \"SELECT max(capacity),  avg(capacity) FROM stadium\"}"}
+{"text": "{\"sql\": \"SELECT avg(capacity),  max(capacity) FROM stadium\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Capacity FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID GROUP BY T1.Stadium_ID ORDER BY avg(T2.Average) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name,  capacity FROM stadium ORDER BY Average DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM concert WHERE YEAR  =  2014 OR YEAR  =  2015\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM concert WHERE YEAR  =  2014 OR YEAR  =  2015\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID GROUP BY T1.Stadium_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  count(*) FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Capacity FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  >=  2014 GROUP BY T2.Stadium_ID ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT t1.Name,  t1.Capacity FROM stadium AS t1 JOIN concert AS t2 ON t1.Stadium_ID  =  t2.Stadium_ID WHERE t2.year  >  2013 GROUP BY t2.Stadium_ID ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT YEAR FROM concert GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT YEAR FROM concert GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM stadium WHERE stadium_id NOT IN (SELECT stadium_id FROM concert)\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM stadium WHERE Stadium_ID NOT IN (SELECT Stadium_ID FROM concert)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Country FROM singer WHERE Age  >  40 INTERSECT SELECT DISTINCT Country FROM singer WHERE Age  <  30\"}"}
+{"text": "{\"sql\": \"SELECT name FROM stadium EXCEPT SELECT T1.name FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  =  2014\"}"}
+{"text": "{\"sql\": \"SELECT name FROM stadium WHERE stadium_id NOT IN (SELECT stadium_id FROM concert WHERE YEAR  =  2014)\"}"}
+{"text": "{\"sql\": \"SELECT T1.concert_name,  T1.theme,  COUNT(*) FROM concert AS T1 JOIN singer_in_concert AS T2 ON T1.concert_id  =  T2.concert_id GROUP BY T1.concert_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.concert_name,  T1.theme,  count(*) FROM concert AS T1 JOIN singer_in_concert AS T2 ON T1.concert_id  =  T2.concert_id GROUP BY T1.concert_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID JOIN concert AS T3 ON T2.concert_ID  =  T3.concert_ID WHERE T3.year  =  2014\"}"}
+{"text": "{\"sql\": \"SELECT T2.Name FROM concert AS T1 JOIN singer_in_concert AS T2 ON T1.concert_ID  =  T2.concert_ID WHERE T1.year  =  2014\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Country FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID JOIN concert AS T3 ON T2.concert_ID  =  T3.concert_ID WHERE T3.concert_Name LIKE '%Hey%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Country FROM singer AS T1 JOIN singer_in_concert AS T2 ON T1.Singer_ID  =  T2.Singer_ID JOIN concert AS T3 ON T2.concert_ID  =  T3.concert_ID WHERE T3.concert_Name LIKE '%Hey%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Location FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  =  2014 INTERSECT SELECT T1.Name,  T1.Location FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  =  2015\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Location FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  =  2014 INTERSECT SELECT T1.Name,  T1.Location FROM stadium AS T1 JOIN concert AS T2 ON T1.Stadium_ID  =  T2.Stadium_ID WHERE T2.year  =  2015\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM concert WHERE stadium_id  =  (SELECT stadium_id FROM stadium ORDER BY capacity DESC LIMIT 1)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM concert WHERE Stadium_ID  =  (SELECT Stadium_ID FROM stadium ORDER BY capacity DESC LIMIT 1)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Pets WHERE weight  >  10\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Pets WHERE weight  >  10\"}"}
+{"text": "{\"sql\": \"SELECT min(weight) FROM Pets WHERE pet_type  =  'dog'\"}"}
+{"text": "{\"sql\": \"SELECT min(weight) FROM Pets WHERE pet_type  =  'dog'\"}"}
+{"text": "{\"sql\": \"SELECT max(weight),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT max(weight),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T1.age  >  20\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Student WHERE age  >  20 AND Has_Pet.StuID IN (SELECT StuID FROM Has_Pet WHERE PetID IN (SELECT PetID FROM Pets WHERE PetType  =  'Pet' ))\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT T1.petID) FROM Has_Pet AS T1 JOIN Pets AS T2 ON T1.PetID  =  T2.PetID JOIN Student AS T3 ON T1.StuID  =  T3.StuID WHERE T3.Sex  =  \\\"F\\\" AND T2.PetType  =  \\\"Dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID JOIN Pets AS T3 ON T2.PetID  =  T3.PetID WHERE T3.pet_type  =  \\\"dog\\\" AND T1.sex  =  \\\"F\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT pettype) FROM Pets\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT pettype) FROM Pets\"}"}
+{"text": "{\"sql\": \"SELECT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  'cat' OR T2.pettype  =  'dog'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  \\\"cat\\\" OR T2.pettype  =  \\\"dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  \\\"Cat\\\" INTERSECT SELECT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  \\\"Dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  'Cat' INTERSECT SELECT T1.Fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  'Dog'\"}"}
+{"text": "{\"sql\": \"SELECT major,  age FROM student WHERE StuID NOT IN (SELECT StuID FROM Has_Pet)\"}"}
+{"text": "{\"sql\": \"SELECT T1.Major,  T1.age FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.petid  =  ''\"}"}
+{"text": "{\"sql\": \"SELECT StuID FROM Student EXCEPT SELECT StuID FROM Has_Pet\"}"}
+{"text": "{\"sql\": \"SELECT StuID FROM Student EXCEPT SELECT StuID FROM Has_Pet WHERE PetType  =  'Cat'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Fname,  T1.Age FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID JOIN Pets AS T3 ON T2.PetID  =  T3.PetID WHERE T3.pet_type  =  \\\"dog\\\" EXCEPT SELECT DISTINCT T1.Fname,  T1.Age FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID JOIN Pets AS T3 ON T2.PetID  =  T3.Pet"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  'dog' EXCEPT SELECT DISTINCT T1.fname FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID WHERE T2.pettype  =  'cat'\"}"}
+{"text": "{\"sql\": \"SELECT pet_type,  weight FROM Pets ORDER BY pet_age LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT pet_type,  min(weight) FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT pet_id,  weight FROM Pets WHERE pet_age  >  1\"}"}
+{"text": "{\"sql\": \"SELECT petid,  weight FROM Pets WHERE pet_age  >  1\"}"}
+{"text": "{\"sql\": \"SELECT avg(pet_age),  max(pet_age),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT avg(pet_age),  max(pet_age),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT avg(weight),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT avg(weight),  pet_type FROM Pets GROUP BY pet_type\"}"}
+{"text": "{\"sql\": \"SELECT T1.Fname,  T1.Age FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Fname,  T1.age FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID\"}"}
+{"text": "{\"sql\": \"SELECT StuID FROM Has_Pet WHERE PetID IN (SELECT PetID FROM Pets WHERE PetType  =  'Dog' AND LName  =  'Smith')\"}"}
+{"text": "{\"sql\": \"SELECT StuID FROM Has_Pet WHERE PetID IN (SELECT PetID FROM Pets WHERE LName  =  'Smith')\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  StuID FROM Has_Pet GROUP BY StuID\"}"}
+{"text": "{\"sql\": \"SELECT StuID,  count(*) FROM Has_Pet GROUP BY StuID\"}"}
+{"text": "{\"sql\": \"SELECT T1.fname,  T1.sex FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid GROUP BY T1.stuid HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.fname,  T1.sex FROM student AS T1 JOIN has_pet AS T2 ON T1.stuid  =  T2.stuid GROUP BY T1.stuid HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.LName FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID JOIN Pets AS T3 ON T2.PetID  =  T3.PetID WHERE T3.pet_age  =  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.LName FROM Student AS T1 JOIN Has_Pet AS T2 ON T1.StuID  =  T2.StuID JOIN Pets AS T3 ON T2.PetID  =  T3.PetID WHERE T3.pet_age  =  3\"}"}
+{"text": "{\"sql\": \"SELECT avg(age) FROM student WHERE StuID NOT IN (SELECT StuID FROM Has_Pet)\"}"}
+{"text": "{\"sql\": \"SELECT avg(age) FROM student WHERE StuID NOT IN (SELECT StuID FROM Has_Pet)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM continents\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM continents\"}"}
+{"text": "{\"sql\": \"SELECT Continent,  COUNT(*),  ContinentID FROM countries GROUP BY ContinentID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Continent,  T1.id,  T1.name,  COUNT(*) FROM continents AS T1 JOIN countries AS T2 ON T1.Continent  =  T2.Continent GROUP BY T1.Continent\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM countries\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM countries\"}"}
+{"text": "{\"sql\": \"SELECT T1.FullName,  T1.Id,  COUNT(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id\"}"}
+{"text": "{\"sql\": \"SELECT T1.FullName,  T1.Id,  count(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Id\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM car_names AS T1 JOIN cars_data AS T2 ON T1.MakeId  =  T2.MakeId ORDER BY T2.Horsepower ASC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.ModelId  =  T2.Id ORDER BY T2.Horsepower ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.ModelId  =  T2.Id WHERE T2.Weight  <  (SELECT avg(Weight) FROM cars_data)\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.ModelId  =  T2.Id WHERE T2.Weight  <  (SELECT avg(T2.Weight) FROM cars_data)\"}"}
+{"text": "{\"sql\": \"SELECT T2.FullName FROM car_names AS T1 JOIN car_makers AS T2 ON T1.Maker  =  T2.Id WHERE T1.Model  =  'Car' AND T1.year  =  1970\"}"}
+{"text": "{\"sql\": \"SELECT AirportName FROM airports WHERE AirportCode  =  'AKO'\"}"}
+{"text": "{\"sql\": \"SELECT AirportName FROM airports WHERE City  =  'Aberdeen'\"}"}
+{"text": "{\"sql\": \"SELECT AirportName FROM airports WHERE City  =  \\\"Aberdeen\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE SourceAirport  =  'APG'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE SourceAirport  =  'APG'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE DestAirport  =  \\\"ATO\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE DestAirport  =  \\\"ATO\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE SourceAirport  =  \\\"Aberdeen\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE SourceAirport  =  \\\"Aberdeen\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE destairport  =  'ABERDEEN'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE DestAirport  =  \\\"ABERDEEN\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.City  =  'Aberdeen' AND T1.SourceAirport  =  T2.AirportCode AND T1.DestAirport  =  T2.AirportCode WHERE T2.City  =  'Ashley'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE sourceairport  =  \\\"Aberdeen\\\" AND destairport  =  \\\"Ashley\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE Airline  =  'JetBlue Airways'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE Airline  =  \\\"Jetblue Airways\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE destairport  =  'ASY' AND airline  =  'United Airlines'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE DestAirport  =  \\\"ASY\\\" AND Airline  =  \\\"United Airlines\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE sourceairport  =  'AHD' AND airline  =  'United Airlines'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE sourceairport  =  'AHD' AND airline  =  'United'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE destairport  =  'Aberdeen' AND airline  =  'United'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.City  =  \\\"Aberdeen\\\" AND T1.Airline  =  \\\"United Airlines\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.City FROM airports AS T1 JOIN flights AS T2 ON T1.AirportCode  =  T2.DestAirport GROUP BY T1.City ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.city FROM airports AS T1 JOIN flights AS T2 ON T1.airportcode  =  T2.destairport GROUP BY T2.destairport ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.city FROM airports AS T1 JOIN flights AS T2 ON T1.AirportCode  =  T2.destairport GROUP BY T1.city ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT city FROM airports GROUP BY city ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.AirportCode FROM airports AS T1 JOIN flights AS T2 ON T1.AirportCode  =  T2.SourceAirport GROUP BY T1.AirportCode ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT AirportCode FROM flights GROUP BY AirportCode ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights GROUP BY sourceairport ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.AirportCode FROM airports AS T1 JOIN flights AS T2 ON T1.AirportCode  =  T2.SourceAirport GROUP BY T1.AirportCode ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Airline FROM flights GROUP BY Airline ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Airline FROM flights GROUP BY Airline ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT abbreviation,  country FROM airlines GROUP BY abbreviation ORDER BY count(*) LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Abbreviation,  CountryAbbrev FROM airlines GROUP BY Abbreviation ORDER BY count(*) LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'AHD'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'AHD'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.DestAirport  =  'AHD'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.DestAirport  =  'AHD'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.DestAirport  =  'APG' INTERSECT SELECT DISTINCT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.DestAirport  =  'CVO'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  \\\"APG\\\" INTERSECT SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  \\\"CVO\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'CVO' EXCEPT SELECT DISTINCT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'APG'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'CVO' EXCEPT SELECT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline WHERE T2.SourceAirport  =  'APG'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Airline FROM flights AS T1 JOIN airlines AS T2 ON T1.Airline  =  T2.Airline GROUP BY T1.Airline HAVING count(*)  >=  10\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Airline FROM airlines AS T1 JOIN flights AS T2 ON T1.Airline  =  T2.Airline GROUP BY T1.Airline HAVING count(*)  >=  10\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Airline FROM flights WHERE FlightNo  <  200\"}"}
+{"text": "{\"sql\": \"SELECT Airline FROM flights GROUP BY Airline HAVING COUNT(*)  <  200\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airlines AS T2 ON T1.Airline  =  T2.Airline WHERE T2.Abbreviation  =  \\\"United Airlines\\\"\"}"}
+{"text": "{\"sql\": \"SELECT FlightNo FROM flights WHERE Airline  =  'United Airlines'\"}"}
+{"text": "{\"sql\": \"SELECT FlightNo FROM flights WHERE SourceAirport  =  \\\"APG\\\"\"}"}
+{"text": "{\"sql\": \"SELECT FlightNo FROM flights WHERE SourceAirport  =  \\\"APG\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airports AS T2 ON T1.SourceAirport  =  T2.AirportCode WHERE T2.AirportName  =  \\\"APG\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.FullName FROM car_makers AS T1 JOIN car_names AS T2 ON T1.Id  =  T2.MakeId WHERE T2.Model  =  '1970'\"}"}
+{"text": "{\"sql\": \"SELECT T1.make,  T1.year FROM car_names AS T1 JOIN cars_data AS T2 ON T1.makeid  =  T2.id ORDER BY T2.year\"}"}
+{"text": "{\"sql\": \"SELECT T1.Maker,  T1.Year FROM car_makers AS T1 JOIN cars_data AS T2 ON T1.Id  =  T2.MPG AND T1.Country  =  T2.Country ORDER BY T2.Year LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM car_names AS T1 JOIN model_list AS T2 ON T1.Model  =  T2.Model WHERE T2.Maker  =  \\\"Toyota\\\" AND T2.Model  >  1980\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.ModelId  =  T2.Id WHERE T2.year  >  1980\"}"}
+{"text": "{\"sql\": \"SELECT T1.Continent,  COUNT(*) FROM car_makers AS T1 JOIN countries AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Continent\"}"}
+{"text": "{\"sql\": \"SELECT T1.Continent,  COUNT(*) FROM continents AS T1 JOIN car_makers AS T2 ON T1.Continent  =  T2.Country GROUP BY T1.Continent\"}"}
+{"text": "{\"sql\": \"SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country\"}"}
+{"text": "{\"sql\": \"SELECT t1.countryname FROM countries AS t1 JOIN car_makers AS t2 ON t1.countryid  =  t2.country\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.FullName FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Maker\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.id,  T1.FullName FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id  =  T2.maker GROUP BY T1.id\"}"}
+{"text": "{\"sql\": \"SELECT accelerate FROM cars_data WHERE make  =  \\\"AMC Hornet Sportabout (SW)\\\"\"}"}
+{"text": "{\"sql\": \"SELECT sum(Accelerate) FROM cars_data WHERE make  =  'amc' AND model  =  'hornet sportabout (SW)'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT T1.Maker) FROM car_makers AS T1 JOIN countries AS T2 ON T1.Country  =  T2.CountryId WHERE T2.Continent  =  'Europe' AND T1.Maker  =  'France'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country WHERE T1.Continent  =  \\\"France\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id  =  T2.maker WHERE T1.country  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker WHERE T1.Country  =  \\\"United States\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(mpg) FROM car_names WHERE Cylinders  =  4\"}"}
+{"text": "{\"sql\": \"SELECT avg(MPG) FROM cars_data WHERE Cylinders  =  4\"}"}
+{"text": "{\"sql\": \"SELECT min(Weight) FROM cars_data WHERE YEAR  =  1974 AND Cylinders  =  8\"}"}
+{"text": "{\"sql\": \"SELECT min(weight) FROM cars_data WHERE YEAR  =  1974 AND Cylinders  =  8\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Maker,  T1.Model FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Maker,  T1.Model FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker\"}"}
+{"text": "{\"sql\": \"SELECT T2.CountryName,  T1.Id FROM car_makers AS T1 JOIN countries AS T2 ON T1.Country  =  T2.CountryId GROUP BY T1.Country HAVING count(*)  >=  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.CountryName,  T1.CountryId FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Horsepower  >  150\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE horsepower  >  150\"}"}
+{"text": "{\"sql\": \"SELECT avg(weight),  YEAR FROM cars_data GROUP BY YEAR\"}"}
+{"text": "{\"sql\": \"SELECT avg(weight),  YEAR FROM cars_data GROUP BY YEAR\"}"}
+{"text": "{\"sql\": \"SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.CountryId GROUP BY T1.CountryId HAVING COUNT(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country WHERE T1.Continent  =  \\\"Europe\\\" GROUP BY T1.CountryName HAVING COUNT(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT max(Horsepower),  T1.make FROM car_names AS T1 JOIN cars_data AS T2 ON T1.MakeId  =  T2.MakeId GROUP BY T1.make HAVING count(*)  =  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.Horsepower,  T1.Make FROM cars_data AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.ModelId WHERE T2.Cylinders  =  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.ModelId  =  T2.Id WHERE T2.MPG  =  (SELECT max(MPG) FROM cars_data)\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.Model  =  T2.Id ORDER BY T2.MPG DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(Horsepower) FROM cars_data WHERE YEAR  <  1980\"}"}
+{"text": "{\"sql\": \"SELECT avg(Horsepower) FROM cars_data WHERE YEAR  <  1980\"}"}
+{"text": "{\"sql\": \"SELECT avg(Edispl) FROM car_names WHERE Model  =  \\\"Volvo\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(Edispl) FROM car_makers WHERE Maker  =  'Volvo'\"}"}
+{"text": "{\"sql\": \"SELECT max(Accelerate),  count(*) FROM cars_data GROUP BY Cylinders\"}"}
+{"text": "{\"sql\": \"SELECT max(Accelerate) FROM cars_data\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN car_names AS T2 ON T1.Model  =  T2.Model GROUP BY T1.Model ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM model_list AS T1 JOIN car_makers AS T2 ON T1.Maker  =  T2.Id GROUP BY T1.Maker ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Cylinders  >  4\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Cylinders  >  4\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE YEAR  =  1980\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE YEAR  =  1980\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id  =  T2.maker WHERE T1.FullName  =  'American Motor Company'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker WHERE T1.Maker  =  'American Motor Company'\"}"}
+{"text": "{\"sql\": \"SELECT T1.FullName,  T1.Id FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T2.Maker HAVING count(*)  >  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.Maker,  T1.Id FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Maker HAVING count(*)  >  3\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM model_list AS T1 JOIN car_makers AS T2 ON T1.Maker  =  T2.Id WHERE T2.FullName  =  \\\"General Motors\\\" OR T2.Weight  >  3500\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM car_names AS T1 JOIN model_list AS T2 ON T1.MakeId  =  T2.Maker WHERE T2.Maker  =  'General Motors' OR T1.Weight  >  3500\"}"}
+{"text": "{\"sql\": \"SELECT YEAR FROM cars_data WHERE Weight BETWEEN 3000 AND 4000\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT YEAR FROM cars_data WHERE weight  <  4000 INTERSECT SELECT DISTINCT YEAR FROM cars_data WHERE weight  >  3000\"}"}
+{"text": "{\"sql\": \"SELECT Horsepower FROM cars_data ORDER BY Accelerate DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Horsepower FROM cars_data ORDER BY Accelerate DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Cylinders FROM cars_data AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.ModelId WHERE T2.Maker  =  \\\"Volvo\\\" ORDER BY T1.Accelerate ASC\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM car_names AS T1 JOIN cars_data AS T2 ON T1.MakeId  =  T2.Make WHERE T1.Model  =  \\\"Volvo\\\" AND T2.Accelerate  =  (SELECT min(Accelerate) FROM cars_data WHERE Make  =  \\\"Volvo\\\")\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Accelerate  >  (SELECT max(Accelerate) FROM cars_data)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Accelerate  >  (SELECT max(Horsepower) FROM cars_data)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM countries AS T1 JOIN car_makers AS T2 ON T1.Country  =  T2.Country WHERE T2.Id  >  2 GROUP BY T1.CountryId HAVING count(*)  >  2\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM car_makers WHERE country  >  2\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Cylinders  >  6\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM cars_data WHERE Cylinders  >  6\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.Model  =  T2.Model WHERE T2.Cylinders  =  4 ORDER BY T2.Horsepower DESC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Model FROM car_names AS T1 JOIN cars_data AS T2 ON T1.Model  =  T2.Model WHERE T2.Cylinders  =  4 ORDER BY T2.Horsepower DESC\"}"}
+{"text": "{\"sql\": \"SELECT makeid,  make FROM cars_data WHERE horsepower  >  (SELECT min(horsepower) FROM cars_data) AND cylinders  <=  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.makeid,  T1.name FROM car_names AS T1 JOIN cars_data AS T2 ON T1.makeid  =  T2.id WHERE T2.Horsepower  <  4 AND T2.Cylinders  >  2\"}"}
+{"text": "{\"sql\": \"SELECT max(T1.MPG) FROM cars_data AS T1 JOIN car_makers AS T2 ON T1.MakeId  =  T2.Id WHERE T2.Maker  =  \\\"Toyota\\\" OR T1.year  <  1980\"}"}
+{"text": "{\"sql\": \"SELECT max(mpg) FROM cars_data WHERE cylers  =  8 OR YEAR  <  1980\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT t1.Model FROM model_list AS t1 JOIN cars_data AS t2 ON t1.Model  =  t2.MakeId WHERE t2.Weight  <  3500 EXCEPT SELECT DISTINCT t1.Model FROM model_list AS t1 JOIN cars_data AS t2 ON t1.Model  =  t2.MakeId WHERE t2.Country  =  \\\"Ford Motor Company\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Model FROM model_list AS T1 JOIN cars_data AS T2 ON T1.Model = T2.Id JOIN car_makers AS T3 ON T1.Maker  =  T3.Id WHERE T3.Maker!= \\\"Ford\\\" AND T2.Weight  <  3500\"}"}
+{"text": "{\"sql\": \"SELECT CountryName FROM countries EXCEPT SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country\"}"}
+{"text": "{\"sql\": \"SELECT CountryName FROM countries WHERE CountryId NOT IN (SELECT CountryId FROM car_makers)\"}"}
+{"text": "{\"sql\": \"SELECT T1.id,  T1.maker FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id  =  T2.maker GROUP BY T1.maker HAVING count(*)  >=  2 INTERSECT SELECT T1.id,  T1.maker FROM car_makers AS T1 JOIN model_list AS T2 ON T1.id  =  T2.maker GROUP BY T1.maker HAVING count(*)  >  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.Id,  T1.Maker FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Maker HAVING count(*)  >=  2 INTERSECT SELECT T1.Id,  T1.Maker FROM car_makers AS T1 JOIN model_list AS T2 ON T1.Id  =  T2.Maker GROUP BY T1.Maker HAVING count(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT CountryId,  CountryName FROM countries WHERE Country IN ( SELECT Country FROM car_makers GROUP BY Country HAVING count(*)  >  3 UNION SELECT Country FROM car_makers GROUP BY Country HAVING count(*)  >  3 UNION SELECT Country FROM model_list WHERE Maker  =  'Fiat')\"}"}
+{"text": "{\"sql\": \"SELECT CountryId,  CountryName FROM countries WHERE CountryName IN ( SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country WHERE T2.Maker  =  'Toyota' GROUP BY T1.CountryName HAVING COUNT(*)  >  3 UNION SELECT T1.CountryName FROM countries AS T1 JOIN car_makers AS T2 ON T1.CountryId  =  T2.Country WHERE T2.Maker  =  'Fiat' GROUP BY T1.CountryName HAVING COUNT(*)  >  3"}
+{"text": "{\"sql\": \"SELECT Country FROM airlines WHERE Airline  =  \\\"JetBlue Airways\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Country FROM airlines WHERE Abbreviation  =  \\\"Jetblue Airways\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Abbreviation FROM airlines WHERE Airline  =  \\\"JetBlue Airways\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Abbreviation FROM airlines WHERE Airline  =  \\\"Jetblue Airways\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Airline,  Abbreviation FROM airlines WHERE Country  =  \\\"USA\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Airline,  Abbreviation FROM airlines WHERE country  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT AirportCode,  AirportName FROM airports WHERE City  =  \\\"Anthony\\\"\"}"}
+{"text": "{\"sql\": \"SELECT AirportCode,  AirportName FROM airports WHERE City  =  \\\"Anthony\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airlines\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airlines\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airports\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airports\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights\"}"}
+{"text": "{\"sql\": \"SELECT Airline FROM airlines WHERE Abbreviation  =  'UAL'\"}"}
+{"text": "{\"sql\": \"SELECT Airline FROM airlines WHERE Abbreviation  =  'UAL'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airlines WHERE country  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM airlines WHERE country  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT city,  countryAbbrev FROM airports WHERE airportname  =  \\\"Alton airport\\\"\"}"}
+{"text": "{\"sql\": \"SELECT city,  country FROM airports WHERE airportname  =  'Alton'\"}"}
+{"text": "{\"sql\": \"SELECT AirportName FROM airports WHERE AirportCode  =  'AKO'\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.CountryAbbrev  =  'USA' AND T2.AirportCode  =  'APG'\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.City  =  \\\"Aberdeen\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.city  =  'Aberdeen'\"}"}
+{"text": "{\"sql\": \"SELECT T1.FlightNo FROM flights AS T1 JOIN airports AS T2 ON T1.DestAirport  =  T2.AirportCode WHERE T2.City  =  \\\"Aberdeen\\\"\"}"}
+{"text": "{\"sql\": \"SELECT FlightNo FROM flights WHERE SourceAirport  =  \\\"ABERDEEN\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE destairport  =  'Aberdeen' OR sourceairport  =  'Abilene'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM flights WHERE DestAirport  =  \\\"Aberdeen\\\" OR SourceAirport  =  \\\"Abilene\\\"\"}"}
+{"text": "{\"sql\": \"SELECT AirportName FROM airports WHERE AirportCode NOT IN (SELECT DestAirport FROM flights)\"}"}
+{"text": "{\"sql\": \"SELECT AirportCode FROM airports WHERE AirportCode NOT IN (SELECT SourceAirport FROM flights) UNION SELECT AirportCode FROM airports WHERE AirportCode NOT IN (SELECT DestAirport FROM flights)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM employee\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM employee\"}"}
+{"text": "{\"sql\": \"SELECT name FROM employee ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT name FROM employee ORDER BY age\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  city FROM employee GROUP BY city\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  city FROM employee GROUP BY city\"}"}
+{"text": "{\"sql\": \"SELECT city FROM employee WHERE age  <  30 GROUP BY city HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT city FROM employee WHERE age  <  30 GROUP BY city HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  LOCATION FROM shop GROUP BY LOCATION\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  LOCATION FROM shop GROUP BY LOCATION\"}"}
+{"text": "{\"sql\": \"SELECT manager_name,  district FROM shop ORDER BY Number_products DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT manager_name,  district FROM shop ORDER BY Number_products DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT min(number_products),  max(number_products) FROM shop\"}"}
+{"text": "{\"sql\": \"SELECT min(number_products),  max(number_products) FROM shop\"}"}
+{"text": "{\"sql\": \"SELECT name,  LOCATION,  district FROM shop ORDER BY Number_products DESC\"}"}
+{"text": "{\"sql\": \"SELECT name,  LOCATION,  district FROM shop ORDER BY Number_products DESC\"}"}
+{"text": "{\"sql\": \"SELECT name FROM shop WHERE number_products  >  (SELECT avg(number_products) FROM shop)\"}"}
+{"text": "{\"sql\": \"SELECT name FROM shop WHERE number_products  >  (SELECT avg(number_products) FROM shop)\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM employee AS T1 JOIN evaluation AS T2 ON T1.employee_id  =  T2.employee_id GROUP BY T2.employee_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM employee AS T1 JOIN evaluation AS T2 ON T1.employee_id  =  T2.employee_id GROUP BY T1.employee_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM employee AS T1 JOIN evaluation AS T2 ON T1.employee_id  =  T2.employee_id ORDER BY T2.bonus DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM employee AS T1 JOIN evaluation AS T2 ON T1.employee_id  =  T2.employee_id ORDER BY T2.bonus DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM employee WHERE employee_id NOT IN (SELECT employee_id FROM evaluation)\"}"}
+{"text": "{\"sql\": \"SELECT name FROM employee WHERE employee_id NOT IN (SELECT employee_id FROM evaluation)\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM shop AS T1 JOIN hiring AS T2 ON T1.shop_id  =  T2.shop_id GROUP BY T2.shop_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM shop ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM shop WHERE shop_id NOT IN (SELECT shop_id FROM hiring)\"}"}
+{"text": "{\"sql\": \"SELECT name FROM shop WHERE Shop_ID NOT IN (SELECT Shop_ID FROM hiring)\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.name FROM shop AS T1 JOIN hiring AS T2 ON T1.shop_id  =  T2.shop_id GROUP BY T2.shop_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  count(*) FROM shop AS T1 JOIN employee AS T2 ON T1.shop_id  =  T2.shop_id GROUP BY T1.shop_id\"}"}
+{"text": "{\"sql\": \"SELECT sum(Bonus) FROM evaluation\"}"}
+{"text": "{\"sql\": \"SELECT sum(Bonus) FROM evaluation\"}"}
+{"text": "{\"sql\": \"SELECT * FROM hiring\"}"}
+{"text": "{\"sql\": \"SELECT * FROM hiring\"}"}
+{"text": "{\"sql\": \"SELECT district FROM shop WHERE number_products  <  3000 INTERSECT SELECT district FROM shop WHERE number_products  >  10000\"}"}
+{"text": "{\"sql\": \"SELECT district FROM shop WHERE number_products  <  3000 INTERSECT SELECT district FROM shop WHERE number_products  >  10000\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT LOCATION) FROM shop\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT LOCATION) FROM shop\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  document_name,  document_description FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT template_type_description FROM Ref_template_types WHERE template_type_code  =  \\\"AD\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Ref_Template_Types WHERE template_type_description  =  \\\"Book\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Ref_Template_Types WHERE template_type_description  =  \\\"Book\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.template_type_description FROM Ref_Template_Types AS T1 JOIN Templates AS T2 ON T1.template_type_code  =  T2.template_type_code WHERE T2.Template_ID  IN (SELECT Template_ID FROM Documents)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.template_type_description FROM Ref_template_types AS T1 JOIN Templates AS T2 ON T1.template_type_code  =  T2.template_type_code WHERE T2.template_id IN (SELECT template_id FROM Documents)\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates WHERE template_type_code  =  \\\"Presentation\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates WHERE Template_Type_Description  =  'Presentation'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Paragraphs\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Paragraphs\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id WHERE T1.document_name  =  'Summer Show'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id WHERE T1.document_name  =  'Summer Show'\"}"}
+{"text": "{\"sql\": \"SELECT paragraph_text FROM paragraphs WHERE paragraph_text LIKE '%Korea%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.paragraph_text FROM paragraphs AS T1 JOIN documents AS T2 ON T1.document_id  =  T2.document_id JOIN templates AS T3 ON T2.template_id  =  T3.template_id WHERE T3.template_type_code  =  \\\"Ref_Template_Types\\\" AND T2.document_id  =  123 AND T1.paragraph_text LIKE \\\"%Korea %\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_id,  T1.paragraph_text FROM paragraphs AS T1 JOIN documents AS T2 ON T1.document_id  =  T2.document_id WHERE T2.document_name  =  'Welcome to NY'\"}"}
+{"text": "{\"sql\": \"SELECT T1.paragraph_id,  T1.paragraph_text FROM Paragraphs AS T1 JOIN Documents AS T2 ON T1.document_id  =  T2.document_id WHERE T2.document_name  =  'Welcome to NY'\"}"}
+{"text": "{\"sql\": \"SELECT T2.paragraph_text FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id WHERE T1.document_name  =  \\\"Customer reviews\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T2.paragraph_text FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id WHERE T1.document_name  =  \\\"Customer reviews\\\"\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  count(*) FROM Paragraphs GROUP BY document_id ORDER BY document_id\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  count(*) FROM paragraphs GROUP BY document_id ORDER BY document_id\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  document_name,  count(*) FROM paragraphs GROUP BY document_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_id,  T1.document_name,  count(*) FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id GROUP BY T1.document_id\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_id,  T1.document_name FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id GROUP BY T1.document_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  document_name FROM Paragraphs GROUP BY document_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id HAVING count(*) BETWEEN 1 AND 2\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs GROUP BY document_id HAVING count(*) BETWEEN 1 AND 2\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM paragraphs WHERE paragraph_text  =  'Brazil' OR paragraph_text  =  'Ireland'\"}"}
+{"text": "{\"sql\": \"SELECT document_id FROM Paragraphs WHERE Paragraph_text  =  'Brazil' INTERSECT SELECT document_id FROM Paragraphs WHERE Paragraph_text  =  'Ireland'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM teacher\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM teacher\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT Age,  Hometown FROM teacher\"}"}
+{"text": "{\"sql\": \"SELECT Age,  Hometown FROM teacher\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher WHERE Hometown!= 'Little Lever Urban District'\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher WHERE Hometown!= 'Little Lever Urban District'\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher WHERE Age  =  32 OR Age  =  33\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher WHERE Age  =  32 OR Age  =  33\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT Hometown,  COUNT(*) FROM teacher GROUP BY Hometown\"}"}
+{"text": "{\"sql\": \"SELECT Hometown,  COUNT(*) FROM teacher GROUP BY Hometown\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher GROUP BY Hometown ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher GROUP BY Hometown ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher GROUP BY Hometown HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT Hometown FROM teacher GROUP BY Hometown HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Course_ID FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  document_name,  document_description FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_name,  T2.template_id FROM Documents AS T1 JOIN Templates AS T2 ON T1.template_id  =  T2.template_id WHERE T1.document_description LIKE '%w%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_name,  T1.template_id FROM Documents AS T1 JOIN Paragraphs AS T2 ON T1.document_id  =  T2.document_id WHERE T2.paragraph_text LIKE '%w%'\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  template_id,  document_description FROM Documents WHERE document_name  =  \\\"Robbin CV\\\"\"}"}
+{"text": "{\"sql\": \"SELECT document_id,  template_id,  document_description FROM Documents WHERE document_name  =  \\\"Robbin CV\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT template_id) FROM documents\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT Template_ID) FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents WHERE Template_ID IN (SELECT Template_ID FROM Templates WHERE Template_type_code  =  'PPT')\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Documents WHERE template_id IN (SELECT template_id FROM Templates WHERE template_type_code  =  'PPT')\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  count(*) FROM Documents GROUP BY template_id\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  count(*) FROM Documents GROUP BY template_id\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  template_type_code FROM Documents GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  template_type_code FROM Documents GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates GROUP BY template_id HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Documents GROUP BY template_id HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates EXCEPT SELECT template_id FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates EXCEPT SELECT template_id FROM Documents\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  version_number,  template_type_code FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT template_id,  version_number,  template_type_code FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Template_type_code FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT template_type_code FROM Ref_Template_Types\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates WHERE template_type_code  =  \\\"PP\\\" OR template_type_code  =  \\\"PPT\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_id FROM Templates WHERE template_type_code  =  'PP' OR template_type_code  =  'PPT'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Templates WHERE Template_type_code  =  \\\"CV\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Templates WHERE template_type_code  =  \\\"CV\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  version_number FROM Templates WHERE version_number  >  5\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  version_number FROM Templates WHERE version_number  >  5\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  count(*) FROM Templates GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  count(*) FROM Templates GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM templates GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM templates GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Templates GROUP BY template_type_code HAVING count(*)  <  3\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Templates GROUP BY template_type_code HAVING count(*)  <  3\"}"}
+{"text": "{\"sql\": \"SELECT min(version_number),  template_type_code FROM Templates GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT min(version_number),  template_type_code FROM Templates GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT t1.template_type_code FROM Templates AS t1 JOIN Documents AS t2 ON t1.template_id  =  t2.template_id WHERE t2.document_name  =  \\\"Data base\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.template_type_code FROM Templates AS T1 JOIN Documents AS T2 ON T1.Template_ID  =  T2.Template_ID WHERE T2.Document_name  =  \\\"Data base\\\"\"}"}
+{"text": "{\"sql\": \"SELECT document_name FROM documents WHERE template_type_code  =  'BK'\"}"}
+{"text": "{\"sql\": \"SELECT T1.document_name FROM Documents AS T1 JOIN Templates AS T2 ON T1.template_id  =  T2.template_id WHERE T2.template_type_code  =  \\\"BK\\\"\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  count(*) FROM Documents GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  count(*) FROM Documents GROUP BY template_type_code\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Documents GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Documents GROUP BY template_type_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Ref_template_types EXCEPT SELECT template_type_code FROM Templates\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code FROM Ref_Template_Types EXCEPT SELECT template_type_code FROM Templates WHERE template_id IN (SELECT template_id FROM Documents)\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  template_type_description FROM Ref_Template_Types\"}"}
+{"text": "{\"sql\": \"SELECT template_type_code,  template_type_description FROM Ref_Template_Types\"}"}
+{"text": "{\"sql\": \"SELECT template_type_description FROM Ref_template_types WHERE template_type_code  =  \\\"AD\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Course_ID FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Course_ID FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID ORDER BY T1.Name ASC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Course_id FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID ORDER BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM course AS T1 JOIN course_arrange AS T2 ON T1.Course_ID  =  T2.Course_ID WHERE T1.Course  =  \\\"Math\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID WHERE T2.Course_ID  =  (SELECT Course_ID FROM course WHERE Course  =  'Math')\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T1.Teacher_ID HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID GROUP BY T2.Teacher_ID HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM teacher WHERE Teacher_ID NOT IN (SELECT Teacher_ID FROM course_arrange)\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM teacher AS T1 JOIN course_arrange AS T2 ON T1.Teacher_ID  =  T2.Teacher_ID WHERE T2.Course_ID NOT IN (SELECT Course_ID FROM course_arrange)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM visitor WHERE age  <  30\"}"}
+{"text": "{\"sql\": \"SELECT name FROM visitor WHERE LEVEL_OF_membership  >  4 ORDER BY LEVEL_OF_membership\"}"}
+{"text": "{\"sql\": \"SELECT avg(T1.Age) FROM visitor AS T1 JOIN museum AS T2 ON T1.ID  =  T2.Museum_ID WHERE T1.Level_of_membership  <=  4\"}"}
+{"text": "{\"sql\": \"SELECT name,  LEVEL_of_membership FROM visitor WHERE LEVEL_of_membership  >  4 ORDER BY age\"}"}
+{"text": "{\"sql\": \"SELECT Museum_ID,  Name FROM museum ORDER BY Num_of_Staff DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(Num_of_Staff) FROM museum WHERE Open_Year  <  2009\"}"}
+{"text": "{\"sql\": \"SELECT open_year,  num_of_staff FROM museum WHERE name  =  'Plaza Museum'\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM museum WHERE Num_of_Staff  >  (SELECT min(Num_of_Staff) FROM museum WHERE Open_Year  >  2010)\"}"}
+{"text": "{\"sql\": \"SELECT T1.id,  T1.name,  T1.age FROM visitor AS T1 JOIN visit AS T2 ON T1.id  =  T2.visitor_id GROUP BY T2.visitor_id HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.ID,  T1.Name,  T1.Level_of_membership FROM visitor AS T1 JOIN visit AS T2 ON T1.ID  =  T2.visitor_ID GROUP BY T1.ID ORDER BY sum(T2.Total_spent) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Museum_ID,  T1.Name FROM museum AS T1 JOIN visit AS T2 ON T1.Museum_ID  =  T2.Museum_ID GROUP BY T1.Museum_ID ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM museum WHERE museum_id NOT IN (SELECT T1.museum_id FROM visit AS T1 JOIN visitor AS T2 ON T1.visitor_id  =  T2.id)\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T1.age FROM visitor AS T1 JOIN visit AS T2 ON T1.id  =  T2.visitor_id GROUP BY T2.visitor_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(num_of_ticket),  max(num_of_ticket) FROM visit\"}"}
+{"text": "{\"sql\": \"SELECT sum(T1.Total_spent) FROM visit AS T1 JOIN visitor AS T2 ON T1.visitor_ID  =  T2.ID WHERE T2.Level_of_membership  =  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM visitor AS T1 JOIN visit AS T2 ON T1.ID  =  T2.visitor_ID JOIN museum AS T3 ON T2.Museum_ID  =  T3.Museum_ID WHERE T3.Open_Year  <  2009 INTERSECT SELECT T1.Name FROM visitor AS T1 JOIN visit AS T2 ON T1.ID  =  T2.visitor_ID JOIN museum AS T3 ON T2.Museum_ID  =  T3.Museum_ID WHERE T3.Open_Year  >  2011\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM visitor WHERE id NOT IN (SELECT visitor_id FROM visit WHERE museum_id  >  2010)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM museum WHERE open_year  >  2013 OR open_year  <  2008\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM players\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM players\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  birth_date FROM players WHERE country_code  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  birth_date FROM players WHERE country_code  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT avg(loser_age),  avg(winner_age) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT avg(loser_age),  avg(winner_age) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT avg(winner_rank) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT avg(winner_rank) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT loser_rank FROM matches WHERE draw_size  =  'best_of' ORDER BY loser_rank DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT loser_rank FROM matches WHERE draw_size  =  'best_of'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT country_code) FROM players\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT country_code) FROM players\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT loser_name) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT loser_name) FROM matches\"}"}
+{"text": "{\"sql\": \"SELECT tourney_name FROM matches GROUP BY tourney_name HAVING count(*)  >  10\"}"}
+{"text": "{\"sql\": \"SELECT tourney_name FROM matches GROUP BY tourney_name HAVING count(*)  >  10\"}"}
+{"text": "{\"sql\": \"SELECT winner_name FROM matches WHERE year  =  2013 INTERSECT SELECT winner_name FROM matches WHERE year  =  2016\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id = T2.winner_id WHERE T2.year = 2013 INTERSECT SELECT T1.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id = T2.winner_id WHERE T2.year = 2016\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM matches WHERE YEAR  =  2013 OR YEAR  =  2016\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM matches WHERE YEAR  =  2013 OR YEAR  =  2016\"}"}
+{"text": "{\"sql\": \"SELECT T1.country_code,  T2.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'WTA Championships' INTERSECT SELECT T1.country_code,  T2.first_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'Australian Open'\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.country_code FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'WTA Championships' INTERSECT SELECT T1.first_name,  T1.country_code FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'Australian Open'\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  country_code FROM players ORDER BY birth_date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  country_code FROM players ORDER BY birth_date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT first_name, last_name FROM players ORDER BY birth_date\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  last_name FROM players ORDER BY birth_date\"}"}
+{"text": "{\"sql\": \"SELECT first_name, last_name FROM players WHERE hand  =  'L' ORDER BY birth_date\"}"}
+{"text": "{\"sql\": \"SELECT first_name, last_name FROM players WHERE hand  =  'left' ORDER BY birth_date\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.country_code FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.player_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.country_code FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id ORDER BY T2.tours DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT YEAR FROM matches GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT YEAR FROM matches GROUP BY YEAR ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name,  T1.winner_rank FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.loser_id GROUP BY T1.player_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name,  T1.winner_rank_points FROM matches AS T1 JOIN players AS T2 ON T1.winner_id = T2.player_id GROUP BY T1.winner_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  'Australian Open' ORDER BY T2.loser_rank_points DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id WHERE T2.tourney_name  =  \\\"Australian Open\\\" ORDER BY T2.loser_rank DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT loser_name,  winner_name FROM matches GROUP BY loser_name,  winner_name ORDER BY sum(minutes) DESC\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name,  T1.loser_name FROM matches AS T1 JOIN players AS T2 ON T1.winner_id = T2.player_id AND T1.loser_id = T2.player_id ORDER BY T1.minutes DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(T1.ranking),  T2.first_name FROM rankings AS T1 JOIN players AS T2 ON T1.player_id  =  T2.player_id GROUP BY T2.player_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T2.player_id ORDER BY avg(T2.ranking)\"}"}
+{"text": "{\"sql\": \"SELECT T1.player_id,  T1.first_name,  T1.rank FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T1.player_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.player_id,  sum(T2.ranking_points) FROM players AS T1 JOIN rankings AS T2 ON T1.player_id  =  T2.player_id GROUP BY T2.player_id\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  country_code FROM players GROUP BY country_code\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  country_code FROM players GROUP BY country_code\"}"}
+{"text": "{\"sql\": \"SELECT country_code FROM players GROUP BY country_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT country_code FROM players GROUP BY country_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT country_code FROM players GROUP BY country_code HAVING count(*)  >  50\"}"}
+{"text": "{\"sql\": \"SELECT country_code FROM players GROUP BY country_code HAVING count(*)  >  50\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  ranking_date FROM rankings GROUP BY ranking_date\"}"}
+{"text": "{\"sql\": \"SELECT sum(tours),  ranking_date FROM rankings GROUP BY ranking_date\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  tourney_date FROM matches GROUP BY tourney_date\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  YEAR FROM matches GROUP BY YEAR\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name,  T1.winner_rank FROM matches AS T1 JOIN players AS T2 ON T1.winner_id  =  T2.player_id ORDER BY T1.winner_age LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT T1.winner_name,  T1.winner_rank FROM matches AS T1 JOIN players AS T2 ON T1.winner_id = T2.player_id ORDER BY T1.winner_age LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(*) FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.loser_id WHERE T1.hand  =  'R' AND T2.tourney_name  =  'WTA Championships'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM players WHERE hand  =  'Left' AND winner_id IN (SELECT winner_id FROM matches WHERE tourney_name  =  'WTA Championships');\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.country_code,  T1.birth_date FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.winner_id ORDER BY T2.loser_rank_points DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.country_code,  T1.birth_date FROM players AS T1 JOIN matches AS T2 ON T1.player_id  =  T2.loser_id GROUP BY T2.loser_id ORDER BY T2.loser_rank_points DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT hand,  count(*) FROM players GROUP BY hand\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  hand FROM players GROUP BY hand\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM ship WHERE disposition_of_ship  =  'Captured'\"}"}
+{"text": "{\"sql\": \"SELECT name,  tonnage FROM ship ORDER BY name DESC\"}"}
+{"text": "{\"sql\": \"SELECT name,  date,  result FROM battle\"}"}
+{"text": "{\"sql\": \"SELECT max(T1.killed),  min(T1.killed) FROM death AS T1 JOIN ship AS T2 ON T1.caused_by_ship_id  =  T2.id GROUP BY T1.caused_by_ship_id\"}"}
+{"text": "{\"sql\": \"SELECT avg(injured) FROM death\"}"}
+{"text": "{\"sql\": \"SELECT T1.id,  T1.killed,  T1.injured FROM death AS T1 JOIN ship AS T2 ON T1.caused_by_ship_id  =  T2.id WHERE T2.tonnage  =  'T'\"}"}
+{"text": "{\"sql\": \"SELECT name,  result FROM battle WHERE bulgarian_commander!= 'Boril'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.id,  T1.name FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.ship_type  =  'Brig'\"}"}
+{"text": "{\"sql\": \"SELECT T1.id,  T1.name FROM battle AS T1 JOIN death AS T2 ON T1.id  =  T2.caused_by_ship_id GROUP BY T1.id HAVING sum(T2.killed)  >  10\"}"}
+{"text": "{\"sql\": \"SELECT Earnings FROM poker_player ORDER BY Earnings DESC\"}"}
+{"text": "{\"sql\": \"SELECT Final_Table_Made,  Best_Finish FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT Final_Table_Made,  Best_Finish FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT avg(Earnings) FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT avg(Earnings) FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT Money_Rank FROM poker_player ORDER BY Earnings DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Money_Rank FROM poker_player ORDER BY Earnings DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT max(final_table_made) FROM poker_player WHERE Earnings  <  200000\"}"}
+{"text": "{\"sql\": \"SELECT max(Final_Table_Made) FROM poker_player WHERE Earnings  <  200000\"}"}
+{"text": "{\"sql\": \"SELECT T2.Name FROM poker_player AS T1 JOIN people AS T2 ON T1.People_ID  =  T2.People_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID WHERE T2.Earnings  >  300000\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID WHERE T2.Earnings  >  300000\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Final_Table_Made ASC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Final_Table_Made\"}"}
+{"text": "{\"sql\": \"SELECT T1.Birth_Date FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Earnings ASC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Birth_Date FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Earnings ASC\"}"}
+{"text": "{\"sql\": \"SELECT Money_Rank FROM poker_player ORDER BY Height DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Money_Rank FROM people ORDER BY Height DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(Earnings) FROM poker_player WHERE Height  >  200\"}"}
+{"text": "{\"sql\": \"SELECT AVG(Earnings) FROM poker_player WHERE Height  >  200\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Earnings DESC\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID ORDER BY T2.Earnings DESC\"}"}
+{"text": "{\"sql\": \"SELECT Nationality,  COUNT(*) FROM people GROUP BY Nationality\"}"}
+{"text": "{\"sql\": \"SELECT Nationality,  COUNT(*) FROM people GROUP BY Nationality\"}"}
+{"text": "{\"sql\": \"SELECT Nationality FROM people GROUP BY Nationality ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Nationality FROM people GROUP BY Nationality ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Nationality FROM people GROUP BY Nationality HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT Nationality FROM people GROUP BY Nationality HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT Name,  Birth_Date FROM People ORDER BY Name ASC\"}"}
+{"text": "{\"sql\": \"SELECT Name,  Birth_Date FROM people ORDER BY Name\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM people WHERE Nationality!= \\\"Russia\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM people WHERE Nationality!= 'Russia'\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM people WHERE People_ID NOT IN (SELECT People_ID FROM poker_player)\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM people EXCEPT SELECT T1.Name FROM people AS T1 JOIN poker_player AS T2 ON T1.People_ID  =  T2.People_ID\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT nationality) FROM people\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT nationality) FROM people\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM AREA_CODE_STATE\"}"}
+{"text": "{\"sql\": \"SELECT contestant_number,  contestant_name FROM contestants ORDER BY contestant_name DESC\"}"}
+{"text": "{\"sql\": \"SELECT vote_id,  phone_number,  state FROM VOTES\"}"}
+{"text": "{\"sql\": \"SELECT max(area_code),  min(area_code) FROM area_code_state\"}"}
+{"text": "{\"sql\": \"SELECT created FROM votes WHERE state  =  'CA'\"}"}
+{"text": "{\"sql\": \"SELECT contestant_name FROM contestants WHERE contestant_name!= 'Jessie Alloway'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT state,  created FROM VOTES\"}"}
+{"text": "{\"sql\": \"SELECT contestant_number,  contestant_name FROM CONTESTANTS GROUP BY contestant_number HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT contestant_number,  contestant_name FROM CONTESTANTS WHERE contestant_number IN (SELECT contestant_number FROM VOTES GROUP BY contestant_number ORDER BY count(*) ASC LIMIT 1)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM VOTES WHERE state  =  'NY' OR state  =  'CA'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM contestants WHERE contestant_number NOT IN (SELECT contestant_number FROM VOTES)\"}"}
+{"text": "{\"sql\": \"SELECT state,  area_code FROM votes GROUP BY state ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.created,  T1.state,  T1.phone_number FROM VOTES AS T1 JOIN CONTESTANTS AS T2 ON T1.contestant_number  =  T2.contestant_number WHERE T2.contestant_name  =  'Tabatha Gehling'\"}"}
+{"text": "{\"sql\": \"SELECT Content FROM TV_Channel WHERE Channel  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Package_Option FROM TV_Channel WHERE series_name  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Package_Option FROM TV_Channel WHERE Channel  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM TV_channel WHERE Language  =  \\\"english\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM TV_channel WHERE Language  =  \\\"english\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Language,  count(*) FROM TV_channel GROUP BY Language ORDER BY count(*) ASC LIMIT 1;\"}"}
+{"text": "{\"sql\": \"SELECT Language FROM TVCHANNEL GROUP BY Language ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Language,  COUNT(*) FROM TVCHANNEL GROUP BY Language\"}"}
+{"text": "{\"sql\": \"SELECT Language,  COUNT(*) FROM TVCHANNEL GROUP BY Language\"}"}
+{"text": "{\"sql\": \"SELECT T2.series_name FROM Cartoon AS T1 JOIN TV_Channel AS T2 ON T1.Channel  =  T2.id WHERE T1.Title  =  \\\"The Rise of the Blue Beetle!\\\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Series_name FROM TV_channel AS T1 JOIN Cartoon AS T2 ON T1.id  =  T2.channel WHERE T2.Title  =  \\\"The Rise of the Blue Beetle\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Title FROM Cartoon AS T1 JOIN TV_Channel AS T2 ON T1.Channel  =  T2.id WHERE T2.series_name  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Title FROM Cartoon AS T1 JOIN TV_Channel AS T2 ON T1.channel  =  T2.id WHERE T2.series_name  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Episode FROM TV_series ORDER BY Rating\"}"}
+{"text": "{\"sql\": \"SELECT Episode FROM TV_series ORDER BY Rating\"}"}
+{"text": "{\"sql\": \"SELECT Episode,  Rating FROM TV_series ORDER BY Rating DESC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT Episode,  Rating FROM TV_series ORDER BY Rating DESC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT min(Share),  max(Share) FROM TV_series\"}"}
+{"text": "{\"sql\": \"SELECT max(Share),  min(Share) FROM TV_series\"}"}
+{"text": "{\"sql\": \"SELECT Air_Date FROM TV_series WHERE Episode  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Air_Date FROM TV_series WHERE Episode  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Weekly_Rank FROM TV_series WHERE Episode  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Weekly_Rank FROM TV_series WHERE Episode  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T2.series_name FROM TV_series AS T1 JOIN TV_Channel AS T2 ON T1.Channel  =  T2.id WHERE T1.EPISODE  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT series_name FROM TV_series WHERE Episode  =  \\\"A Love of a Lifetime\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Episode FROM TV_series WHERE Channel  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Episode FROM TV_series WHERE Channel  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  directed_by FROM Cartoon GROUP BY directed_by\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  directed_by FROM Cartoon GROUP BY directed_by\"}"}
+{"text": "{\"sql\": \"SELECT Production_code,  Channel FROM Cartoon ORDER BY Air_Date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Production_code,  Channel FROM Cartoon ORDER BY Original_air_date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T2.Package_Option,  T1.Series_name FROM TVCHANNEL AS T1 JOIN TV_series AS T2 ON T1.id  =  T2.id WHERE T1.Hight_definition_TV  =  'Yes'\"}"}
+{"text": "{\"sql\": \"SELECT package_option,  series_name FROM TV_Channel WHERE Hight_definition_TV  =  'Yes'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Country FROM TV_channel AS T1 JOIN cartoon AS T2 ON T1.id  =  T2.channel WHERE T2.Written_by  =  \\\"Todd Casey\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Country FROM TV_channel AS T1 JOIN cartoon AS T2 ON T1.id  =  T2.channel WHERE T2.Written_by  =  \\\"Todd Casey\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Country FROM TVCHANNEL WHERE Channel!= \\\"Cartoon\\\" AND Written_by!= \\\"Todd Casey\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Country FROM TVCHANNEL WHERE Channel!= ( SELECT Channel FROM Cartoon WHERE Written_by  =  \\\"Todd Casey\\\" )\"}"}
+{"text": "{\"sql\": \"SELECT T1.series_name,  T1.Country FROM TV_channel AS T1 JOIN cartoon AS T2 ON T1.id  =  T2.channel WHERE T2.Directed_by  =  \\\"Ben Jones\\\" AND T2.Directed_by  =  \\\"Michael Chang\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.series_name,  T1.Country FROM TVCHANNEL AS T1 JOIN Cartoon AS T2 ON T1.id  =  T2.Channel WHERE T2.Directed_by  =  'Ben Jones' INTERSECT SELECT T1.series_name,  T1.Country FROM TVCHANNEL AS T1 JOIN Cartoon AS T2 ON T1.id  =  T2.Channel WHERE T2.Directed_by  =  'Michael Chang'\"}"}
+{"text": "{\"sql\": \"SELECT T1.Pixel_aspect_ratio_PAR,  T1.Country FROM TV_Channel AS T1 JOIN TV_series AS T2 ON T1.id  =  T2.channel WHERE T2.Language!= \\\"english\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Pixel_aspect_ratio_PAR,  Country FROM TV_Channel WHERE Language!= \\\"english\\\"\"}"}
+{"text": "{\"sql\": \"SELECT id FROM TVCHANNEL GROUP BY id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT id FROM TV channels GROUP BY id HAVING count(*)  >  2\"}"}
+{"text": "{\"sql\": \"SELECT id FROM TVCHANNEL EXCEPT SELECT T1.id FROM TVCHANNEL AS T1 JOIN CARTOON AS T2 ON T1.id  =  T2.channel WHERE T2.Directed_by  =  \\\"Ben Jones\\\"\"}"}
+{"text": "{\"sql\": \"SELECT id FROM TV_channel WHERE id NOT IN (SELECT channel FROM cartoon WHERE directed_by  =  'Ben Jones')\"}"}
+{"text": "{\"sql\": \"SELECT T1.Package_Option FROM TV_Channel AS T1 JOIN Cartoon AS T2 ON T1.id  =  T2.channel WHERE T2.directed_by  =  'Ben Jones' AND T1.id!= T2.id\"}"}
+{"text": "{\"sql\": \"SELECT Package_Option FROM TV_Channel WHERE Channel IN (SELECT Channel FROM Cartoon WHERE Directed_by  =  \\\"Ben Jones\\\") EXCEPT SELECT Package_Option FROM TV_Channel WHERE Channel IN (SELECT Channel FROM Cartoon WHERE Directed_by  =  \\\"Ben Jones\\\")\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM poker_player\"}"}
+{"text": "{\"sql\": \"SELECT Earnings FROM poker_player ORDER BY Earnings DESC\"}"}
+{"text": "{\"sql\": \"SELECT T1.area_code FROM area_code_state AS T1 JOIN votes AS T2 ON T1.area_code  =  T2.state JOIN contestants AS T3 ON T2.contestant_number  =  T3.contestant_number WHERE T3.contestant_name  =  'Tabatha Gehling' INTERSECT SELECT T1.area_code FROM area_code_state AS T1 JOIN votes AS T2 ON T1.area_code  =  T2.state JOIN contestants AS T3 ON T2.contestant_number  =  T3.contestant_number WHERE T3.contestant_name"}
+{"text": "{\"sql\": \"SELECT contestant_name FROM contestants WHERE contestant_name LIKE '%Al%'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT name FROM country WHERE indepyear  >  1950\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE IndepYear  >  1950\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country WHERE GovernmentForm  =  \\\"Republic\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT country.GovernmentForm) FROM country WHERE GovernmentForm  =  \\\"Republic\\\"\"}"}
+{"text": "{\"sql\": \"SELECT sum(surfacearea) FROM country WHERE region  =  'Caribbean';\"}"}
+{"text": "{\"sql\": \"SELECT sum(surfacearea) FROM country WHERE continent  =  'Caribbean'\"}"}
+{"text": "{\"sql\": \"SELECT Continent FROM country WHERE Code  =  \\\"Anguilla\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Continent FROM country AS T1 JOIN city AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Name  =  \\\"Anguilla\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT region FROM city WHERE name  =  \\\"Kabul\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Region FROM city WHERE Name  =  \\\"Kabul\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Language FROM countrylanguage WHERE CountryCode  =  \\\"ARU\\\" ORDER BY Percentage DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Language FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.Name  =  \\\"Aruba\\\" GROUP BY T1.Language ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Population,  LifeExpectancy FROM country WHERE Region  =  'Brazil'\"}"}
+{"text": "{\"sql\": \"SELECT population,  lifeexpectancy FROM country WHERE name  =  'Brazil'\"}"}
+{"text": "{\"sql\": \"SELECT region,  population FROM country WHERE name  =  \\\"Angola\\\"\"}"}
+{"text": "{\"sql\": \"SELECT region,  population FROM city WHERE countrycode  =  \\\" Angola\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy) FROM country WHERE Region  =  \\\"Central Africa\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  \\\"Africa\\\" AND Region  =  \\\"Central\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE Continent  =  'Asia' ORDER BY LifeExpectancy ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE Continent  =  'Asia' ORDER BY LifeExpectancy ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT sum(population),  max(gnp) FROM country WHERE Continent  =  'Asia'\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  max(gnpold) FROM country WHERE continent  =  'Asia'\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  'Africa' AND GovernmentForm  =  'Republic'\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy) FROM country WHERE Continent  =  \\\"Africa\\\" AND GovernmentForm  =  \\\"Republic\\\"\"}"}
+{"text": "{\"sql\": \"SELECT sum(surfacearea) FROM country WHERE continent  =  'Asia' OR continent  =  'Europe'\"}"}
+{"text": "{\"sql\": \"SELECT sum(surfacearea) FROM country WHERE continent  =  'Asia' OR continent  =  'Europe'\"}"}
+{"text": "{\"sql\": \"SELECT sum(Population) FROM city WHERE District  =  \\\"Gelderland\\\"\"}"}
+{"text": "{\"sql\": \"SELECT sum(Population) FROM city WHERE District  =  \\\"Gelderland\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(GNP),  sum(Population) FROM country WHERE GovernmentForm  =  \\\"Territory\\\"\"}"}
+{"text": "{\"sql\": \"SELECT avg(GNP),  sum(Population) FROM country WHERE Code  =  'USA'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT language) FROM countrylanguage\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT Language) FROM countrylanguage WHERE IsOfficial  =  'yes'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  \\\"Africa\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT GovernmentForm) FROM country WHERE Continent  =  'Africa'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT Language) FROM countrylanguage WHERE CountryCode  =  \\\"ARUBA\\\"\"}"}
+{"text": "{\"sql\": \"SELECT COUNT (DISTINCT t3.language) FROM city AS t1 JOIN country AS t2 ON t1.countrycode  =  t2.code AS t3 WHERE t1.countrycode  =  \\\"Aruba\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT IsOfficial) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  \\\"Afghanistan\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T1.Name  =  \\\"Afghanistan\\\" AND T2.IsOfficial  =  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT t1.Name FROM country AS t1 JOIN countrylanguage AS t2 ON t1.Code  =  t2.CountryCode GROUP BY t2.CountryCode ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Continent FROM countrylanguage GROUP BY Continent ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Continent FROM countrylanguage GROUP BY Continent ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT COUNT (DISTINCT countrycode) FROM countrylanguage WHERE language  =  \\\"English\\\" INTERSECT SELECT COUNT (DISTINCT countrycode) FROM countrylanguage WHERE language  =  \\\"Dutch\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"English\\\" AND T2.Language  =  \\\"Dutch\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE Language  =  \\\"English\\\" INTERSECT SELECT Name FROM country WHERE Language  =  \\\"French\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM countrylanguage WHERE Language  =  \\\"English\\\" INTERSECT SELECT Name FROM countrylanguage WHERE Language  =  \\\"French\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE Language  =  \\\"English\\\" INTERSECT SELECT Name FROM country WHERE Language  =  \\\"French\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE IsOfficial  =  'English' INTERSECT SELECT Name FROM country WHERE IsOfficial  =  'French'\"}"}
+{"text": "{\"sql\": \"SELECT T1.last_name FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id = T2.current_address_id WHERE T1.state_province_county = \\\"North Carolina\\\" EXCEPT SELECT T1.last_name FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id = T2.current_address_id JOIN Student_Enrolment AS T3 ON T2.student_id = T3.student_id WHERE T3.degree_program_id!= \\\"null\\\"\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date,  transcript_id FROM transcripts JOIN student_course_id ON student_course_id.student_course_id = transcript_id GROUP BY student_course_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.transcript_date,  T1.transcript_id FROM Transcripts AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.transcript_id = T2.student_course_id GROUP BY T1.transcript_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.cell_mobile_number FROM Students AS T1 JOIN Addresses AS T2 ON T1.current_address_id = T2.address_id WHERE T1.first_name = \\\"Timmothy\\\" AND T1.last_name = \\\"Ward\\\";\"}"}
+{"text": "{\"sql\": \"SELECT T1.cell_mobile_number FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id WHERE T1.first_name  =  \\\"Timmothy\\\" AND T1.last_name  =  \\\"Ward\\\"\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  middle_name,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  middle_name,  last_name FROM students ORDER BY current_address_id ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.middle_name,  T1.last_name FROM Students AS T1 JOIN Degree_Programs AS T2 ON T1.degree_program_id  =  T2.degree_program_id ORDER BY T2.degree_summary_name ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  middle_name,  last_name FROM Students ORDER BY date_first_registered ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.permanent_address_id  =  T2.address_id JOIN Addresses AS T3 ON T1.current_address_id  =  T3.address_id WHERE T2.line_3 !=  T3.line_3\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name FROM Students AS T1 JOIN Addresses AS T2 ON T1.permanent_address_id  =  T2.address_id WHERE T2.city  =  'City'\"}"}
+{"text": "{\"sql\": \"SELECT T1.address_id,  T1.line_1,  T1.line_2,  T1.line_3 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.address_id,  T1.line_1 FROM addresses AS T1 JOIN students AS T2 ON T1.address_id  =  T2.permanent_address_id GROUP BY T1.address_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date FROM Transcripts GROUP BY transcript_date ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(transcript_date) FROM Transcripts\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date,  other_details FROM Transcripts ORDER BY transcript_date ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date FROM Transcripts ORDER BY transcript_date ASC\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Transcripts\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM TRANSCRIPTS\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date FROM Transcripts ORDER BY transcript_date DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.student_course_id FROM Student_Enrolment_Courses AS T1 JOIN Student_Enrolment AS T2 ON T1.student_enrolment_id  =  T2.student_enrolment_id JOIN Courses AS T3 ON T3.course_id  =  T1.course_id GROUP BY T1.student_course_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.course_id,  max(COUNT(DISTINCT T2.transcript_id)) FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_id\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date FROM Transcripts GROUP BY transcript_date ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT transcript_date,  transcript_id FROM transcripts GROUP BY transcript_id ORDER BY count(*) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.semester_name FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id WHERE T2.degree_program_id  =  1 INTERSECT SELECT T1.semester_name FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id WHERE T2.degree_program_id  =  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id JOIN Degree_Programs AS T3 ON T2.degree_program_id  =  T3.degree_program_id WHERE T3.degree_summary_name  =  'Master' INTERSECT SELECT T1.semester_id FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id JOIN Degree_Programs AS T3 ON T2.degree_program_id  =  T3"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT current_address_id) FROM Students\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.address_id FROM addresses AS T1 JOIN students AS T2 ON T1.address_id  =  T2.current_address_id\"}"}
+{"text": "{\"sql\": \"SELECT * FROM students ORDER BY other_student_details DESC\"}"}
+{"text": "{\"sql\": \"SELECT other_student_details FROM Students ORDER BY other_student_details DESC\"}"}
+{"text": "{\"sql\": \"SELECT section_name FROM Sections WHERE section_description  =  \\\"h\\\"\"}"}
+{"text": "{\"sql\": \"SELECT section_description FROM Sections WHERE section_name  =  \\\"h\\\"\"}"}
+{"text": "{\"sql\": \"SELECT first_name FROM students WHERE permanent_address_id IN (SELECT permanent_address_id FROM addresses WHERE country  =  'Haiti' OR cell_mobile_number  =  '09700166582')\"}"}
+{"text": "{\"sql\": \"SELECT first_name FROM students WHERE permanent_address_id IN (SELECT permanent_address_id FROM addresses WHERE country  =  'Haiti') OR cell_mobile_number  =  09700166582\"}"}
+{"text": "{\"sql\": \"SELECT Title FROM Cartoon ORDER BY Title\"}"}
+{"text": "{\"sql\": \"SELECT Title FROM Cartoon ORDER BY Title\"}"}
+{"text": "{\"sql\": \"SELECT directed_by FROM cartoon WHERE Title  =  \\\"Ben Jones\\\" cartoon;\"}"}
+{"text": "{\"sql\": \"SELECT Title FROM Cartoon WHERE Directed_by  =  \\\"Ben Jones\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Cartoon WHERE Written_by  =  \\\"Joseph Kuhr\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Cartoon WHERE Written_by  =  \\\"Joseph Kuhr\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Title,  Directed_by FROM Cartoon ORDER BY Original_air_date\"}"}
+{"text": "{\"sql\": \"SELECT Title,  Directed_by FROM Cartoon ORDER BY Original_air_date\"}"}
+{"text": "{\"sql\": \"SELECT Title FROM Cartoon WHERE Directed_by  =  \\\"Ben Jones\\\" OR Directed_by  =  \\\"Brandon Vietti\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Title FROM Cartoon WHERE Directed_by  =  \\\"Ben Jones\\\" OR Directed_by  =  \\\"Brandon Vietti\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Country,  count(*) FROM TV_Channel GROUP BY Country ORDER BY count(*) DESC LIMIT 1;\"}"}
+{"text": "{\"sql\": \"SELECT Country,  count(*) FROM TVCHANNEL GROUP BY Country ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT series_name),  count(DISTINCT content) FROM TV_channel\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT series_name),  count(DISTINCT content) FROM TV_Channel\"}"}
+{"text": "{\"sql\": \"SELECT content FROM TVCHANNEL WHERE series_name  =  \\\"Sky Radio\\\"\"}"}
+{"text": "{\"sql\": \"SELECT name,  SurfaceArea FROM country ORDER BY SurfaceArea DESC LIMIT 5\"}"}
+{"text": "{\"sql\": \"SELECT name,  surfacearea FROM country ORDER BY surfacearea DESC LIMIT 5\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country ORDER BY Population DESC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country ORDER BY Population DESC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT name FROM city ORDER BY Population ASC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country ORDER BY Population ASC LIMIT 3\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(*) FROM country WHERE Continent  =  \\\"Asia\\\"\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(*) FROM country WHERE Continent  =  'Asia'\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM country WHERE Continent  =  'Europe' AND Population  =  80000\"}"}
+{"text": "{\"sql\": \"SELECT name FROM country WHERE continent  =  'Europe' AND Population  =  80000\"}"}
+{"text": "{\"sql\": \"SELECT sum(Population),  avg(SurfaceArea) FROM country WHERE Continent  =  'North America' AND SurfaceArea  >  3000\"}"}
+{"text": "{\"sql\": \"SELECT sum(Population),  avg(SurfaceArea) FROM country WHERE Continent  =  'North America' AND SurfaceArea  >  3000\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT name FROM city WHERE Population BETWEEN 160000 AND 900000\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM city WHERE Population BETWEEN 160000 AND 900000\"}"}
+{"text": "{\"sql\": \"SELECT Language FROM countrylanguage GROUP BY Language ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Language FROM countrylanguage GROUP BY Language ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T1.Code FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T2.CountryCode ORDER BY avg(T2.Percentage) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode,  Language FROM countrylanguage ORDER BY Percentage DESC\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"Spanish\\\" ORDER BY T2.Percentage DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"Spanish\\\"\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM countrylanguage WHERE Language  =  \\\"Spanish\\\" ORDER BY Percentage DESC\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM countrylanguage WHERE Language  =  \\\"Spanish\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM conductor\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM conductor\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor ORDER BY Age ASC\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor ORDER BY Age\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor WHERE Nationality!= \\\"USA\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor WHERE Nationality!= \\\"USA\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra ORDER BY YEAR_OF_FOUNDED DESC\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra ORDER BY YEAR_OF_FOUNDED DESC\"}"}
+{"text": "{\"sql\": \"SELECT avg(Attendance) FROM show\"}"}
+{"text": "{\"sql\": \"SELECT avg(Attendance) FROM show\"}"}
+{"text": "{\"sql\": \"SELECT max(Share),  min(Share) FROM performance WHERE TYPE!= \\\"Live final\\\"\"}"}
+{"text": "{\"sql\": \"SELECT max(Share),  min(Share) FROM performance WHERE TYPE!= \\\"Live final\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT nationality) FROM conductor\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT nationality) FROM conductor\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor ORDER BY YEAR_OF_WORK DESC\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor ORDER BY YEAR_OF_WORK DESC\"}"}
+{"text": "{\"sql\": \"SELECT name FROM conductor ORDER BY Year_of_Work DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM conductor ORDER BY YEAR_OF_WORK DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Orchestra FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T3.Orchestra FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID JOIN orchestra AS T3 ON T2.Orchestra_ID  =  T3.Orchestra_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T1.Name HAVING COUNT(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN performance AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T1.Conductor_ID HAVING COUNT(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T1.Name ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID GROUP BY T1.Conductor_ID ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID WHERE T2.Year_of_Founded  >  2008\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM conductor AS T1 JOIN orchestra AS T2 ON T1.Conductor_ID  =  T2.Conductor_ID WHERE T2.Year_of_Founded  >  2008\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company,  COUNT(*) FROM orchestra GROUP BY Record_Company\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  Record_Company FROM orchestra GROUP BY Record_Company\"}"}
+{"text": "{\"sql\": \"SELECT Major_Record_Format FROM orchestra ORDER BY count(*) ASC\"}"}
+{"text": "{\"sql\": \"SELECT Major_Record_Format FROM orchestra GROUP BY Major_Record_Format ORDER BY COUNT(*) DESC\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra GROUP BY Record_Company ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra GROUP BY Record_Company ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT orchestra FROM orchestra WHERE orchestra_id NOT IN (SELECT orchestra_id FROM performance)\"}"}
+{"text": "{\"sql\": \"SELECT orchestra_id FROM orchestra WHERE orchestra_id NOT IN (SELECT orchestra_id FROM performance)\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra WHERE YEAR_OF_FOUNDED  <  2003 INTERSECT SELECT Record_Company FROM orchestra WHERE YEAR_OF_FOUNDED  >  2003\"}"}
+{"text": "{\"sql\": \"SELECT Record_Company FROM orchestra WHERE YEAR_OF_FOUNDED  <  2003 INTERSECT SELECT Record_Company FROM orchestra WHERE YEAR_OF_FOUNDED  >  2003\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM orchestra WHERE Major_Record_Format  =  \\\"CD\\\" OR Major_Record_Format  =  \\\"DVD\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM orchestra WHERE Major_Record_Format  =  \\\"CD\\\" OR Major_Record_Format  =  \\\"DVD\\\"\"}"}
+{"text": "{\"sql\": \"SELECT YEAR_OF_FOUNDED FROM orchestra WHERE Orchestra_ID IN (SELECT Orchestra_ID FROM performance GROUP BY Orchestra_ID HAVING COUNT(*)  >  1)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.year_of_founded FROM orchestra AS T1 JOIN performance AS T2 ON T1.orchestra_id  =  T2.orchestra_id GROUP BY T1.orchestra_id HAVING count(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Highschooler WHERE grade  =  'High'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Highschooler WHERE grade  =  '17'\"}"}
+{"text": "{\"sql\": \"SELECT name,  grade FROM Highschooler WHERE id IN (SELECT id FROM Highschooler WHERE grade  =  'High')\"}"}
+{"text": "{\"sql\": \"SELECT name,  grade FROM Highschooler WHERE id IN (SELECT id FROM likes WHERE liked_id IN (SELECT id FROM Highschooler WHERE grade  =  'A' ) )\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT grade FROM Highschooler WHERE id  >=  16\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.grade FROM Highschooler AS T1 JOIN Friends AS T2 ON T1.id  =  T2.friend_id WHERE T2.student_id  >  18\"}"}
+{"text": "{\"sql\": \"SELECT grade FROM highschooler WHERE id  =   Kyle\"}"}
+{"text": "{\"sql\": \"SELECT grade FROM Highschooler WHERE name  =  'Kyle'\"}"}
+{"text": "{\"sql\": \"SELECT name FROM Highschooler WHERE grade  =  10\"}"}
+{"text": "{\"sql\": \"SELECT name FROM Highschooler WHERE grade  =  10\"}"}
+{"text": "{\"sql\": \"SELECT id FROM highschooler WHERE name  =  'Kyle'\"}"}
+{"text": "{\"sql\": \"SELECT id FROM highschooler WHERE name  =  \\\"Kyle\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM highschooler WHERE grade  =  9 OR grade  =  10\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Highschooler WHERE grade  =  9 OR grade  =  10\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.grade FROM Highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.liked_id WHERE T2.liked_id NOT IN (SELECT T2.liked_id FROM likes WHERE T2.liked_id IN (SELECT T1.id FROM Highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.liked_id WHERE T2.liked_id IN (SELECT T2.liked_id FROM likes WHERE T2.liked_id IN (SELECT T1.id FROM Highschooler AS T1 JOIN likes AS T"}
+{"text": "{\"sql\": \"SELECT count(*),  grade FROM highschooler GROUP BY grade\"}"}
+{"text": "{\"sql\": \"SELECT grade FROM Highschooler GROUP BY grade HAVING count(*)  >=  (SELECT max(count(*) ) FROM Highschooler)\"}"}
+{"text": "{\"sql\": \"SELECT grade FROM Highschooler GROUP BY grade HAVING count(*)  >=  (SELECT max(count(*) ) FROM Highschooler)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT grade FROM Highschooler GROUP BY grade HAVING count(*)  >=  4\"}"}
+{"text": "{\"sql\": \"SELECT grade FROM Highschooler GROUP BY grade HAVING count(*)  >=  4\"}"}
+{"text": "{\"sql\": \"SELECT T1.student_id,  COUNT(*) FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.student_id  =  T2.id GROUP BY T1.student_id\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  T1.id FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.student_id GROUP BY T1.id\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  count(*) FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.ID  =  T2.student_id GROUP BY T2.student_id HAVING count(*)  >=  5\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  count(*) FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.ID  =  T2.friend_id GROUP BY T2.friend_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN friend AS T2 ON T1.ID  =  T2.friend_id GROUP BY T2.friend_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.ID  =  T2.friend_id GROUP BY T2.friend_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.friend_id GROUP BY T2.friend_id HAVING count(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.ID  =  T2.friend_id GROUP BY T2.friend_id HAVING COUNT(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.id  =  T2.friend_id WHERE T2.friend_id IN (SELECT T2.friend_id FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.id  =  T2.friend_id WHERE T1.name  =  'Kyle' AND T2.grade  =  '12')\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.friend_id WHERE T2.student_id  =   Kyle AND T2.friend_id  >  T2.friend_id\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT friend_id) FROM highschooler WHERE grade  =  'high' AND student_id  = 'Kyle'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Friend WHERE friend_id IN (SELECT T1.friend_id FROM Friend AS T1 JOIN Highschooler AS T2 ON T1.friend_id  =  T2.ID WHERE T2.name  =  'Kyle')\"}"}
+{"text": "{\"sql\": \"SELECT student_id FROM highschooler EXCEPT SELECT student_id FROM Friend\"}"}
+{"text": "{\"sql\": \"SELECT id FROM highschooler WHERE grade  =  'high' EXCEPT SELECT student_id FROM Friend GROUP BY student_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT name FROM Highschooler WHERE id NOT IN (SELECT student_id FROM Friend)\"}"}
+{"text": "{\"sql\": \"SELECT name FROM Highschooler WHERE id NOT IN (SELECT student_id FROM Friend)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.id FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.liked_id INTERSECT SELECT DISTINCT T1.id FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.friend_id\"}"}
+{"text": "{\"sql\": \"SELECT student_id FROM likes INTERSECT SELECT student_id FROM Friend\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer ORDER BY Net_Worth_Millions ASC\"}"}
+{"text": "{\"sql\": \"SELECT Birth_Year,  Citizenship FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT Birth_Year,  Citizenship FROM singer\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer WHERE Citizenship!= \\\"France\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer WHERE Citizenship!= \\\"French\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer WHERE Birth_Year  =  1948 OR Birth_Year  =  1949\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer WHERE Birth_Year  =  1948 OR Birth_Year  =  1949\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer ORDER BY Net_Worth_Millions DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID ORDER BY T2.Net_Worth_Millions DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship,  COUNT(*) FROM singer GROUP BY Citizenship\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  citizenship FROM singer GROUP BY citizenship\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship FROM singer GROUP BY Citizenship ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship FROM singer GROUP BY Citizenship ORDER BY COUNT(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship,  max(Net_Worth_Millions) FROM singer GROUP BY Citizenship\"}"}
+{"text": "{\"sql\": \"SELECT max(Net_Worth_Millions),  Citizenship FROM singer GROUP BY Citizenship\"}"}
+{"text": "{\"sql\": \"SELECT T1.Title,  T2.Name FROM song AS T1 JOIN singer AS T2 ON T1.Singer_ID  =  T2.Singer_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Title,  T2.Name FROM song AS T1 JOIN singer AS T2 ON T1.Singer_ID  =  T2.Singer_ID\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID WHERE T2.Sales  >  300000\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID WHERE T2.Sales  >  300000\"}"}
+{"text": "{\"sql\": \"SELECT T2.Name FROM song AS T1 JOIN singer AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Singer_ID HAVING COUNT(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name HAVING COUNT(*)  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Sales FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  T2.Sales FROM singer AS T1 JOIN song AS T2 ON T1.Singer_ID  =  T2.Singer_ID GROUP BY T1.Name\"}"}
+{"text": "{\"sql\": \"SELECT Name FROM singer WHERE Singer_ID NOT IN (SELECT Singer_ID FROM song)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT sname FROM singer WHERE singer_id NOT IN (SELECT singer_id FROM song)\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship FROM singer WHERE Birth_Year  <  1945 INTERSECT SELECT Citizenship FROM singer WHERE Birth_Year  >  1955\"}"}
+{"text": "{\"sql\": \"SELECT Citizenship FROM singer WHERE Birth_Year  <  1945 INTERSECT SELECT Citizenship FROM singer WHERE Birth_Year  >  1955\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Other_Available_Features\"}"}
+{"text": "{\"sql\": \"SELECT feature_type_name FROM Ref_Property_Types WHERE property_type_code  =  \\\"Other_Available_Features\\\" AND feature_name  =  \\\"AirCon\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.property_type_description FROM Ref_Property_Types AS T1 JOIN Properties AS T2 ON T1.property_type_code  =  T2.property_type_code\"}"}
+{"text": "{\"sql\": \"SELECT T1.property_name FROM Properties AS T1 JOIN Ref_Property_Types AS T2 ON T1.property_type_code  =  T2.property_type_code WHERE T2.property_type_description  =  'House or Apartment' AND T1.room_count  >  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.stduent_id GROUP BY T2.stduent_id HAVING count(*)  >  1 INTERSECT SELECT name FROM highschooler WHERE id IN (SELECT friend_id FROM Friend)\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.liked_id JOIN friend AS T3 ON T2.student_id  =  T3.friend_id WHERE T3.friend_id  =  T1.id AND T3.friend_id  =  T2.student_id\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  student_id FROM likes GROUP BY student_id\"}"}
+{"text": "{\"sql\": \"SELECT student_id,  count(*) FROM likes GROUP BY student_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  count(*) FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.ID  =  T2.liked_id GROUP BY T2.liked_id HAVING count(*)  >=  100\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  count(*) FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.id  =  T2.liked_id GROUP BY T2.liked_id HAVING T2.count  >  100\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.ID  =  T2.liked_id GROUP BY T2.liked_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.ID  =  T2.student_id GROUP BY T2.student_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id HAVING count(*)  >=  2 INTERSECT SELECT T1.name FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM highschooler AS T1 JOIN likes AS T2 ON T1.id  =  T2.liked_id GROUP BY T2.liked_id HAVING count(*)  >=  2 INTERSECT SELECT T1.name FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id HAVING count(T2.student_id)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM likes AS T1 JOIN highschooler AS T2 ON T1.student_id  =  T2.id WHERE T2.name  =  'Kyle'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Highschooler AS T1 JOIN Likes AS T2 ON T1.ID  =  T2.student_id WHERE T1.name  =  'Kyle' AND T2.liked_id  =  T2.student_id\"}"}
+{"text": "{\"sql\": \"SELECT avg(T1.grade) FROM Highschooler AS T1 JOIN Friend AS T2 ON T1.id  =  T2.student_id GROUP BY T2.student_id\"}"}
+{"text": "{\"sql\": \"SELECT avg(T1.grade) FROM highschooler AS T1 JOIN friend AS T2 ON T1.id  =  T2.student_id\"}"}
+{"text": "{\"sql\": \"SELECT min(grade) FROM highschooler WHERE id NOT IN (SELECT student_id FROM Friend)\"}"}
+{"text": "{\"sql\": \"SELECT min(grade) FROM highschooler WHERE id NOT IN (SELECT student_id FROM Friend)\"}"}
+{"text": "{\"sql\": \"SELECT T1.state FROM owners AS T1 JOIN professionals AS T2 ON T1.owner_id  =  T2.owner_id\"}"}
+{"text": "{\"sql\": \"SELECT state FROM owners INTERSECT SELECT state FROM professionals\"}"}
+{"text": "{\"sql\": \"SELECT avg(age) FROM dogs WHERE dog_id IN (SELECT dog_id FROM treatments)\"}"}
+{"text": "{\"sql\": \"SELECT avg(T1.age) FROM Dogs AS T1 JOIN Treatments AS T2 ON T1.dog_id  =  T2.dog_id WHERE T2.treatment_type_code  =  \\\"C\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.id,  T1.last_name,  T1.cell_number FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2 INTERSECT SELECT T1.id,  T1.last_name,  T1.cell_number FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.professional_id,  T1.last_name,  T1.cell_number FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >  2 UNION SELECT T1.professional_id,  T1.last_name,  T1.cell_number FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >=  2 JOIN Owners AS"}
+{"text": "{\"sql\": \"SELECT name FROM dogs EXCEPT SELECT T1.name FROM dogs AS T1 JOIN treatments AS T2 ON T1.dog_id  =  T2.dog_id WHERE T2.cost_of_treatment  >  1000\"}"}
+{"text": "{\"sql\": \"SELECT T1.name FROM dogs AS T1 JOIN treatment_types AS T2 ON T1.dog_id  =  T2.dog_id JOIN charges AS T3 ON T2.treatment_type_code  =  T3.treatment_type_code WHERE T3.cost_of_treatment  >  1000\"}"}
+{"text": "{\"sql\": \"SELECT first_name FROM owners EXCEPT SELECT first_name FROM dogs WHERE first_name IN (SELECT T1.first_name FROM professionals AS T1 JOIN dogs AS T2 ON T1.professional_id  =  T2.dog_id)\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.first_name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.role_code  =  \\\"Professional\\\" OR T1.role_code  =  \\\"Owner\\\" EXCEPT SELECT DISTINCT T1.first_name FROM dogs AS T1 JOIN owners AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.first_name  =  \\\"Fido\\\"\"}"}
+{"text": "{\"sql\": \"SELECT professional_id,  role_code,  email_address FROM professionals EXCEPT SELECT T1.professional_id,  T1.role_code,  T1.email_address FROM professionals AS T1 JOIN treatments AS T2 ON T1.professional_id  =  T2.professional_id WHERE T2.treatment_type_code  =  'dog'\"}"}
+{"text": "{\"sql\": \"SELECT professional_id,  role_code,  email_address FROM Professionals EXCEPT SELECT T1.professional_id,  T1.role_code,  T1.email_address FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id WHERE T2.treatment_type_code  =  \\\"Dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.first_name,  T1.last_name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.first_name,  T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.professional_id,  T1.role_code,  T1.first_name FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.professional_id,  T1.role_code,  T1.first_name FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING COUNT(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.breed_name FROM breeds AS T1 JOIN dogs AS T2 ON T1.breed_code  =  T2.breed_code GROUP BY T1.breed_code ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT breed_name FROM dogs GROUP BY breed_name ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.first_name,  T1.last_name FROM owners AS T1 JOIN Treatment_Types AS T2 ON T1.owner_id  =  T2.professional_id GROUP BY T1.owner_id ORDER BY sum(T2.cost_of_treatment) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.first_name,  T1.last_name FROM owners AS T1 JOIN Treatment_Types AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY sum(T2.cost_of_treatment) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT t3.treatment_type_description FROM treatment_types AS t1 JOIN treatments AS t2 ON t1.treatment_type_code  =  t2.treatment_type_code JOIN charges AS t3 ON t2.treatment_type_code  =  t3.treatment_type_code WHERE t2.cost_of_treatment  <=  (SELECT min(cost_of_treatment) FROM charges)\"}"}
+{"text": "{\"sql\": \"SELECT treatment_type_description FROM Treatment_Types ORDER BY sum(cost_of_treatment) ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.zip_code FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY sum(T2.charge_amount) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.owner_id,  T1.zip_code FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id ORDER BY sum(T2.charge_amount) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT professional_id,  cell_number FROM treatments GROUP BY professional_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.professional_id,  T1.cell_number FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id GROUP BY T1.professional_id HAVING count(*)  >=  2\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id WHERE T2.cost_of_treatment  <  (SELECT avg(cost_of_treatment) FROM treatments)\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id WHERE T2.cost_of_treatment  <  (SELECT avg(cost_of_treatment) FROM treatments)\"}"}
+{"text": "{\"sql\": \"SELECT T1.date_of_treatment,  T2.first_name FROM treatments AS T1 JOIN Professionals AS T2 ON T1.professional_id  =  T2.professional_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.date_of_treatment,  T2.first_name FROM treatments AS T1 JOIN professionals AS T2 ON T1.professional_id  =  T2.professional_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.cost_of_treatment,  T2.treatment_type_description FROM treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code\"}"}
+{"text": "{\"sql\": \"SELECT T1.cost_of_treatment,  T2.treatment_type_description FROM treatments AS T1 JOIN treatment_types AS T2 ON T1.treatment_type_code  =  T2.treatment_type_code\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id JOIN Sizes AS T3 ON T2.size_code  =  T3.size_code\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name,  T2.size_code FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id GROUP BY T1.owner_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T2.date_of_treatment FROM Dogs AS T1 JOIN Treatment_Types AS T2 ON T1.dog_id  =  T2.dog_id WHERE T2.treatment_type_code  =  'Breed' GROUP BY T1.dog_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T1.date_arrived FROM dogs AS T1 JOIN breeds AS T2 ON T1.breed_code  =  T2.breed_code WHERE T2.breed_name  =  \\\"Rarest breed\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  \\\"Virginia\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id WHERE T1.state  =  \\\"VA\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.date_arrived,  T1.date_departed FROM Dogs AS T1 JOIN Treatment_Types AS T2 ON T1.dog_id  =  T2.dog_id WHERE T2.treatment_type_code  =  'Adoption'\"}"}
+{"text": "{\"sql\": \"SELECT T1.date_arrived,  T1.date_departed FROM dogs AS T1 JOIN treatments AS T2 ON T1.dog_id  =  T2.dog_id WHERE T2.treatment_type_code  =  'TREATMENT'\"}"}
+{"text": "{\"sql\": \"SELECT T1.last_name FROM owners AS T1 JOIN dogs AS T2 ON T1.owner_id  =  T2.owner_id ORDER BY T2.age DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name FROM Owners AS T1 JOIN Dogs AS T2 ON T1.owner_id  =  T2.owner_id ORDER BY T2.age ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT email_address FROM Professionals WHERE state  =  'Hawaii' OR state  =  'Wisconsin'\"}"}
+{"text": "{\"sql\": \"SELECT email_address FROM Professionals WHERE state  =  \\\"Hawaii\\\" OR state  =  \\\"Wisconsin\\\"\"}"}
+{"text": "{\"sql\": \"SELECT date_arrived,  date_departed FROM Dogs\"}"}
+{"text": "{\"sql\": \"SELECT date_arrived,  date_departed FROM Dogs\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs AS T1 JOIN treatments AS T2 ON T1.dog_id = T2.dog_id WHERE T2.treatment_type_code = 'Dogs'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs AS T1 JOIN treatments AS T2 ON T1.dog_id = T2.dog_id WHERE T2.treatment_type_code = \\\"Dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM professionals AS T1 JOIN treatments AS T2 ON T1.professional_id  =  T2.professional_id WHERE treatment_type_code  =  'dog'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Professionals AS T1 JOIN Treatment_Types AS T2 ON T1.professional_id  =  T2.professional_id WHERE T2.treatment_type_code  =  \\\"Dog\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.role,  T1.street,  T1.city,  T1.state FROM professionals AS T1 JOIN owners AS T2 ON T1.owner_id  =  T2.owner_id WHERE T2.city LIKE '%West%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.role_code,  T1.street,  T1.city,  T1.state FROM professionals AS T1 JOIN owners AS T2 ON T1.owner_id  =  T2.owner_id WHERE T2.city LIKE '%West%'\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  last_name,  email_address FROM owners WHERE state LIKE '%North%'\"}"}
+{"text": "{\"sql\": \"SELECT first_name,  last_name,  email_address FROM Owners WHERE state LIKE '%North%'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs WHERE age  <  (SELECT avg(age) FROM dogs)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs WHERE gender  =  \\\"dog\\\" AND age  <  (SELECT avg(age) FROM dogs)\"}"}
+{"text": "{\"sql\": \"SELECT max(cost_of_treatment) FROM treatments\"}"}
+{"text": "{\"sql\": \"SELECT cost_of_treatment FROM treatments ORDER BY date_of_treatment DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs WHERE dog_id NOT IN (SELECT dog_id FROM treatments)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM dogs WHERE dog_id NOT IN (SELECT dog_id FROM treatments)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM owners WHERE owner_id NOT IN (SELECT owner_id FROM dogs WHERE abandoned_yn  =  'Y')\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT owner_id) FROM owners WHERE owner_id NOT IN (SELECT owner_id FROM dogs)\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM professionals WHERE role_code  = 'vet' EXCEPT SELECT count(*) FROM professionals WHERE role_code  =  'dog_operator'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM professionals WHERE professional_id NOT IN ( SELECT professional_id FROM treatments WHERE treatment_type_code  =  'Dog' )\"}"}
+{"text": "{\"sql\": \"SELECT name,  age,  weight FROM dogs WHERE abandoned_yn  =  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T1.age,  T1.weight FROM dogs AS T1 JOIN owners AS T2 ON T1.owner_id  =  T2.owner_id WHERE T2.abandoned_yn  =  1\"}"}
+{"text": "{\"sql\": \"SELECT avg(age) FROM dogs\"}"}
+{"text": "{\"sql\": \"SELECT avg(age) FROM dogs\"}"}
+{"text": "{\"sql\": \"SELECT age FROM dogs ORDER BY date_of_birth ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT age FROM Dogs ORDER BY date_of_birth ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT charge_type,  charge_amount FROM charges\"}"}
+{"text": "{\"sql\": \"SELECT charge_type,  charge_amount FROM charges\"}"}
+{"text": "{\"sql\": \"SELECT charge_type FROM charges ORDER BY charge_amount DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT charge_amount FROM charges GROUP BY charge_type ORDER BY charge_amount DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT email_address,  cell_number,  home_phone FROM Professionals\"}"}
+{"text": "{\"sql\": \"SELECT email_address,  cell_number,  home_phone FROM Professionals\"}"}
+{"text": "{\"sql\": \"SELECT T1.breed_name,  T1.size_code FROM breeds AS T1 JOIN sizes AS T2 ON T1.breed_code  =  T2.breed_code\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.breed_name,  T1.breed_code FROM breeds AS T1 JOIN dogs AS T2 ON T1.breed_code  =  T2.breed_code\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T2.treatment_type_description FROM professionals AS T1 JOIN treatments AS T2 ON T1.professional_id  =  T2.professional_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.last_name,  T2.treatment_type_description FROM Professionals AS T1 JOIN Treatments AS T2 ON T1.professional_id  =  T2.professional_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.caused_by_ship_id,  T1.name FROM death AS T1 JOIN ship AS T2 ON T1.caused_by_ship_id  =  T2.id GROUP BY T1.caused_by_ship_id ORDER BY sum(injured) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.name FROM battle AS T1 JOIN ship AS T2 ON T1.id = T2.lost_in_battle WHERE T2.bulgarian_commander = 'Kaloyan' INTERSECT SELECT DISTINCT T1.name FROM battle AS T1 JOIN ship AS T2 ON T1.id = T2.lost_in_battle WHERE T2.latin_commander = 'Baldwin I'\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT result) FROM battle\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM battle WHERE result!= \\\"lost\\\" AND tonnage  =  225\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.lost_in_battle  =  T2.id WHERE T2.name  =  'Lettice' INTERSECT SELECT T1.name,  T1.date FROM battle AS T1 JOIN ship AS T2 ON T1.lost_in_battle  =  T2.id WHERE T2.name  =  'HMS Atalanta'\"}"}
+{"text": "{\"sql\": \"SELECT T1.name,  T1.bulgarian_commander,  T1.result FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.location  =  'English Channel' AND T2.id NOT IN (SELECT T1.id FROM battle AS T1 JOIN ship AS T2 ON T1.id  =  T2.lost_in_battle WHERE T2.location  =  'English Channel')\"}"}
+{"text": "{\"sql\": \"SELECT T1.note FROM death AS T1 JOIN battle AS T2 ON T1.caused_by_ship_id  =  T2.id WHERE T2.name  =  'East'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.address_id,  T1.line_1,  T1.line_2 FROM Addresses AS T1 JOIN Students AS T2 ON T1.address_id  =  T2.current_address_id\"}"}
+{"text": "{\"sql\": \"SELECT line_1,  line_2 FROM Addresses\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Courses\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM COURSES\"}"}
+{"text": "{\"sql\": \"SELECT course_description FROM courses WHERE course_name  =  \\\"Math course\\\"\"}"}
+{"text": "{\"sql\": \"SELECT course_description FROM Courses WHERE course_name LIKE '%Math%'\"}"}
+{"text": "{\"sql\": \"SELECT zip_postcode FROM addresses WHERE city  =  \\\"Port Chelsea\\\"\"}"}
+{"text": "{\"sql\": \"SELECT zip_postcode FROM addresses WHERE city  =  \\\"Port Chelsea\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.department_name,  T1.department_id FROM Departments AS T1 JOIN Degree_Programs AS T2 ON T1.department_id  =  T2.department_id GROUP BY T1.department_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.department_name,  T1.department_id FROM departments AS T1 JOIN degree_programs AS T2 ON T1.department_id  =  T2.department_id GROUP BY T1.department_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT department_id) FROM Degree_Programs\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT department_id) FROM Degree_Programs\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT degree_summary_name) FROM Degree_Programs\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Degree_Programs AS T1 JOIN Departments AS T2 ON T1.department_id  =  T2.department_id WHERE T2.department_name  =  'Engineering'\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM Departments WHERE department_name  =  'Engineering'\"}"}
+{"text": "{\"sql\": \"SELECT section_name,  section_description FROM Sections\"}"}
+{"text": "{\"sql\": \"SELECT section_name,  section_description FROM Sections\"}"}
+{"text": "{\"sql\": \"SELECT course_name,  course_id FROM courses GROUP BY course_id HAVING count(*)  <=  2\"}"}
+{"text": "{\"sql\": \"SELECT course_name,  course_id FROM courses WHERE course_id IN (SELECT course_id FROM sections GROUP BY course_id HAVING count(*)  <  2)\"}"}
+{"text": "{\"sql\": \"SELECT section_name FROM Sections ORDER BY section_name DESC\"}"}
+{"text": "{\"sql\": \"SELECT section_name FROM Sections ORDER BY section_name DESC\"}"}
+{"text": "{\"sql\": \"SELECT T1.semester_name FROM semesters AS T1 JOIN student_enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.semester_name,  T1.semester_id,  max(T2.current_address_id) FROM Semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id GROUP BY T1.semester_id\"}"}
+{"text": "{\"sql\": \"SELECT department_description FROM departments WHERE department_name LIKE '%computer%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.department_description FROM Departments AS T1 JOIN Student_Enrolment AS T2 ON T1.department_id  =  T2.department_id WHERE T2.name LIKE '%computer%'\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.middle_name,  T1.last_name,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id WHERE T2.semester_id IN (SELECT T2.semester_id FROM Semesters AS T3 JOIN Student_Enrolment AS T4 ON T3.semester_id  =  T4.semester_id WHERE T3.semester_name  =  \\\"Fall\\\") INTERSECT SELECT T1.first_name,  T1.middle_name,  T1.last"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.middle_name,  T1.last_name,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id WHERE T2.degree_program_id  =  2 INTERSECT SELECT T1.first_name,  T1.middle_name,  T1.last_name,  T1.student_id FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id WHERE T2.semester_id IN (SELECT T3.sem"}
+{"text": "{\"sql\": \"SELECT T2.first_name,  T2.middle_name,  T2.last_name FROM Degree_Programs AS T1 JOIN Student_Enrolment AS T2 ON T1.degree_program_id = T2.degree_program_id WHERE T1.degree_summary_name = \\\"Bachelor\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.middle_name,  T1.last_name FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id WHERE degree_program_id  =  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.course_name FROM courses AS T1 JOIN student_enrolment_courses AS T2 ON T1.course_id = T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT degree_summary_name FROM Degree_Programs GROUP BY degree_summary_name ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.degree_program_id,  T1.degree_summary_name FROM Degree_Programs AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.degree_program_id  =  T2.degree_program_id GROUP BY T1.degree_program_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT degree_program_id,  degree_summary_name FROM Degree_Programs GROUP BY degree_program_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.student_id,  T1.first_name,  T1.middle_name,  T1.last_name,  count(*) FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.first_name,  T1.middle_name,  T1.last_name,  T1.student_id,  count(*) FROM Students AS T1 JOIN Student_Enrolment AS T2 ON T1.student_id  =  T2.student_id GROUP BY T1.student_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT semester_name FROM semesters EXCEPT SELECT T1.semester_name FROM semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id\"}"}
+{"text": "{\"sql\": \"SELECT semester_name FROM semesters EXCEPT SELECT T1.semester_name FROM semesters AS T1 JOIN Student_Enrolment AS T2 ON T1.semester_id  =  T2.semester_id\"}"}
+{"text": "{\"sql\": \"SELECT course_name FROM courses AS T1 JOIN student_enrolment_courses AS T2 ON T1.course_id = T2.course_id\"}"}
+{"text": "{\"sql\": \"SELECT course_name FROM courses AS T1 JOIN student_enrolment_courses AS T2 ON T1.course_id = T2.course_id\"}"}
+{"text": "{\"sql\": \"SELECT T1.course_name FROM courses AS T1 JOIN student_enrolment_courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T2.course_id ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.course_name FROM Courses AS T1 JOIN Student_Enrolment_Courses AS T2 ON T1.course_id  =  T2.course_id GROUP BY T1.course_name ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT last_name FROM students WHERE current_address_id IN (SELECT T1.current_address_id FROM students AS T1 JOIN student_enrolment AS T2 ON T1.student_id  =  T2.student_id JOIN degree_programs AS T3 ON T2.degree_program_id  =  T3.degree_program_id WHERE T3.department_name  =  'Engineering' EXCEPT SELECT T1.current_address_id FROM students AS T1 JOIN student_enrolment AS T2 ON T1.student_id  =  T2.student_id JOIN degree_programs AS T3 ON T2.degree_program_id  =  T"}
+{"text": "{\"sql\": \"SELECT COUNT(DISTINCT Continent) FROM countrylanguage WHERE Language  =  \\\"Chinese\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"Chinese\\\" AND T1.Continent  =  \\\"Asia\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT region FROM country WHERE language  =  'english' OR language  =  'dutch'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Region FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"Dutch\\\" OR T2.Language  =  \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT Country FROM countrylanguage WHERE Language  =  \\\"English\\\" OR Language  =  \\\"Dutch\\\"\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM countrylanguage WHERE Language  =  \\\"English\\\" OR Language  =  \\\"Dutch\\\"\"}"}
+{"text": "{\"sql\": \"SELECT t3.language FROM country AS t1 JOIN countrylanguage AS t2 ON t1.Code  =  t2.CountryCode JOIN city AS t3 ON t2.CountryCode  =  t3.CountryCode WHERE t1.Continent  =  'Asia' GROUP BY t3.language ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT t1.Language FROM countrylanguage AS t1 JOIN country AS t2 ON t1.CountryCode  =  t2.Code WHERE t2.Continent  =  \\\"Asia\\\" GROUP BY t1.Language ORDER BY count(*) DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Language FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.GovernmentForm  =  \\\"Republik\\\" GROUP BY T1.Language HAVING COUNT(*)  =  1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Language FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.GovernmentForm  =  \\\"Republic\\\" GROUP BY T1.Language HAVING COUNT(*)  =  1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM city WHERE language  =  'english' ORDER BY population DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name FROM city WHERE language  =  'english' ORDER BY Population DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name,  population,  lifeexpectancy FROM country WHERE continent  =  'Asia' ORDER BY surfacearea DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name,  population,  lifeexpectancy FROM country WHERE continent  =  'Asia' ORDER BY surfacearea DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy) FROM country WHERE Language!= \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT AVG(LifeExpectancy) FROM country WHERE Language!= \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  \\\"English\\\" GROUP BY T1.CountryCode\"}"}
+{"text": "{\"sql\": \"SELECT count(*) FROM city WHERE countrycode NOT IN (SELECT CountryCode FROM countrylanguage WHERE Language  =  \\\"english\\\")\"}"}
+{"text": "{\"sql\": \"SELECT T1.Language FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.HeadOfState  =  \\\"Beatrix\\\"\"}"}
+{"text": "{\"sql\": \"SELECT T1.Language FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.HeadOfState  =  \\\"Beatrix\\\" AND T1.IsOfficial  =  1\"}"}
+{"text": "{\"sql\": \"SELECT COUNT(DISTINCT T1.Language) FROM countrylanguage AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.IndepYear  <  1930\"}"}
+{"text": "{\"sql\": \"SELECT count(DISTINCT t1.language) FROM country AS t1 JOIN countrylanguage AS t2 ON t1.code  =  t2.countrycode WHERE t1.indepyear  <  1930\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT country FROM country WHERE SurfaceArea  >  (SELECT max(SurfaceArea) FROM country WHERE Continent  =  'Europe')\"}"}
+{"text": "{\"sql\": \"SELECT name FROM country WHERE surfacearea  >  (SELECT min(surfacearea) FROM country WHERE continent  =  'Europe')\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT country FROM city WHERE country  =  \\\"Africa\\\" AND population  <  (SELECT max(population) FROM city WHERE continent  =  \\\"Asia\\\")\"}"}
+{"text": "{\"sql\": \"SELECT Code FROM country WHERE Continent  =  'Africa' AND Population  <  (SELECT min(Population) FROM country WHERE Continent  =  'Asia')\"}"}
+{"text": "{\"sql\": \"SELECT name FROM country WHERE continent  =  'Asia' AND population  >  (SELECT min(population) FROM country WHERE continent  =  'Africa')\"}"}
+{"text": "{\"sql\": \"SELECT country FROM city WHERE continent  =  'Asia' AND population  >  ( SELECT min(population) FROM city WHERE continent  =  'Africa' );\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM country WHERE Language!= \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM country WHERE Language!= \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM country WHERE IsOfficial  =  'No'\"}"}
+{"text": "{\"sql\": \"SELECT CountryCode FROM country LANGUAGE!= \\\"english\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Code FROM country WHERE Language!= \\\"English\\\" AND GovernmentForm!= \\\"Republic\\\"\"}"}
+{"text": "{\"sql\": \"SELECT Code FROM country WHERE Language!= \\\"english\\\" EXCEPT SELECT Code2 FROM country WHERE GovernmentForm  =  \\\"Republic\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM city AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.Continent  =  'Europe' AND T2.Language!=  'English'\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM city AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2.Continent  =  \\\"Europe\\\" AND T2.Language!= \\\"English\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM city AS T1 JOIN country AS T2 ON T1.CountryCode  =  T2.Code WHERE T2 Continent  =  'Asia' AND T2.Name  =  \\\"Chinese\\\" AND T2.Language  =  \\\"Chinese\\\"\"}"}
+{"text": "{\"sql\": \"SELECT DISTINCT T1.Name FROM city AS T1 JOIN countrylanguage AS T2 ON T1.CountryCode  =  T2.CountryCode WHERE T2.Language  =  \\\"Chinese\\\" AND T1 Continent  =  \\\"Asia\\\"\"}"}
+{"text": "{\"sql\": \"SELECT name,  indepyear,  surfacearea FROM country ORDER BY population ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name,  indepyear,  SurfaceArea FROM country ORDER BY Population ASC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT t1.Population,  t1.Name,  t1.HeadOfState FROM city AS t1 JOIN country AS t2 ON t1.CountryCode  =  t2.Code ORDER BY t2.SurfaceArea DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT name,  population,  headOfState FROM city ORDER BY surfaceArea DESC LIMIT 1\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >=  3\"}"}
+{"text": "{\"sql\": \"SELECT T1.Name,  COUNT(*) FROM country AS T1 JOIN countrylanguage AS T2 ON T1.Code  =  T2.CountryCode GROUP BY T1.Name HAVING COUNT(*)  >  2\"}"}
+{"text": "{\"sql\": \"SELECT count(*),  district FROM city GROUP BY district HAVING avg(Population)  >  (SELECT avg(Population) FROM city)\"}"}
+{"text": "{\"sql\": \"SELECT district,  count(*) FROM city GROUP BY district HAVING avg(Population)  >  (SELECT avg(Population) FROM city)\"}"}
+{"text": "{\"sql\": \"SELECT governmentform,  sum(Population) FROM city GROUP BY governmentform HAVING avg(LifeExpectancy)  >  72\"}"}
+{"text": "{\"sql\": \"SELECT sum(Population),  GovernmentForm FROM country GROUP BY GovernmentForm HAVING avg(LifeExpectancy)  >  72\"}"}
+{"text": "{\"sql\": \"SELECT avg(LifeExpectancy),  sum(Population) FROM country WHERE LifeExpectancy  <  72 GROUP BY Continent\"}"}
+{"text": "{\"sql\": \"SELECT Continent,  SUM(Population),  AVG(LifeExpectancy) FROM country WHERE LifeExpectancy  <  72 GROUP BY Continent\"}"}

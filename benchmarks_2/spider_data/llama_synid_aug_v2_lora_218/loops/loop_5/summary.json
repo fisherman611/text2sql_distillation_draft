@@ -1,0 +1,30 @@
+{
+  "loop": 5,
+  "candidates": 5664,
+  "accepted": 792,
+  "rejected": 4872,
+  "rejection_reasons": {
+    "jaccard_too_high": 3338,
+    "execution_mismatch": 1115,
+    "candidate_execution_error": 264,
+    "empty_sql": 155
+  },
+  "kept_total": 2125,
+  "source_total_records": 7000,
+  "run_total_records": 7000,
+  "kept_over_source": "2125/7000",
+  "kept_over_run": "2125/7000",
+  "kept_source_ratio": 0.30357142857142855,
+  "kept_run_ratio": 0.30357142857142855,
+  "terminal_rejected_total": 3,
+  "remaining_after_loop": 4872,
+  "rejection_stages": {
+    "diversity_filter": 3338,
+    "execution_equivalence": 1115,
+    "execute_candidate_sql": 264,
+    "extract_candidate_sql": 155
+  },
+  "rejection_repairable": {
+    "True": 4872
+  }
+}

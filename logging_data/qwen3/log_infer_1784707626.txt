@@ -1,0 +1,3 @@
+2026-07-22 08:07:07 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.1-8B-Instruct
+2026-07-22 08:07:12 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.1-8B-Instruct on cpu
+2026-07-22 08:18:34 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /home/hungpv/.cache/huggingface/hub/models--distillation-sql--llama_spider/snapshots/b28dbdbc18ba4edaf81691e1c6f2de8099f4fc69/llama/sft_sft_llama3_8b_lora_spider_lm_e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/e5-bs2-lr0.0001-G8-N2-NN1-lora-16-64-0.1/1090

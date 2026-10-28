@@ -1,0 +1,20 @@
+params as fllows 
+ Namespace(input='dbgpt_hub/output/adapter_kd/spider/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint_lastest/seed100/pred_codes.sql', gold='./dbgpt_hub/data/eval_data/gold.txt', db='./dbgpt_hub/data/spider/database', table='./dbgpt_hub/data/eval_data/tables.json', etype='exec', plug_value=True, keep_distinct=False, progress_bar_for_each_datapoint=False, natsql=False, pred='dbgpt_hub/output/adapter_kd/spider/kid_qwen3-0.6b_qwen3-4b_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint_lastest/seed100/pred_codes.sql')
+gseq_one length  1034
+pseq_one length 1034
+compare pred idx 0
+compare pred idx 100
+compare pred idx 200
+compare pred idx 300
+compare pred idx 400
+compare pred idx 500
+compare pred idx 600
+compare pred idx 700
+compare pred idx 800
+compare pred idx 900
+compare pred idx 1000
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+compare etype exec
+=====================   EXECUTION ACCURACY     =====================
+execution            0.847                0.677                0.580                0.404                0.658               

@@ -1,0 +1,10 @@
+[
+  {
+    "input": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed100/synid_ce_keywords_weight_lora_218__train_g01__ckpt218__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed100/formatted_data/synid_ce_keywords_weight_lora_218__train_g01__ckpt218__test.pred.sql",
+    "gold": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed100/formatted_data/synid_ce_keywords_weight_lora_218__train_g01__ckpt218__test.gold.sql",
+    "meta": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed100/formatted_data/synid_ce_keywords_weight_lora_218__train_g01__ckpt218__test.meta.jsonl"
+  }
+]

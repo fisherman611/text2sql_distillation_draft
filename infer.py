@@ -154,8 +154,7 @@ def parse_args():
     parser.add_argument(
         "--device",
         default=None,
-        choices=["cpu", "cuda", "auto"],
-        help="Device to run the model on.",
+        help="Device to run the model on. Examples: cpu, cuda, cuda:1, auto.",
     )
     parser.add_argument("--max-length", type=int, default=512, help="Max new tokens to generate.")
     parser.add_argument("--batch-size", type=int, default=1, help="Batch size for Spider inference.")

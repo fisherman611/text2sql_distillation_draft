@@ -1,0 +1,12 @@
+{
+  "seed": 1234,
+  "benchmark": "spider_realistic",
+  "split": "test",
+  "db": "full",
+  "output_path": "results/infer/qwen2.5/latest_ckpt/spider_realistic/seed1234/qwen2.5_csd_train_0.5b_4b_spider_csd_e5-bs4-lr0.0001-G1-N2-NN1-kd0.7-lora-16-64-0.1__ckpt4375__test__full_sql_result.json",
+  "train_script": "",
+  "ckpt_path": "results/qwen2.5/qwen2.5_csd_train_0.5b_4b_spider_csd_e5-bs4-lr0.0001-G1-N2-NN1-kd0.7-lora-16-64-0.1/4375",
+  "ckpt_step": "4375",
+  "checkpoint_metric": "",
+  "checkpoint_selection_log": ""
+}

@@ -1,0 +1,76 @@
+
+
+============================== EXP at 2026-07-19 08:43:50 ==============================
+dev | avg_loss: 1.0466382575757576 | {'exact_match': 0.0, 'rougeL': 38.7671}
+train | epoch   0 | Iter:    152/  8720 | global iter:     20/  1090 | loss: 0.8157 | ds_loss: 0.8158 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.705 | step time: 5.372
+train | epoch   0 | Iter:    312/  8720 | global iter:     40/  1090 | loss: 0.2916 | ds_loss: 0.2917 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.629
+train | epoch   0 | Iter:    472/  8720 | global iter:     60/  1090 | loss: 0.2158 | ds_loss: 0.2161 | lr: 5.4128e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.616
+train | epoch   0 | Iter:    632/  8720 | global iter:     80/  1090 | loss: 0.1882 | ds_loss: 0.1884 | lr: 7.2477e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.611
+train | epoch   0 | Iter:    792/  8720 | global iter:    100/  1090 | loss: 0.1721 | ds_loss: 0.1726 | lr: 9.0826e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.615
+train | epoch   0 | Iter:    952/  8720 | global iter:    120/  1090 | loss: 0.1683 | ds_loss: 0.1685 | lr: 9.9974e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.630
+train | epoch   0 | Iter:   1112/  8720 | global iter:    140/  1090 | loss: 0.1607 | ds_loss: 0.1611 | lr: 9.9769e-05 | scale:     1.0000 | micro time: 0.706 | step time: 5.620
+train | epoch   0 | Iter:   1272/  8720 | global iter:    160/  1090 | loss: 0.1414 | ds_loss: 0.1415 | lr: 9.9360e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.618
+train | epoch   0 | Iter:   1432/  8720 | global iter:    180/  1090 | loss: 0.1384 | ds_loss: 0.1387 | lr: 9.8749e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.619
+
+
+============================== EXP at 2026-07-19 09:11:15 ==============================
+dev | avg_loss: 1.0466382575757576 | {'exact_match': 0.0, 'rougeL': 38.7671}
+train | epoch   0 | Iter:    152/  8720 | global iter:     20/  1090 | loss: 0.8157 | ds_loss: 0.8158 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.709 | step time: 5.372
+train | epoch   0 | Iter:    312/  8720 | global iter:     40/  1090 | loss: 0.2912 | ds_loss: 0.2914 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.706 | step time: 5.632
+train | epoch   0 | Iter:    472/  8720 | global iter:     60/  1090 | loss: 0.2158 | ds_loss: 0.2161 | lr: 5.4128e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.621
+train | epoch   0 | Iter:    632/  8720 | global iter:     80/  1090 | loss: 0.1881 | ds_loss: 0.1883 | lr: 7.2477e-05 | scale:     1.0000 | micro time: 0.705 | step time: 5.617
+train | epoch   0 | Iter:    792/  8720 | global iter:    100/  1090 | loss: 0.1720 | ds_loss: 0.1724 | lr: 9.0826e-05 | scale:     1.0000 | micro time: 0.711 | step time: 5.621
+train | epoch   0 | Iter:    952/  8720 | global iter:    120/  1090 | loss: 0.1682 | ds_loss: 0.1685 | lr: 9.9974e-05 | scale:     1.0000 | micro time: 0.703 | step time: 5.638
+train | epoch   0 | Iter:   1112/  8720 | global iter:    140/  1090 | loss: 0.1605 | ds_loss: 0.1609 | lr: 9.9769e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.627
+train | epoch   0 | Iter:   1272/  8720 | global iter:    160/  1090 | loss: 0.1410 | ds_loss: 0.1411 | lr: 9.9360e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.627
+train | epoch   0 | Iter:   1432/  8720 | global iter:    180/  1090 | loss: 0.1383 | ds_loss: 0.1386 | lr: 9.8749e-05 | scale:     1.0000 | micro time: 0.703 | step time: 5.626
+train | epoch   0 | Iter:   1592/  8720 | global iter:    200/  1090 | loss: 0.1249 | ds_loss: 0.1253 | lr: 9.7938e-05 | scale:     1.0000 | micro time: 0.709 | step time: 5.628
+dev | avg_loss: 0.26262133049242425 | {'exact_match': 42.7466, 'rougeL': 83.8221}
+train | epoch   1 | Iter:   1752/  8720 | global iter:    220/  1090 | loss: 0.1296 | ds_loss: 0.1300 | lr: 9.6930e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.629
+train | epoch   1 | Iter:   1912/  8720 | global iter:    240/  1090 | loss: 0.1016 | ds_loss: 0.1021 | lr: 9.5729e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.658
+train | epoch   1 | Iter:   2072/  8720 | global iter:    260/  1090 | loss: 0.0917 | ds_loss: 0.0921 | lr: 9.4341e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.639
+train | epoch   1 | Iter:   2232/  8720 | global iter:    280/  1090 | loss: 0.0928 | ds_loss: 0.0933 | lr: 9.2772e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.622
+train | epoch   1 | Iter:   2392/  8720 | global iter:    300/  1090 | loss: 0.0886 | ds_loss: 0.0892 | lr: 9.1026e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.622
+train | epoch   1 | Iter:   2552/  8720 | global iter:    320/  1090 | loss: 0.0866 | ds_loss: 0.0867 | lr: 8.9113e-05 | scale:     1.0000 | micro time: 0.706 | step time: 5.618
+train | epoch   1 | Iter:   2712/  8720 | global iter:    340/  1090 | loss: 0.0839 | ds_loss: 0.0843 | lr: 8.7039e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.622
+train | epoch   1 | Iter:   2872/  8720 | global iter:    360/  1090 | loss: 0.0788 | ds_loss: 0.0792 | lr: 8.4813e-05 | scale:     1.0000 | micro time: 0.715 | step time: 5.620
+train | epoch   1 | Iter:   3032/  8720 | global iter:    380/  1090 | loss: 0.0789 | ds_loss: 0.0793 | lr: 8.2445e-05 | scale:     1.0000 | micro time: 0.705 | step time: 5.618
+train | epoch   1 | Iter:   3192/  8720 | global iter:    400/  1090 | loss: 0.0778 | ds_loss: 0.0782 | lr: 7.9943e-05 | scale:     1.0000 | micro time: 0.703 | step time: 5.618
+train | epoch   1 | Iter:   3352/  8720 | global iter:    420/  1090 | loss: 0.0798 | ds_loss: 0.0800 | lr: 7.7319e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.619
+dev | avg_loss: 0.2715657552083333 | {'exact_match': 44.971, 'rougeL': 84.1693}
+train | epoch   2 | Iter:   3512/  8720 | global iter:    440/  1090 | loss: 0.0732 | ds_loss: 0.0735 | lr: 7.4583e-05 | scale:     1.0000 | micro time: 0.711 | step time: 5.616
+train | epoch   2 | Iter:   3672/  8720 | global iter:    460/  1090 | loss: 0.0485 | ds_loss: 0.0490 | lr: 7.1746e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.650
+train | epoch   2 | Iter:   3832/  8720 | global iter:    480/  1090 | loss: 0.0418 | ds_loss: 0.0424 | lr: 6.8819e-05 | scale:     1.0000 | micro time: 0.712 | step time: 5.628
+train | epoch   2 | Iter:   3992/  8720 | global iter:    500/  1090 | loss: 0.0459 | ds_loss: 0.0466 | lr: 6.5816e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.621
+train | epoch   2 | Iter:   4152/  8720 | global iter:    520/  1090 | loss: 0.0485 | ds_loss: 0.0489 | lr: 6.2748e-05 | scale:     1.0000 | micro time: 0.709 | step time: 5.620
+train | epoch   2 | Iter:   4312/  8720 | global iter:    540/  1090 | loss: 0.0428 | ds_loss: 0.0433 | lr: 5.9627e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.617
+train | epoch   2 | Iter:   4472/  8720 | global iter:    560/  1090 | loss: 0.0412 | ds_loss: 0.0416 | lr: 5.6467e-05 | scale:     1.0000 | micro time: 0.712 | step time: 5.621
+train | epoch   2 | Iter:   4632/  8720 | global iter:    580/  1090 | loss: 0.0407 | ds_loss: 0.0412 | lr: 5.3280e-05 | scale:     1.0000 | micro time: 0.706 | step time: 5.622
+train | epoch   2 | Iter:   4792/  8720 | global iter:    600/  1090 | loss: 0.0424 | ds_loss: 0.0429 | lr: 5.0080e-05 | scale:     1.0000 | micro time: 0.710 | step time: 5.622
+train | epoch   2 | Iter:   4952/  8720 | global iter:    620/  1090 | loss: 0.0378 | ds_loss: 0.0385 | lr: 4.6880e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.622
+train | epoch   2 | Iter:   5112/  8720 | global iter:    640/  1090 | loss: 0.0388 | ds_loss: 0.0395 | lr: 4.3692e-05 | scale:     1.0000 | micro time: 0.704 | step time: 5.617
+dev | avg_loss: 0.31006599195075757 | {'exact_match': 46.0348, 'rougeL': 85.5589}
+train | epoch   3 | Iter:   5272/  8720 | global iter:    660/  1090 | loss: 0.0322 | ds_loss: 0.0327 | lr: 4.0530e-05 | scale:     1.0000 | micro time: 0.713 | step time: 5.634
+train | epoch   3 | Iter:   5432/  8720 | global iter:    680/  1090 | loss: 0.0206 | ds_loss: 0.0213 | lr: 3.7407e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.654
+train | epoch   3 | Iter:   5592/  8720 | global iter:    700/  1090 | loss: 0.0217 | ds_loss: 0.0224 | lr: 3.4336e-05 | scale:     1.0000 | micro time: 0.704 | step time: 5.626
+train | epoch   3 | Iter:   5752/  8720 | global iter:    720/  1090 | loss: 0.0204 | ds_loss: 0.0212 | lr: 3.1329e-05 | scale:     1.0000 | micro time: 0.709 | step time: 5.621
+train | epoch   3 | Iter:   5912/  8720 | global iter:    740/  1090 | loss: 0.0180 | ds_loss: 0.0187 | lr: 2.8399e-05 | scale:     1.0000 | micro time: 0.712 | step time: 5.620
+train | epoch   3 | Iter:   6072/  8720 | global iter:    760/  1090 | loss: 0.0204 | ds_loss: 0.0210 | lr: 2.5557e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.621
+train | epoch   3 | Iter:   6232/  8720 | global iter:    780/  1090 | loss: 0.0191 | ds_loss: 0.0199 | lr: 2.2815e-05 | scale:     1.0000 | micro time: 0.708 | step time: 5.621
+train | epoch   3 | Iter:   6392/  8720 | global iter:    800/  1090 | loss: 0.0219 | ds_loss: 0.0227 | lr: 2.0185e-05 | scale:     1.0000 | micro time: 0.712 | step time: 5.628
+train | epoch   3 | Iter:   6552/  8720 | global iter:    820/  1090 | loss: 0.0169 | ds_loss: 0.0179 | lr: 1.7677e-05 | scale:     1.0000 | micro time: 0.705 | step time: 5.620
+train | epoch   3 | Iter:   6712/  8720 | global iter:    840/  1090 | loss: 0.0209 | ds_loss: 0.0215 | lr: 1.5302e-05 | scale:     1.0000 | micro time: 0.707 | step time: 5.627
+train | epoch   3 | Iter:   6872/  8720 | global iter:    860/  1090 | loss: 0.0169 | ds_loss: 0.0177 | lr: 1.3069e-05 | scale:     1.0000 | micro time: 0.711 | step time: 5.620
+dev | avg_loss: 0.3558386600378788 | {'exact_match': 44.8743, 'rougeL': 85.3613}
+train | epoch   4 | Iter:   7032/  8720 | global iter:    880/  1090 | loss: 0.0180 | ds_loss: 0.0187 | lr: 1.0987e-05 | scale:     1.0000 | micro time: 0.711 | step time: 5.630
+train | epoch   4 | Iter:   7192/  8720 | global iter:    900/  1090 | loss: 0.0130 | ds_loss: 0.0138 | lr: 9.0654e-06 | scale:     1.0000 | micro time: 0.709 | step time: 5.649
+train | epoch   4 | Iter:   7352/  8720 | global iter:    920/  1090 | loss: 0.0115 | ds_loss: 0.0123 | lr: 7.3116e-06 | scale:     1.0000 | micro time: 0.706 | step time: 5.634
+train | epoch   4 | Iter:   7512/  8720 | global iter:    940/  1090 | loss: 0.0131 | ds_loss: 0.0138 | lr: 5.7329e-06 | scale:     1.0000 | micro time: 0.709 | step time: 5.621
+train | epoch   4 | Iter:   7672/  8720 | global iter:    960/  1090 | loss: 0.0113 | ds_loss: 0.0123 | lr: 4.3358e-06 | scale:     1.0000 | micro time: 0.712 | step time: 5.622
+train | epoch   4 | Iter:   7832/  8720 | global iter:    980/  1090 | loss: 0.0116 | ds_loss: 0.0124 | lr: 3.1259e-06 | scale:     1.0000 | micro time: 0.708 | step time: 5.627
+train | epoch   4 | Iter:   7992/  8720 | global iter:   1000/  1090 | loss: 0.0127 | ds_loss: 0.0135 | lr: 2.1082e-06 | scale:     1.0000 | micro time: 0.704 | step time: 5.619
+train | epoch   4 | Iter:   8152/  8720 | global iter:   1020/  1090 | loss: 0.0123 | ds_loss: 0.0130 | lr: 1.2869e-06 | scale:     1.0000 | micro time: 0.705 | step time: 5.617
+train | epoch   4 | Iter:   8312/  8720 | global iter:   1040/  1090 | loss: 0.0118 | ds_loss: 0.0128 | lr: 6.6539e-07 | scale:     1.0000 | micro time: 0.704 | step time: 5.620
+train | epoch   4 | Iter:   8472/  8720 | global iter:   1060/  1090 | loss: 0.0123 | ds_loss: 0.0132 | lr: 2.4619e-07 | scale:     1.0000 | micro time: 0.706 | step time: 5.620
+train | epoch   4 | Iter:   8632/  8720 | global iter:   1080/  1090 | loss: 0.0122 | ds_loss: 0.0132 | lr: 3.1020e-08 | scale:     1.0000 | micro time: 0.713 | step time: 5.619
+dev | avg_loss: 0.3746004971590909 | {'exact_match': 45.1644, 'rougeL': 85.0001}

@@ -1,0 +1,15 @@
+2026-07-19 23:32:34 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-19 23:32:36 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-19 23:32:38 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/654
+2026-07-19 23:34:24 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-19 23:34:25 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-19 23:34:27 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/654
+2026-07-19 23:36:31 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-19 23:36:33 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-19 23:36:34 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/654
+2026-07-19 23:38:20 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-19 23:38:22 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-19 23:38:23 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/654
+2026-07-19 23:40:10 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-19 23:40:11 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-19 23:40:13 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from /mnt/hungpv/projects/text2sql_distillation_draft/results/llama_baselines/baselines_train_distillm_spider_distillm_adaptive-srkl_e5-bs1-lr0.0001-G16-N2-NN1-kd0.7-lora-16-64-0.1/654

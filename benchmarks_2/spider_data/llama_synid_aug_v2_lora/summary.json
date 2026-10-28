@@ -1,0 +1,284 @@
+{
+  "source_total_records": 7000,
+  "run_total_records": 7000,
+  "accepted": 1834,
+  "rejected_final": 5166,
+  "terminal_rejected": 3,
+  "kept_over_source": "1834/7000",
+  "kept_over_run": "1834/7000",
+  "loops": [
+    {
+      "loop": 1,
+      "candidates": 7000,
+      "accepted": 477,
+      "rejected": 6523,
+      "rejection_reasons": {
+        "jaccard_too_high": 5027,
+        "candidate_execution_error": 354,
+        "execution_mismatch": 973,
+        "empty_sql": 166,
+        "gold_execution_error": 3
+      },
+      "kept_total": 477,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "477/7000",
+      "kept_over_run": "477/7000",
+      "kept_source_ratio": 0.06814285714285714,
+      "kept_run_ratio": 0.06814285714285714,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6520,
+      "rejection_stages": {
+        "diversity_filter": 5027,
+        "execute_candidate_sql": 354,
+        "execution_equivalence": 973,
+        "extract_candidate_sql": 166,
+        "execute_gold_sql": 3
+      },
+      "rejection_repairable": {
+        "True": 6520,
+        "False": 3
+      }
+    },
+    {
+      "loop": 2,
+      "candidates": 6520,
+      "accepted": 156,
+      "rejected": 6364,
+      "rejection_reasons": {
+        "jaccard_too_high": 4887,
+        "execution_mismatch": 977,
+        "candidate_execution_error": 333,
+        "empty_sql": 167
+      },
+      "kept_total": 633,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "633/7000",
+      "kept_over_run": "633/7000",
+      "kept_source_ratio": 0.09042857142857143,
+      "kept_run_ratio": 0.09042857142857143,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6364,
+      "rejection_stages": {
+        "diversity_filter": 4887,
+        "execution_equivalence": 977,
+        "execute_candidate_sql": 333,
+        "extract_candidate_sql": 167
+      },
+      "rejection_repairable": {
+        "True": 6364
+      }
+    },
+    {
+      "loop": 3,
+      "candidates": 6364,
+      "accepted": 91,
+      "rejected": 6273,
+      "rejection_reasons": {
+        "jaccard_too_high": 4753,
+        "execution_mismatch": 1025,
+        "candidate_execution_error": 331,
+        "empty_sql": 164
+      },
+      "kept_total": 724,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "724/7000",
+      "kept_over_run": "724/7000",
+      "kept_source_ratio": 0.10342857142857143,
+      "kept_run_ratio": 0.10342857142857143,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6273,
+      "rejection_stages": {
+        "diversity_filter": 4753,
+        "execution_equivalence": 1025,
+        "execute_candidate_sql": 331,
+        "extract_candidate_sql": 164
+      },
+      "rejection_repairable": {
+        "True": 6273
+      }
+    },
+    {
+      "loop": 4,
+      "candidates": 6273,
+      "accepted": 67,
+      "rejected": 6206,
+      "rejection_reasons": {
+        "jaccard_too_high": 4772,
+        "execution_mismatch": 964,
+        "candidate_execution_error": 309,
+        "empty_sql": 161
+      },
+      "kept_total": 791,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "791/7000",
+      "kept_over_run": "791/7000",
+      "kept_source_ratio": 0.113,
+      "kept_run_ratio": 0.113,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6206,
+      "rejection_stages": {
+        "diversity_filter": 4772,
+        "execution_equivalence": 964,
+        "execute_candidate_sql": 309,
+        "extract_candidate_sql": 161
+      },
+      "rejection_repairable": {
+        "True": 6206
+      }
+    },
+    {
+      "loop": 5,
+      "candidates": 6206,
+      "accepted": 581,
+      "rejected": 5625,
+      "rejection_reasons": {
+        "jaccard_too_high": 4221,
+        "execution_mismatch": 921,
+        "candidate_execution_error": 317,
+        "empty_sql": 166
+      },
+      "kept_total": 1372,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1372/7000",
+      "kept_over_run": "1372/7000",
+      "kept_source_ratio": 0.196,
+      "kept_run_ratio": 0.196,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5625,
+      "rejection_stages": {
+        "diversity_filter": 4221,
+        "execution_equivalence": 921,
+        "execute_candidate_sql": 317,
+        "extract_candidate_sql": 166
+      },
+      "rejection_repairable": {
+        "True": 5625
+      }
+    },
+    {
+      "loop": 6,
+      "candidates": 5625,
+      "accepted": 194,
+      "rejected": 5431,
+      "rejection_reasons": {
+        "jaccard_too_high": 4027,
+        "execution_mismatch": 926,
+        "candidate_execution_error": 320,
+        "empty_sql": 158
+      },
+      "kept_total": 1566,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1566/7000",
+      "kept_over_run": "1566/7000",
+      "kept_source_ratio": 0.22371428571428573,
+      "kept_run_ratio": 0.22371428571428573,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5431,
+      "rejection_stages": {
+        "diversity_filter": 4027,
+        "execution_equivalence": 926,
+        "execute_candidate_sql": 320,
+        "extract_candidate_sql": 158
+      },
+      "rejection_repairable": {
+        "True": 5431
+      }
+    },
+    {
+      "loop": 7,
+      "candidates": 5431,
+      "accepted": 108,
+      "rejected": 5323,
+      "rejection_reasons": {
+        "jaccard_too_high": 4011,
+        "execution_mismatch": 865,
+        "candidate_execution_error": 300,
+        "empty_sql": 147
+      },
+      "kept_total": 1674,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1674/7000",
+      "kept_over_run": "1674/7000",
+      "kept_source_ratio": 0.23914285714285713,
+      "kept_run_ratio": 0.23914285714285713,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5323,
+      "rejection_stages": {
+        "diversity_filter": 4011,
+        "execution_equivalence": 865,
+        "execute_candidate_sql": 300,
+        "extract_candidate_sql": 147
+      },
+      "rejection_repairable": {
+        "True": 5323
+      }
+    },
+    {
+      "loop": 8,
+      "candidates": 5323,
+      "accepted": 96,
+      "rejected": 5227,
+      "rejection_reasons": {
+        "jaccard_too_high": 3901,
+        "execution_mismatch": 878,
+        "candidate_execution_error": 303,
+        "empty_sql": 145
+      },
+      "kept_total": 1770,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1770/7000",
+      "kept_over_run": "1770/7000",
+      "kept_source_ratio": 0.25285714285714284,
+      "kept_run_ratio": 0.25285714285714284,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5227,
+      "rejection_stages": {
+        "diversity_filter": 3901,
+        "execution_equivalence": 878,
+        "execute_candidate_sql": 303,
+        "extract_candidate_sql": 145
+      },
+      "rejection_repairable": {
+        "True": 5227
+      }
+    },
+    {
+      "loop": 9,
+      "candidates": 5227,
+      "accepted": 64,
+      "rejected": 5163,
+      "rejection_reasons": {
+        "jaccard_too_high": 3893,
+        "execution_mismatch": 832,
+        "candidate_execution_error": 294,
+        "empty_sql": 144
+      },
+      "kept_total": 1834,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1834/7000",
+      "kept_over_run": "1834/7000",
+      "kept_source_ratio": 0.262,
+      "kept_run_ratio": 0.262,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5163,
+      "rejection_stages": {
+        "diversity_filter": 3893,
+        "execution_equivalence": 832,
+        "execute_candidate_sql": 294,
+        "extract_candidate_sql": 144
+      },
+      "rejection_repairable": {
+        "True": 5163
+      }
+    }
+  ]
+}

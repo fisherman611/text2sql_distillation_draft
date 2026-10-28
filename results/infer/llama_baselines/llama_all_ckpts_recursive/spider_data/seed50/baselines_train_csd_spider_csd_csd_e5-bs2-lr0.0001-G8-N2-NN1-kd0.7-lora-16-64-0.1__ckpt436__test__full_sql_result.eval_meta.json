@@ -1,0 +1,12 @@
+{
+  "seed": 50,
+  "benchmark": "spider_data",
+  "split": "test",
+  "db": "full",
+  "output_path": "results/infer/llama_baselines/llama_all_ckpts_recursive/spider_data/seed50/baselines_train_csd_spider_csd_csd_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1__ckpt436__test__full_sql_result.json",
+  "train_script": "",
+  "ckpt_path": "",
+  "ckpt_step": "",
+  "checkpoint_metric": "",
+  "checkpoint_selection_log": ""
+}

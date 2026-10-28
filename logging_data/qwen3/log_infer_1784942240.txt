@@ -1,0 +1,15 @@
+2026-07-25 01:17:20 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 01:17:22 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 01:17:24 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/218
+2026-07-25 01:19:26 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 01:19:28 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 01:19:29 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/218
+2026-07-25 01:20:27 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 01:20:29 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 01:20:30 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/218
+2026-07-25 01:21:25 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 01:21:27 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 01:21:28 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/218
+2026-07-25 01:23:16 - infer - INFO - [init_model] - Loading tokenizer from meta-llama/Llama-3.2-1B-Instruct
+2026-07-25 01:23:18 - infer - INFO - [init_model] - Loading model from meta-llama/Llama-3.2-1B-Instruct on cuda
+2026-07-25 01:23:19 - infer - INFO - [init_model] - Loading PEFT checkpoint weights from results/llama_baselines/baselines_train_rkl_spider_rkl_rkl_e5-bs2-lr0.0001-G8-N2-NN1-kd0.7-lora-16-64-0.1/218

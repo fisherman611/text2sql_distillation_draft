@@ -1,0 +1,10 @@
+[
+  {
+    "input": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/synid_ce_multilayer_3/qwen/spider_realistic/seed10/synid_ce_multilayer_3__train_g02__ckpt3500__test__full_sql_result.json",
+    "rows": 508,
+    "empty_pred": 0,
+    "pred": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/synid_ce_multilayer_3/qwen/spider_realistic/seed10/formatted_data/synid_ce_multilayer_3__train_g02__ckpt3500__test.pred.sql",
+    "gold": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/synid_ce_multilayer_3/qwen/spider_realistic/seed10/formatted_data/synid_ce_multilayer_3__train_g02__ckpt3500__test.gold.sql",
+    "meta": "/mnt/hungpv/projects/text2sql_distillation_draft/results/infer/synid_ce_multilayer_3/qwen/spider_realistic/seed10/formatted_data/synid_ce_multilayer_3__train_g02__ckpt3500__test.meta.jsonl"
+  }
+]

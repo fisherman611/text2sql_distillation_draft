@@ -1,0 +1,13 @@
+
+
+============================== EXP at 2026-07-19 23:49:27 ==============================
+train | epoch   0 | Iter:    304/ 17440 | global iter:     20/  1090 | loss: 2.4249 | ds_loss: 0.4545 | lr: 1.7431e-05 | scale:     1.0000 | micro time: 0.461 | step time: 6.948
+train | epoch   0 | Iter:    624/ 17440 | global iter:     40/  1090 | loss: 2.0672 | ds_loss: 0.5672 | lr: 3.5780e-05 | scale:     1.0000 | micro time: 0.458 | step time: 7.276
+train | epoch   0 | Iter:    944/ 17440 | global iter:     60/  1090 | loss: 1.3528 | ds_loss: 0.5101 | lr: 5.4128e-05 | scale:     1.0000 | micro time: 0.458 | step time: 7.254
+train | epoch   0 | Iter:   1264/ 17440 | global iter:     80/  1090 | loss: 0.7047 | ds_loss: 0.2693 | lr: 7.2477e-05 | scale:     1.0000 | micro time: 0.457 | step time: 7.242
+train | epoch   0 | Iter:   1584/ 17440 | global iter:    100/  1090 | loss: 0.4827 | ds_loss: 0.1832 | lr: 9.0826e-05 | scale:     1.0000 | micro time: 0.456 | step time: 7.251
+train | epoch   0 | Iter:   1904/ 17440 | global iter:    120/  1090 | loss: 0.4083 | ds_loss: 0.1543 | lr: 9.9974e-05 | scale:     1.0000 | micro time: 0.457 | step time: 7.242
+train | epoch   0 | Iter:   2224/ 17440 | global iter:    140/  1090 | loss: 0.3831 | ds_loss: 0.1466 | lr: 9.9769e-05 | scale:     1.0000 | micro time: 0.458 | step time: 7.241
+train | epoch   0 | Iter:   2544/ 17440 | global iter:    160/  1090 | loss: 0.3519 | ds_loss: 0.1318 | lr: 9.9360e-05 | scale:     1.0000 | micro time: 0.457 | step time: 7.250
+train | epoch   0 | Iter:   2864/ 17440 | global iter:    180/  1090 | loss: 0.3311 | ds_loss: 0.1258 | lr: 9.8749e-05 | scale:     1.0000 | micro time: 0.458 | step time: 7.237
+train | epoch   0 | Iter:   3184/ 17440 | global iter:    200/  1090 | loss: 0.3170 | ds_loss: 0.1202 | lr: 9.7938e-05 | scale:     1.0000 | micro time: 0.459 | step time: 7.244

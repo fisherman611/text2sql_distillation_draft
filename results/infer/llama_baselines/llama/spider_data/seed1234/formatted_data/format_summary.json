@@ -1,0 +1,58 @@
+[
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_amid__ckpt872__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_amid__ckpt872__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_amid__ckpt872__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_amid__ckpt872__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_csd__ckpt654__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_csd__ckpt654__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_csd__ckpt654__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_csd__ckpt654__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_distillm__ckpt654__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_distillm__ckpt654__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_distillm__ckpt654__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_distillm__ckpt654__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_fkl__ckpt872__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_fkl__ckpt872__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_fkl__ckpt872__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_fkl__ckpt872__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_rkl__ckpt872__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_rkl__ckpt872__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_rkl__ckpt872__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_rkl__ckpt872__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_sfkl__ckpt654__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_sfkl__ckpt654__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_sfkl__ckpt654__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_sfkl__ckpt654__test.meta.jsonl"
+  },
+  {
+    "input": "results/infer/llama_baselines/llama/spider_data/seed1234/baselines__train_srkl__ckpt436__test__full_sql_result.json",
+    "rows": 2147,
+    "empty_pred": 0,
+    "pred": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_srkl__ckpt436__test.pred.sql",
+    "gold": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_srkl__ckpt436__test.gold.sql",
+    "meta": "results/infer/llama_baselines/llama/spider_data/seed1234/formatted_data/baselines__train_srkl__ckpt436__test.meta.jsonl"
+  }
+]

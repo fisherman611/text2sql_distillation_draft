@@ -1,0 +1,284 @@
+{
+  "source_total_records": 7000,
+  "run_total_records": 7000,
+  "accepted": 2735,
+  "rejected_final": 4265,
+  "terminal_rejected": 3,
+  "kept_over_source": "2735/7000",
+  "kept_over_run": "2735/7000",
+  "loops": [
+    {
+      "loop": 1,
+      "candidates": 7000,
+      "accepted": 635,
+      "rejected": 6365,
+      "rejection_reasons": {
+        "jaccard_too_high": 4904,
+        "execution_mismatch": 1129,
+        "candidate_execution_error": 304,
+        "empty_sql": 25,
+        "gold_execution_error": 3
+      },
+      "kept_total": 635,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "635/7000",
+      "kept_over_run": "635/7000",
+      "kept_source_ratio": 0.09071428571428572,
+      "kept_run_ratio": 0.09071428571428572,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6362,
+      "rejection_stages": {
+        "diversity_filter": 4904,
+        "execution_equivalence": 1129,
+        "execute_candidate_sql": 304,
+        "extract_candidate_sql": 25,
+        "execute_gold_sql": 3
+      },
+      "rejection_repairable": {
+        "True": 6362,
+        "False": 3
+      }
+    },
+    {
+      "loop": 2,
+      "candidates": 6362,
+      "accepted": 297,
+      "rejected": 6065,
+      "rejection_reasons": {
+        "jaccard_too_high": 4685,
+        "candidate_execution_error": 251,
+        "execution_mismatch": 1108,
+        "empty_sql": 21
+      },
+      "kept_total": 932,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "932/7000",
+      "kept_over_run": "932/7000",
+      "kept_source_ratio": 0.13314285714285715,
+      "kept_run_ratio": 0.13314285714285715,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 6065,
+      "rejection_stages": {
+        "diversity_filter": 4685,
+        "execute_candidate_sql": 251,
+        "execution_equivalence": 1108,
+        "extract_candidate_sql": 21
+      },
+      "rejection_repairable": {
+        "True": 6065
+      }
+    },
+    {
+      "loop": 3,
+      "candidates": 6065,
+      "accepted": 206,
+      "rejected": 5859,
+      "rejection_reasons": {
+        "jaccard_too_high": 4516,
+        "execution_mismatch": 1051,
+        "candidate_execution_error": 267,
+        "empty_sql": 25
+      },
+      "kept_total": 1138,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1138/7000",
+      "kept_over_run": "1138/7000",
+      "kept_source_ratio": 0.16257142857142856,
+      "kept_run_ratio": 0.16257142857142856,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5859,
+      "rejection_stages": {
+        "diversity_filter": 4516,
+        "execution_equivalence": 1051,
+        "execute_candidate_sql": 267,
+        "extract_candidate_sql": 25
+      },
+      "rejection_repairable": {
+        "True": 5859
+      }
+    },
+    {
+      "loop": 4,
+      "candidates": 5859,
+      "accepted": 141,
+      "rejected": 5718,
+      "rejection_reasons": {
+        "jaccard_too_high": 4432,
+        "execution_mismatch": 1029,
+        "candidate_execution_error": 230,
+        "empty_sql": 27
+      },
+      "kept_total": 1279,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1279/7000",
+      "kept_over_run": "1279/7000",
+      "kept_source_ratio": 0.18271428571428572,
+      "kept_run_ratio": 0.18271428571428572,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5718,
+      "rejection_stages": {
+        "diversity_filter": 4432,
+        "execution_equivalence": 1029,
+        "execute_candidate_sql": 230,
+        "extract_candidate_sql": 27
+      },
+      "rejection_repairable": {
+        "True": 5718
+      }
+    },
+    {
+      "loop": 5,
+      "candidates": 5718,
+      "accepted": 663,
+      "rejected": 5055,
+      "rejection_reasons": {
+        "execution_mismatch": 1023,
+        "jaccard_too_high": 3776,
+        "candidate_execution_error": 231,
+        "empty_sql": 25
+      },
+      "kept_total": 1942,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "1942/7000",
+      "kept_over_run": "1942/7000",
+      "kept_source_ratio": 0.2774285714285714,
+      "kept_run_ratio": 0.2774285714285714,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 5055,
+      "rejection_stages": {
+        "execution_equivalence": 1023,
+        "diversity_filter": 3776,
+        "execute_candidate_sql": 231,
+        "extract_candidate_sql": 25
+      },
+      "rejection_repairable": {
+        "True": 5055
+      }
+    },
+    {
+      "loop": 6,
+      "candidates": 5055,
+      "accepted": 342,
+      "rejected": 4713,
+      "rejection_reasons": {
+        "jaccard_too_high": 3509,
+        "execution_mismatch": 970,
+        "candidate_execution_error": 218,
+        "empty_sql": 16
+      },
+      "kept_total": 2284,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "2284/7000",
+      "kept_over_run": "2284/7000",
+      "kept_source_ratio": 0.3262857142857143,
+      "kept_run_ratio": 0.3262857142857143,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 4713,
+      "rejection_stages": {
+        "diversity_filter": 3509,
+        "execution_equivalence": 970,
+        "execute_candidate_sql": 218,
+        "extract_candidate_sql": 16
+      },
+      "rejection_repairable": {
+        "True": 4713
+      }
+    },
+    {
+      "loop": 7,
+      "candidates": 4713,
+      "accepted": 205,
+      "rejected": 4508,
+      "rejection_reasons": {
+        "jaccard_too_high": 3377,
+        "execution_mismatch": 924,
+        "candidate_execution_error": 189,
+        "empty_sql": 18
+      },
+      "kept_total": 2489,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "2489/7000",
+      "kept_over_run": "2489/7000",
+      "kept_source_ratio": 0.3555714285714286,
+      "kept_run_ratio": 0.3555714285714286,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 4508,
+      "rejection_stages": {
+        "diversity_filter": 3377,
+        "execution_equivalence": 924,
+        "execute_candidate_sql": 189,
+        "extract_candidate_sql": 18
+      },
+      "rejection_repairable": {
+        "True": 4508
+      }
+    },
+    {
+      "loop": 8,
+      "candidates": 4508,
+      "accepted": 152,
+      "rejected": 4356,
+      "rejection_reasons": {
+        "jaccard_too_high": 3302,
+        "execution_mismatch": 865,
+        "candidate_execution_error": 173,
+        "empty_sql": 16
+      },
+      "kept_total": 2641,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "2641/7000",
+      "kept_over_run": "2641/7000",
+      "kept_source_ratio": 0.3772857142857143,
+      "kept_run_ratio": 0.3772857142857143,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 4356,
+      "rejection_stages": {
+        "diversity_filter": 3302,
+        "execution_equivalence": 865,
+        "execute_candidate_sql": 173,
+        "extract_candidate_sql": 16
+      },
+      "rejection_repairable": {
+        "True": 4356
+      }
+    },
+    {
+      "loop": 9,
+      "candidates": 4356,
+      "accepted": 94,
+      "rejected": 4262,
+      "rejection_reasons": {
+        "jaccard_too_high": 3174,
+        "execution_mismatch": 875,
+        "candidate_execution_error": 191,
+        "empty_sql": 22
+      },
+      "kept_total": 2735,
+      "source_total_records": 7000,
+      "run_total_records": 7000,
+      "kept_over_source": "2735/7000",
+      "kept_over_run": "2735/7000",
+      "kept_source_ratio": 0.39071428571428574,
+      "kept_run_ratio": 0.39071428571428574,
+      "terminal_rejected_total": 3,
+      "remaining_after_loop": 4262,
+      "rejection_stages": {
+        "diversity_filter": 3174,
+        "execution_equivalence": 875,
+        "execute_candidate_sql": 191,
+        "extract_candidate_sql": 22
+      },
+      "rejection_repairable": {
+        "True": 4262
+      }
+    }
+  ]
+}

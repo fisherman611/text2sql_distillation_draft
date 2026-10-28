@@ -1,0 +1,12 @@
+{
+  "seed": 10,
+  "benchmark": "spider_data",
+  "split": "test",
+  "db": "full",
+  "output_path": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/infer/synid_ce_keywords_weight_lora_218/qwen_updated_2/spider_data/seed10/synid_ce_keywords_weight_lora_218__train_g01__ckpt218__test__full_sql_result.json",
+  "train_script": "scripts/qwen_updated_2/synid_ce_keywords_weight_lora_218/train_g01.sh",
+  "ckpt_path": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/results/qwen3/synid_ce_keywords_weight_lora_218_train_g01_spider_synid_datalora218-e5-bs8-lr0.0001-G1-gridG01-k1-kd0.7-csd-tau0.05-a0.1-b0.1-k1_last_s27_t35-poolsc-keywords-lambda2.0-lora-16-64-0.1/218",
+  "ckpt_step": "218",
+  "checkpoint_metric": "exact_match",
+  "checkpoint_selection_log": "/home/ubuntu/aiskylimit_nothing/text2sql_distillation_draft/run_logs/20260721_083929/checkpoint_selection.jsonl"
+}

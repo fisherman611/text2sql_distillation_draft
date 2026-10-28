@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_INPUT = Path("benchmarks_2/synid_aug_v2/final_merged.jsonl")
-DEFAULT_OUTPUT = Path("processed_data/benchmarks/spider_data/synid_privileged/qwen/teacher_train.jsonl")
-DEFAULT_TRAIN_OUTPUT = Path("processed_data/benchmarks/spider_data/synid_privileged/qwen/train.jsonl")
+DEFAULT_INPUT = Path("benchmarks_2/spider_data/llama_synid_aug_v2_lora_436/final_merged.jsonl")
+DEFAULT_OUTPUT = Path("benchmarks_2/spider_data/format_data/llama_synid_aug_v2_lora_436/teacher_train.jsonl")
+DEFAULT_TRAIN_OUTPUT = Path("benchmarks_2/spider_data/format_data/llama_synid_aug_v2_lora_436/train.jsonl")
 DEFAULT_PROMPT_DIR = Path("prompts/single_turn/synid_teacher")
 
 

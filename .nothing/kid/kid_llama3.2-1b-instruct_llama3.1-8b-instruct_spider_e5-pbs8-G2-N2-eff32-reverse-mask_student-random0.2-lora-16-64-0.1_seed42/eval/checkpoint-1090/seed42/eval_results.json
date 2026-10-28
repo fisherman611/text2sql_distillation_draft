@@ -1,0 +1,82 @@
+{
+  "seed": 42,
+  "generated_at": "2026-07-26T02:44:16.361955+00:00",
+  "selection": {
+    "primary_metric": "Execution Accuracy",
+    "tie_breaker": "Exact Match"
+  },
+  "results": [
+    {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "benchmark": "spider_data",
+      "seed": 42,
+      "scores": {
+        "Exact Match": 0.503,
+        "Execution Accuracy": 0.565
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_data/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_data/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_data/seed42/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "benchmark": "spider_dk",
+      "seed": 42,
+      "scores": {
+        "Exact Match": 0.338,
+        "Execution Accuracy": 0.407
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_dk/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_dk/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_dk/seed42/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "benchmark": "spider_realistic",
+      "seed": 42,
+      "scores": {
+        "Exact Match": 0.388,
+        "Execution Accuracy": 0.443
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_realistic/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_realistic/seed42/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    },
+    {
+      "run_name": "kid_llama3.2_1b__ckpt1090__test",
+      "benchmark": "spider_syn",
+      "seed": 42,
+      "scores": {
+        "Exact Match": 0.37,
+        "Execution Accuracy": 0.444
+      },
+      "artifacts": {
+        "run_name": "kid_llama3.2_1b__ckpt1090__test",
+        "pred_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_syn/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.pred.sql",
+        "gold_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/preds/checkpoint-1090/spider_syn/seed42/formatted_data/kid_llama3.2_1b__ckpt1090__test.gold.sql",
+        "eval_log_path": ".nothing/kid/kid_llama3.2-1b-instruct_llama3.1-8b-instruct_spider_e5-pbs8-G2-N2-eff32-reverse-mask_student-random0.2-lora-16-64-0.1_seed42/eval/checkpoint-1090/spider_syn/seed42/kid_llama3.2_1b__ckpt1090__test.etype-all.timeout-60.log",
+        "ckpt_path": "",
+        "train_script": "",
+        "ckpt_step": ""
+      }
+    }
+  ]
+}
